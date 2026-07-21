@@ -115,7 +115,7 @@ export function LoginPage() {
             <p className="mt-4 max-w-md text-primary-foreground/80">{active.blurb}</p>
           </motion.div>
           <div className="text-xs text-primary-foreground/70">
-            Demo accounts: <b>admin / admin123</b>, <b>incharge / incharge123</b>, <b>student / student123</b>
+            {/* Demo accounts: <b>admin / admin123</b>, <b>incharge / incharge123</b>, <b>student / student123</b> */}
           </div>
         </div>
       </div>
