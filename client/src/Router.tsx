@@ -21,7 +21,8 @@ import { ThemesPage } from "@/pages/ThemesPage";
 import { LibraryDashboard } from "@/pages/LibraryDashboard";
 import { BooksPage } from "@/pages/BooksPage";
 import { BookDetailPage } from "@/pages/BookDetailPage";
-import { ThesisPage } from "@/pages/ThesisPage";
+import { InchargeThesisPage } from "@/pages/InchargeThesisPage";
+import { StudentThesisPage } from "@/pages/StudentThesisPage";
 import { ThesisDetailPage } from "@/pages/ThesisDetailPage";
 import { CategoriesPage } from "@/pages/CategoriesPage";
 
@@ -139,7 +140,7 @@ export function AppRouter() {
           path="/library/thesis"
           element={
             <RoleRoute role="incharge">
-              <ThesisPage hrefBase="/library/thesis" canManage />
+              <InchargeThesisPage />
             </RoleRoute>
           }
         />
@@ -205,7 +206,7 @@ export function AppRouter() {
           path="/student/thesis"
           element={
             <RoleRoute role="student">
-              <ThesisPage hrefBase="/student/thesis" canManage={false} />
+              <StudentThesisPage />
             </RoleRoute>
           }
         />
