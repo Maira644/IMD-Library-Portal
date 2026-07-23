@@ -21,7 +21,7 @@ export function ThesisForm({
 }) {
   const [form, setForm] = useState<Thesis>(
     initial ?? {
-      id: `TH-${Date.now()}`,
+      id: "",
       title: "",
       studentNames: [""],
       supervisor: "",
@@ -62,17 +62,31 @@ export function ThesisForm({
           onSubmit={(e) => {
             e.preventDefault();
             const kws = keywordsText.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 5);
-            if (!form.title.trim() || !form.studentNames[0]?.trim()) return;
+            if (
+              !form.id.trim() ||
+              !form.title.trim() ||
+              !form.studentNames[0]?.trim()
+            )
+              return;
             onSubmit({ ...form, keywords: kws });
             onOpenChange(false);
           }}
           className="grid gap-4 sm:grid-cols-2"
         >
-          <div className="sm:col-span-2">
+          <div>
+            <Label>Thesis ID *</Label>
+            <Input
+              value={form.id}
+              onChange={(e) => set("id", e.target.value)}
+              placeholder="e.g. TH-001"
+              required
+            />
+          </div>
+          <div>
             <Label>Title *</Label>
             <Input value={form.title} onChange={(e) => set("title", e.target.value)} required />
           </div>
-         <div className="sm:col-span-2">
+          <div className="sm:col-span-2">
             <Label>Student names (up to 4) *</Label>
             <div className="grid gap-2">
               {form.studentNames.map((name, i) => (
@@ -145,7 +159,7 @@ export function ThesisForm({
             <Label>Keywords (up to 5)</Label>
             <Input value={keywordsText} onChange={(e) => setKeywordsText(e.target.value)} />
           </div>
-         <div>
+          <div>
             <Label>Cover image</Label>
             <Input
               type="file"
