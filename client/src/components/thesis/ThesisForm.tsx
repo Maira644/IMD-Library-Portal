@@ -158,6 +158,7 @@ export function ThesisForm({
               onChange={(e) => set("id", e.target.value)}
               placeholder="e.g. TH-001"
               required
+              disabled={!!initial}
             />
           </div>
           <div>
