@@ -29,6 +29,7 @@ export function DataTable<T extends { id: string }>({
   searchKeys,
   toolbar,
   pageSize = 8,
+  onRowClick,
 }: {
   data: T[];
   columns: DataTableColumn<T>[];
@@ -36,6 +37,7 @@ export function DataTable<T extends { id: string }>({
   searchKeys?: (keyof T)[];
   toolbar?: ReactNode;
   pageSize?: number;
+  onRowClick?: (row: T) => void;
 }) {
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
@@ -121,10 +123,16 @@ export function DataTable<T extends { id: string }>({
               </TableRow>
             ) : (
               rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  onClick={() => onRowClick?.(row)}
+                  className={onRowClick ? "cursor-pointer hover:bg-muted/50" : undefined}
+                >
                   {columns.map((c) => (
                     <TableCell key={c.key} className={c.className}>
-                      {c.render ? c.render(row) : String((row as Record<string, unknown>)[c.key] ?? "")}
+                      {c.render
+                        ? c.render(row)
+                        : String((row as Record<string, unknown>)[c.key] ?? "")}
                     </TableCell>
                   ))}
                 </TableRow>
