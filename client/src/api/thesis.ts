@@ -59,3 +59,11 @@ export async function deleteThesis(thesisId: string) {
 
   return response.data;
 }
+
+// ==========================
+// GET SINGLE THESIS
+// ==========================
+export async function getThesisById(thesisId: string) {
+  const response = await API.get(`/thesis/${thesisId}`);
+  return response.data.thesis;
+}
