@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config.db import db
 from routes.auth import router as auth_router
+from routes.thesis import router as thesis_router
 
 app = FastAPI(
     title="Library Portal API",
@@ -21,6 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def home():
     return {
@@ -36,4 +38,7 @@ def health():
         "mongodb": "Connected"
     }
 
+
+# Register Routes
 app.include_router(auth_router)
+app.include_router(thesis_router)

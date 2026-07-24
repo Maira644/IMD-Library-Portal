@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mockCategories } from "@/data/mockCategories";
 import type { Thesis } from "@/types";
+import { createThesis, updateThesis } from "@/api/thesis";
 
 export function ThesisForm({
   open,
@@ -17,7 +18,7 @@ export function ThesisForm({
   open: boolean;
   onOpenChange: (v: boolean) => void;
   initial?: Thesis;
-  onSubmit: (data: Thesis) => void;
+  onSubmit: () => Promise<void>;
 }) {
   const [form, setForm] = useState<Thesis>(
     initial ?? {
@@ -25,7 +26,7 @@ export function ThesisForm({
       title: "",
       studentNames: [""],
       supervisor: "",
-      department: mockCategories[0].name,
+      department: "Industrial And Manufacturing",
       submissionYear: new Date().getFullYear(),
       category: mockCategories[0].name,
       abstract: "",
@@ -59,17 +60,94 @@ export function ThesisForm({
           <DialogTitle>{initial ? "Edit thesis" : "Add new thesis"}</DialogTitle>
         </DialogHeader>
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const kws = keywordsText.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 5);
-            if (
-              !form.id.trim() ||
-              !form.title.trim() ||
-              !form.studentNames[0]?.trim()
-            )
-              return;
-            onSubmit({ ...form, keywords: kws });
-            onOpenChange(false);
+          onSubmit={async (e) => {
+                        if (!e.currentTarget.checkValidity()) {
+                        return;
+                    }
+
+                    e.preventDefault();
+
+            const kws = keywordsText
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+              .slice(0, 5);
+
+            try {
+              const formData = new FormData();
+
+              formData.append("id", form.id);
+              formData.append("title", form.title);
+              formData.append(
+                "studentNames",
+                form.studentNames
+                  .filter((s) => s.trim())
+                  .join(",")
+              );
+              formData.append("supervisor", form.supervisor);
+              formData.append("department", form.department);
+              formData.append(
+                "submissionYear",
+                String(form.submissionYear)
+              );
+              formData.append("category", form.category);
+              formData.append("abstract", form.abstract);
+              formData.append(
+                "keywords",
+                kws.join(",")
+              );
+              formData.append("uploadedBy", form.uploadedBy);
+              formData.append("uploadDate", form.uploadDate);
+
+              if (coverFile) {
+                formData.append("cover", coverFile);
+              }
+
+              if (pdfFile) {
+                formData.append("pdf", pdfFile);
+              }
+
+              if (initial) {
+                await updateThesis(form.id, formData);
+              } else {
+                await createThesis(formData);
+              }
+
+              // Reset the form
+              setForm({
+                id: "",
+                title: "",
+                studentNames: [""],
+                supervisor: "",
+                department: "Industrial And Manufacturing",
+                submissionYear: new Date().getFullYear(),
+                category: mockCategories[0].name,
+                abstract: "",
+                keywords: [],
+                coverUrl: "",
+                pdfUrl: "",
+                uploadedBy: "You",
+                uploadDate: new Date().toISOString(),
+                views: 0,
+              });
+
+              setKeywordsText("");
+              setCoverFile(null);
+              setPdfFile(null);
+
+              await onSubmit();
+
+              onOpenChange(false);
+            } catch (err: any) {
+              console.error(err);
+
+              if (err.response) {
+                console.log("Backend Error:", err.response.data);
+                alert(JSON.stringify(err.response.data));
+              } else {
+                alert(err.message);
+              }
+            }
           }}
           className="grid gap-4 sm:grid-cols-2"
         >
@@ -127,20 +205,28 @@ export function ThesisForm({
           </div>
           <div>
             <Label>Supervisor</Label>
-            <Input value={form.supervisor} onChange={(e) => set("supervisor", e.target.value)} />
+            <Input
+              value={form.supervisor}
+              onChange={(e) => set("supervisor", e.target.value)}
+              required
+            />
           </div>
+          {/* Department */}
           <div>
-            <Label>Department</Label>
-            <Select value={form.department} onValueChange={(v) => set("department", v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {mockCategories.map((c) => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <Label>Department *</Label>
+            <Input
+              value="Industrial And Manufacturing"
+              readOnly
+            />
           </div>
           <div>
             <Label>Submission year</Label>
-            <Input type="number" value={form.submissionYear} onChange={(e) => set("submissionYear", Number(e.target.value))} />
+            <Input
+              type="number"
+              value={form.submissionYear}
+              onChange={(e) => set("submissionYear", Number(e.target.value))}
+              required
+            />
           </div>
           <div>
             <Label>Category</Label>
@@ -153,14 +239,23 @@ export function ThesisForm({
           </div>
           <div className="sm:col-span-2">
             <Label>Abstract</Label>
-            <Textarea rows={4} value={form.abstract} onChange={(e) => set("abstract", e.target.value)} />
+            <Textarea
+              rows={4}
+              value={form.abstract}
+              onChange={(e) => set("abstract", e.target.value)}
+              required
+            />
           </div>
           <div className="sm:col-span-2">
             <Label>Keywords (up to 5)</Label>
-            <Input value={keywordsText} onChange={(e) => setKeywordsText(e.target.value)} />
+            <Input
+              value={keywordsText}
+              onChange={(e) => setKeywordsText(e.target.value)}
+              required
+            />
           </div>
           <div>
-            <Label>Cover image</Label>
+            <Label>Cover image (optional)</Label>
             <Input
               type="file"
               accept="image/*"
@@ -170,8 +265,16 @@ export function ThesisForm({
                 if (file) set("coverUrl", URL.createObjectURL(file));
               }}
             />
-            {form.coverUrl && (
-              <img src={form.coverUrl} alt="Cover preview" className="mt-2 h-24 w-auto rounded border object-cover" />
+            {form.coverUrl ? (
+              <img
+                src={form.coverUrl}
+                alt="Cover preview"
+                className="mt-2 h-24 w-auto rounded border object-cover"
+              />
+            ) : (
+              <p className="mt-2 text-xs text-muted-foreground">
+                No cover image selected
+              </p>
             )}
           </div>
           <div>

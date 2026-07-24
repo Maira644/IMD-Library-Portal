@@ -22,6 +22,7 @@ try:
     admin_collection = db["admin"]
     incharge_collection = db["incharge"]
     student_collection = db["student"]
+    thesis_collection = db["thesis"]
 
     print("MongoDB Connected Successfully")
     print("Database:", DB_NAME)
