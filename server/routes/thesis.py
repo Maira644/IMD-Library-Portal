@@ -110,6 +110,25 @@ async def get_all_thesis():
         "thesis": theses
     }
 
+# ==========================
+# GET SINGLE THESIS
+# ==========================
+@router.get("/{thesis_id}")
+async def get_thesis_by_id(thesis_id: str):
+    thesis = thesis_collection.find_one({"id": thesis_id})
+
+    if not thesis:
+        raise HTTPException(
+            status_code=404,
+            detail="Thesis not found."
+        )
+
+    thesis["_id"] = str(thesis["_id"])
+
+    return {
+        "message": "Thesis fetched successfully.",
+        "thesis": thesis
+    }
 
 # ==========================
 # UPDATE THESIS

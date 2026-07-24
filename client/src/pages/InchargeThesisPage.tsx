@@ -28,8 +28,12 @@ import {
   deleteThesis,
 } from "@/api/thesis";
 
+import { useNavigate } from "react-router-dom"; // ADD
+
 export function InchargeThesisPage() {
+  const navigate = useNavigate(); // ADD
   const [items, setItems] = useState<Thesis[]>([]);
+  // ...rest stays the same
   const [q, setQ] = useState("");
   const [dept, setDept] = useState("all");
   const [openForm, setOpenForm] = useState(false);
@@ -112,31 +116,33 @@ export function InchargeThesisPage() {
       header: "",
       className: "w-12 text-right",
       render: (t) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="ghost">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
+        <div onClick={(e) => e.stopPropagation()}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => {
-                setEditing(t);
-                setOpenForm(true);
-              }}
-            >
-              Edit
-            </DropdownMenuItem>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  setEditing(t);
+                  setOpenForm(true);
+                }}
+              >
+                Edit
+              </DropdownMenuItem>
 
-            <DropdownMenuItem
-              className="text-destructive"
-              onClick={() => setDelId(t.id)}
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={() => setDelId(t.id)}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       ),
     },
   ];
@@ -193,6 +199,7 @@ export function InchargeThesisPage() {
         data={filtered}
         columns={columns}
         searchKeys={["title", "department"]}
+        onRowClick={(t) => navigate(`/library/thesis/${t.id}`)}
       />
 
       <ThesisForm
