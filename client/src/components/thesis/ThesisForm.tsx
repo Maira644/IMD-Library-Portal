@@ -30,6 +30,8 @@ export function ThesisForm({
       submissionYear: new Date().getFullYear(),
       category: mockCategories[0].name,
       abstract: "",
+      cabinetNo: "",
+      shelfNo: "",
       keywords: [],
       coverUrl: "",
       pdfUrl: "",
@@ -61,11 +63,11 @@ export function ThesisForm({
         </DialogHeader>
         <form
           onSubmit={async (e) => {
-                        if (!e.currentTarget.checkValidity()) {
-                        return;
-                    }
+            if (!e.currentTarget.checkValidity()) {
+              return;
+            }
 
-                    e.preventDefault();
+            e.preventDefault();
 
             const kws = keywordsText
               .split(",")
@@ -91,6 +93,8 @@ export function ThesisForm({
                 String(form.submissionYear)
               );
               formData.append("category", form.category);
+              formData.append("cabinetNo", form.cabinetNo);
+              formData.append("shelfNo", form.shelfNo);
               formData.append("abstract", form.abstract);
               formData.append(
                 "keywords",
@@ -123,6 +127,8 @@ export function ThesisForm({
                 submissionYear: new Date().getFullYear(),
                 category: mockCategories[0].name,
                 abstract: "",
+                cabinetNo: "",
+                shelfNo: "",
                 keywords: [],
                 coverUrl: "",
                 pdfUrl: "",
@@ -237,7 +243,27 @@ export function ThesisForm({
                 {mockCategories.map((c) => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
               </SelectContent>
             </Select>
-          </div>
+            </div>
+            <div>
+              <Label>Cabinet No *</Label>
+              <Input
+                value={form.cabinetNo}
+                onChange={(e) => set("cabinetNo", e.target.value)}
+                placeholder="e.g. Cabinet 1"
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Shelf No *</Label>
+              <Input
+                value={form.shelfNo}
+                onChange={(e) => set("shelfNo", e.target.value)}
+                placeholder="e.g. Shelf A"
+                required
+              />
+            </div>
+          
           <div className="sm:col-span-2">
             <Label>Abstract</Label>
             <Textarea

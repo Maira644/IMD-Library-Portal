@@ -71,6 +71,8 @@ export function StudentThesisDetailPage() {
         { label: "Department", value: t.department },
         { label: "Submission year", value: t.submissionYear },
         { label: "Category", value: t.category },
+        { label: "Cabinet No.", value: t.cabinetNo },
+        { label: "Shelf No.", value: t.shelfNo },
         { label: "Uploaded by", value: t.uploadedBy },
         {
           label: "Upload date",

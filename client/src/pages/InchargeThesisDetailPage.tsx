@@ -96,6 +96,8 @@ export function InchargeThesisDetailPage() {
         { label: "Department", value: thesis.department },
         { label: "Submission year", value: thesis.submissionYear },
         { label: "Category", value: thesis.category },
+        { label: "Cabinet No.", value: thesis.cabinetNo },
+        { label: "Shelf No.", value: thesis.shelfNo },
         { label: "Uploaded by", value: thesis.uploadedBy },
         { label: "Upload date", value: new Date(thesis.uploadDate).toLocaleDateString() },
       ]}
