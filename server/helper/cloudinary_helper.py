@@ -24,11 +24,12 @@ def upload_image(file):
 def upload_pdf(file):
     result = cloudinary.uploader.upload(
         file.file,
-        resource_type="raw",
+        resource_type="auto",
         folder="library/thesis/pdfs",
         use_filename=True,
         unique_filename=False,
         overwrite=True,
+        access_mode="public", signature="true",
     )
 
     return result["secure_url"]

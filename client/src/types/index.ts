@@ -42,6 +42,8 @@ export interface Thesis {
   submissionYear: number;
   category: string;
   abstract: string;
+  cabinetNo: string;
+  shelfNo: string;
   keywords: string[];
   coverUrl?: string;
   pdfUrl?: string;

@@ -11,6 +11,9 @@ class ThesisCreate(BaseModel):
     submissionYear: int
     category: str
     abstract: str
+    cabinetNo: str
+    shelfNo: str
+
     keywords: List[str]
     uploadedBy: str
     uploadDate: str
