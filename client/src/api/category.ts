@@ -30,3 +30,26 @@ export const createCategory = async (category: {
   const response = await API.post("/category/", category);
   return response.data;
 };
+
+// ==========================
+// UPDATE CATEGORY
+// ==========================
+export const updateCategory = async (
+  id: string,
+  category: {
+    name: string;
+    description: string;
+  }
+) => {
+  const response = await API.put(`/category/${id}`, category);
+  return response.data;
+};
+
+
+// ==========================
+// DELETE CATEGORY
+// ==========================
+export const deleteCategory = async (id: string) => {
+  const response = await API.delete(`/category/${id}`);
+  return response.data;
+};
