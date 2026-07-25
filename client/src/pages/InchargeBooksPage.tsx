@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Plus, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ export function InchargeBooksPage() {
   const [editing, setEditing] = useState<Book | undefined>();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { track } = useSearchTracker();
+  const navigate = useNavigate();
 
   const filtered = useMemo(() => {
     let list = books;
@@ -78,15 +80,33 @@ export function InchargeBooksPage() {
       className: "w-12 text-right",
       render: (b) =>
         CAN_MANAGE ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /></Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => { setEditing(b); setOpenForm(true); }}>Edit</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive" onClick={() => setDeletingId(b.id)}>Delete</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div onClick={(e) => e.stopPropagation()}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /></Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setEditing(b);
+                    setTimeout(() => setOpenForm(true), 0);
+                  }}
+                >
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setTimeout(() => setDeletingId(b.id), 0);
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         ) : null,
     },
   ];
@@ -129,7 +149,12 @@ export function InchargeBooksPage() {
         <div className="flex rounded-md border border-border" />
       </div>
 
-      <DataTable data={filtered} columns={columns} searchKeys={["title", "author", "category"]} />
+      <DataTable
+        data={filtered}
+        columns={columns}
+        searchKeys={["title", "author", "category"]}
+        onRowClick={(book) => navigate(`${HREF_BASE}/${book.id}`)}
+      />
 
       <BookForm
         open={openForm}
