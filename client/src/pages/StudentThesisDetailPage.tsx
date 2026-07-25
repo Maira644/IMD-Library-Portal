@@ -61,9 +61,15 @@ export function StudentThesisDetailPage() {
     );
   }
 
+  // Cloudinary display transformation (original image remains unchanged)
+  const displayCover = t.coverUrl?.replace(
+    "/upload/",
+    "/upload/c_pad,w_400,h_600,b_white/"
+  );
+
   return (
     <ResourceDetail
-      cover={t.coverUrl}
+      cover={displayCover}
       title={t.title}
       subtitle={`by ${t.studentNames.join(", ")} · Supervised by ${t.supervisor}`}
       meta={[
