@@ -12,7 +12,7 @@ import { NotFoundPage } from "@/pages/NotFoundPage";
 
 import { AdminDashboard } from "@/pages/AdminDashboard";
 import { AnalyticsPage } from "@/pages/AnalyticsPage";
-import { AnnouncementsPage } from "@/pages/AnnouncementsPage";
+import { AdminAnnouncementPage } from "@/pages/AdminAnnouncementPage";
 import { InchargesPage } from "@/pages/InchargesPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { SettingsPage } from "@/pages/SettingsPage";
@@ -27,6 +27,8 @@ import { InchargeThesisPage } from "@/pages/InchargeThesisPage";
 import { StudentThesisPage } from "@/pages/StudentThesisPage";
 import { InchargeThesisDetailPage } from "@/pages/InchargeThesisDetailPage";
 import { StudentThesisDetailPage } from "@/pages/StudentThesisDetailPage";
+import { InchargeAnnouncementPage } from "@/pages/InchargeAnnouncementPage";
+import { StudentAnnouncementPage } from "@/pages/StudentAnnouncementPage";
 import { CategoriesPage } from "@/pages/CategoriesPage";
 
 import { StudentDashboard } from "@/pages/StudentDashboard";
@@ -85,7 +87,7 @@ export function AppRouter() {
           path="/admin/announcements"
           element={
             <RoleRoute role="admin">
-              <AnnouncementsPage canManage />
+              <AdminAnnouncementPage />
             </RoleRoute>
           }
         />
@@ -167,7 +169,7 @@ export function AppRouter() {
           path="/library/announcements"
           element={
             <RoleRoute role="incharge">
-              <AnnouncementsPage canManage />
+              <InchargeAnnouncementPage />
             </RoleRoute>
           }
         />
@@ -225,7 +227,7 @@ export function AppRouter() {
           path="/student/announcements"
           element={
             <RoleRoute role="student">
-              <AnnouncementsPage canManage={false} />
+              <StudentAnnouncementPage />
             </RoleRoute>
           }
         />
