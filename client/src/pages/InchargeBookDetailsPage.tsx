@@ -3,7 +3,9 @@ import { mockBooks } from "@/data/mockBooks";
 import { ResourceDetail } from "@/components/shared/ResourceDetail";
 import { BookCard } from "@/components/book/BookCard";
 
-export function BookDetailPage({ hrefBase }: { hrefBase: string }) {
+const HREF_BASE = "/library/books";
+
+export function InchargeBookDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const book = mockBooks.find((b) => b.id === id);
   if (!book) {
@@ -32,7 +34,7 @@ export function BookDetailPage({ hrefBase }: { hrefBase: string }) {
       pdfUrl={book.pdfUrl}
       related={
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {related.map((b) => <BookCard key={b.id} book={b} hrefBase={hrefBase} />)}
+          {related.map((b) => <BookCard key={b.id} book={b} hrefBase={HREF_BASE} />)}
         </div>
       }
     />
