@@ -86,8 +86,24 @@ export function InchargeBooksPage() {
                 <Button size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /></Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => { setEditing(b); setOpenForm(true); }}>Edit</DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive" onClick={() => setDeletingId(b.id)}>Delete</DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setEditing(b);
+                    setTimeout(() => setOpenForm(true), 0);
+                  }}
+                >
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setTimeout(() => setDeletingId(b.id), 0);
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
