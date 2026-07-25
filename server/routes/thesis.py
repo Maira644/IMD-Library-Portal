@@ -6,7 +6,7 @@ from fastapi import (
     HTTPException,
 )
 
-from config.db import thesis_collection
+from config.db import thesis_collection, category_collection
 from helper.cloudinary_helper import upload_image, upload_pdf
 
 router = APIRouter(
@@ -28,7 +28,7 @@ async def create_thesis(
     submissionYear: int = Form(...),
     category: str = Form(...),
     cabinetNo: str = Form(...),
-shelfNo: str = Form(...),
+    shelfNo: str = Form(...),
     abstract: str = Form(...),
     keywords: str = Form(...),
     uploadedBy: str = Form(...),
@@ -90,6 +90,12 @@ shelfNo: str = Form(...),
     }
 
     result = thesis_collection.insert_one(thesis)
+
+    # Increase category count
+    category_collection.update_one(
+        {"name": category},
+        {"$inc": {"count": 1}}
+    )
 
     thesis["_id"] = str(result.inserted_id)
 

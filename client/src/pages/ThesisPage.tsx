@@ -19,11 +19,12 @@ import {
 } from "@/components/ui/select";
 import { ThesisForm } from "@/components/thesis/ThesisForm";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
-import { mockCategories } from "@/data/mockCategories";
+import { getCategories } from "@/api/category";
 import type { Thesis } from "@/types";
 import { toast } from "sonner";
 import { useSearchTracker } from "@/contexts/SearchContext";
 import { getAllThesis } from "@/api/thesis";
+import type { Category } from "@/types";
 
 export function ThesisPage({
   hrefBase,
@@ -38,12 +39,14 @@ export function ThesisPage({
   const [openForm, setOpenForm] = useState(false);
   const [editing, setEditing] = useState<Thesis | undefined>();
   const [delId, setDelId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const { track } = useSearchTracker();
 
   // Load thesis on page load
   useEffect(() => {
     fetchThesis();
+    fetchCategories();
   }, []);
 
   const fetchThesis = async () => {
@@ -52,6 +55,15 @@ export function ThesisPage({
       setItems(response.thesis);
     } catch (error) {
       console.error("Failed to fetch thesis:", error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const categories = await getCategories();
+      setCategories(categories);
+    } catch (error) {
+      console.error("Failed to fetch categories:", error);
     }
   };
 
@@ -190,7 +202,7 @@ export function ThesisPage({
           <SelectContent>
             <SelectItem value="all">All departments</SelectItem>
 
-            {mockCategories.map((c) => (
+            {categories.map((c) => (
               <SelectItem key={c.id} value={c.name}>
                 {c.name}
               </SelectItem>
