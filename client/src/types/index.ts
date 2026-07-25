@@ -16,13 +16,12 @@ export interface Book {
   id: string;
   title: string;
   author: string;
-  isbn?: string;
-  publisher: string;
+  publisher?: string;
   edition?: string;
-  publicationYear: number;
-  language: string;
-  category: string;
-  description: string;
+  publicationYear?: number;
+  category?: string;
+  cabinetNo?: string;
+  shelfNo?: string;
   keywords: string[];
   coverUrl?: string;
   pdfUrl?: string;
