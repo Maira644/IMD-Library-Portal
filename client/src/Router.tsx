@@ -19,8 +19,10 @@ import { SettingsPage } from "@/pages/SettingsPage";
 import { ThemesPage } from "@/pages/ThemesPage";
 
 import { LibraryDashboard } from "@/pages/LibraryDashboard";
-import { BooksPage } from "@/pages/BooksPage";
-import { BookDetailPage } from "@/pages/BookDetailPage";
+import { InchargeBooksPage } from "@/pages/InchargeBooksPage";
+import { InchargeBookDetailsPage } from "@/pages/InchargeBookDetailsPage";
+import { StudentBooksPage } from "@/pages/StudentBooksPage";
+import { StudentBookDetailsPage } from "@/pages/StudentBookDetailsPage";
 import { InchargeThesisPage } from "@/pages/InchargeThesisPage";
 import { StudentThesisPage } from "@/pages/StudentThesisPage";
 import { InchargeThesisDetailPage } from "@/pages/InchargeThesisDetailPage";
@@ -125,7 +127,7 @@ export function AppRouter() {
           path="/library/books"
           element={
             <RoleRoute role="incharge">
-              <BooksPage hrefBase="/library/books" canManage />
+              <InchargeBooksPage />
             </RoleRoute>
           }
         />
@@ -133,7 +135,7 @@ export function AppRouter() {
           path="/library/books/:id"
           element={
             <RoleRoute role="incharge">
-              <BookDetailPage hrefBase="/library/books" />
+              <InchargeBookDetailsPage />
             </RoleRoute>
           }
         />
@@ -191,7 +193,7 @@ export function AppRouter() {
           path="/student/books"
           element={
             <RoleRoute role="student">
-              <BooksPage hrefBase="/student/books" canManage={false} />
+              <StudentBooksPage />
             </RoleRoute>
           }
         />
@@ -199,7 +201,7 @@ export function AppRouter() {
           path="/student/books/:id"
           element={
             <RoleRoute role="student">
-              <BookDetailPage hrefBase="/student/books" />
+              <StudentBookDetailsPage />
             </RoleRoute>
           }
         />

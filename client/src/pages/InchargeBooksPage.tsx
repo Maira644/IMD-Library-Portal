@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Plus, List, Filter } from "lucide-react";
+import { Plus, Filter } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -18,12 +18,14 @@ import { useSearchTracker } from "@/contexts/SearchContext";
 import type { Book } from "@/types";
 import { toast } from "sonner";
 
-export function BooksPage({ hrefBase, canManage }: { hrefBase: string; canManage: boolean }) {
+const HREF_BASE = "/library/books";
+const CAN_MANAGE = true;
+
+export function InchargeBooksPage() {
   const [books, setBooks] = useState<Book[]>(mockBooks);
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [sort, setSort] = useState<"newest" | "oldest" | "views">("newest");
-  const [view, setView] = useState<"grid" | "table">("grid");
   const [openForm, setOpenForm] = useState(false);
   const [editing, setEditing] = useState<Book | undefined>();
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -75,7 +77,7 @@ export function BooksPage({ hrefBase, canManage }: { hrefBase: string; canManage
       header: "",
       className: "w-12 text-right",
       render: (b) =>
-        canManage ? (
+        CAN_MANAGE ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /></Button>
@@ -93,13 +95,11 @@ export function BooksPage({ hrefBase, canManage }: { hrefBase: string; canManage
     <div>
       <PageHeader
         title="Books"
-        description={canManage ? "Manage the book catalog for students." : "Browse the university book catalog."}
+        description="Manage the book catalog for students."
         actions={
-          canManage && (
-            <Button onClick={() => { setEditing(undefined); setOpenForm(true); }}>
-              <Plus className="mr-2 h-4 w-4" /> Add book
-            </Button>
-          )
+          <Button onClick={() => { setEditing(undefined); setOpenForm(true); }}>
+            <Plus className="mr-2 h-4 w-4" /> Add book
+          </Button>
         }
       />
 
@@ -126,24 +126,11 @@ export function BooksPage({ hrefBase, canManage }: { hrefBase: string; canManage
             <SelectItem value="views">Most viewed</SelectItem>
           </SelectContent>
         </Select>
-        <div className="flex rounded-md border border-border">
-          {/* <Button size="icon" variant={view === "grid" ? "secondary" : "ghost"} onClick={() => setView("grid")}>
-            <Grid3x3 className="h-4 w-4" />
-          </Button> */}
-          {/* <Button size="icon" variant={view === "table" ? "secondary" : "ghost"} onClick={() => setView("table")}>
-            <List className="h-4 w-4" />
-          </Button> */}
-        </div>
+        <div className="flex rounded-md border border-border" />
       </div>
 
-      {/* {view === "grid" ? (
-        <motion.div layout className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {filtered.map((b) => <BookCard key={b.id} book={b} hrefBase={hrefBase} />)}
-        </motion.div>
-      ) : (
-        <DataTable data={filtered} columns={columns} searchKeys={["title", "author", "category"]} />
-      )} */}
       <DataTable data={filtered} columns={columns} searchKeys={["title", "author", "category"]} />
+
       <BookForm
         open={openForm}
         onOpenChange={setOpenForm}
