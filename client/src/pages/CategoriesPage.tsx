@@ -26,7 +26,13 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import type { Category } from "@/types";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { getCategories, createCategory } from "@/api/category";
+
+import {
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from "@/api/category";
 
 export function CategoriesPage() {
   const [items, setItems] = useState<Category[]>([]);
@@ -34,13 +40,15 @@ export function CategoriesPage() {
   const [editing, setEditing] = useState<Category | undefined>();
   const [delId, setDelId] = useState<string | null>(null);
 
-  const [form, setForm] = useState<Category>({
+  const emptyForm: Category = {
     id: "",
     name: "",
     description: "",
     count: 0,
     createdAt: new Date().toISOString(),
-  });
+  };
+
+  const [form, setForm] = useState<Category>(emptyForm);
 
   useEffect(() => {
     fetchCategories();
@@ -52,8 +60,10 @@ export function CategoriesPage() {
       setItems(categories);
     } catch (error) {
       console.error(error);
+      toast.error("Failed to load categories.");
     }
   };
+
   const cols: DataTableColumn<Category>[] = [
     {
       key: "name",
@@ -129,13 +139,7 @@ export function CategoriesPage() {
           <Button
             onClick={() => {
               setEditing(undefined);
-              setForm({
-                id: "",
-                name: "",
-                description: "",
-                count: 0,
-                createdAt: new Date().toISOString(),
-              });
+              setForm(emptyForm);
               setOpen(true);
             }}
           >
@@ -151,58 +155,66 @@ export function CategoriesPage() {
         searchKeys={["name", "description"]}
       />
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(value) => {
+          setOpen(value);
+
+          if (!value) {
+            setEditing(undefined);
+            setForm(emptyForm);
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editing ? "Edit category" : "New category"}
+              {editing ? "Edit Category" : "New Category"}
             </DialogTitle>
           </DialogHeader>
 
           <form
+            className="space-y-4"
             onSubmit={async (e) => {
               e.preventDefault();
 
               if (!form.name.trim()) {
                 toast.error("Category name is required.");
                 return;
-            }
-
-            try {
-              if (editing) {
-                toast.info("Update will be implemented later.");
-                return;
               }
 
-              await createCategory({
-                name: form.name,
-                description: form.description ?? "",
-              });
+              try {
+                if (editing) {
+                  await updateCategory(editing.id, {
+                    name: form.name,
+                    description: form.description ?? "",
+                  });
 
-              toast.success("Category created successfully");
+                  toast.success("Category updated successfully.");
+                } else {
+                  await createCategory({
+                    name: form.name,
+                    description: form.description ?? "",
+                  });
 
-              await fetchCategories();
+                  toast.success("Category created successfully.");
+                }
 
-              setForm({
-                id: "",
-                name: "",
-                description: "",
-                count: 0,
-                createdAt: new Date().toISOString(),
-              });
+                await fetchCategories();
 
-              setOpen(false);
-            } catch (error: any) {
-              console.error(error);
+                setEditing(undefined);
+                setForm(emptyForm);
+                setOpen(false);
+              } catch (error: any) {
+                console.error(error);
 
-              if (error.response) {
-                toast.error(error.response.data.detail);
-              } else {
-                toast.error("Something went wrong.");
+                if (error.response) {
+                  toast.error(error.response.data.detail);
+                } else {
+                  toast.error("Something went wrong.");
+                }
               }
-            }
             }}
-            className="space-y-4"
           >
             <div>
               <Label>Name *</Label>
@@ -215,7 +227,6 @@ export function CategoriesPage() {
                     name: e.target.value,
                   })
                 }
-                required
               />
             </div>
 
@@ -238,7 +249,11 @@ export function CategoriesPage() {
               <Button
                 variant="outline"
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpen(false);
+                  setEditing(undefined);
+                  setForm(emptyForm);
+                }}
               >
                 Cancel
               </Button>
@@ -254,13 +269,26 @@ export function CategoriesPage() {
       <ConfirmDialog
         open={!!delId}
         onOpenChange={(v) => !v && setDelId(null)}
-        onConfirm={() => {
-          setItems((prev) =>
-            prev.filter((c) => c.id !== delId)
-          );
+        onConfirm={async () => {
+          if (!delId) return;
 
-          toast.success("Category deleted");
-          setDelId(null);
+          try {
+            await deleteCategory(delId);
+
+            toast.success("Category deleted successfully.");
+
+            await fetchCategories();
+
+            setDelId(null);
+          } catch (error: any) {
+            console.error(error);
+
+            if (error.response) {
+              toast.error(error.response.data.detail);
+            } else {
+              toast.error("Something went wrong.");
+            }
+          }
         }}
       />
     </div>

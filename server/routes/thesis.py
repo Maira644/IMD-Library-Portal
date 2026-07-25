@@ -154,7 +154,7 @@ async def update_thesis(
     submissionYear: int = Form(...),
     category: str = Form(...),
     cabinetNo: str = Form(...),
-shelfNo: str = Form(...),
+    shelfNo: str = Form(...),
     abstract: str = Form(...),
     keywords: str = Form(...),
     uploadedBy: str = Form(...),
@@ -163,7 +163,7 @@ shelfNo: str = Form(...),
     cover: UploadFile | None = File(None),
     pdf: UploadFile | None = File(None),
 ):
-    # Find thesis
+
     existing = thesis_collection.find_one({"id": thesis_id})
 
     if not existing:
@@ -172,7 +172,10 @@ shelfNo: str = Form(...),
             detail="Thesis not found."
         )
 
-    # Convert comma-separated strings into lists
+    # Store old category
+    old_category = existing["category"]
+
+    # Convert strings into lists
     student_names = [
         name.strip()
         for name in studentNames.split(",")
@@ -185,13 +188,13 @@ shelfNo: str = Form(...),
         if keyword.strip()
     ]
 
-    # Keep existing cover unless a new one is uploaded
+    # Keep old cover if not changed
     cover_url = existing["coverUrl"]
 
     if cover:
         cover_url = upload_image(cover.file)
 
-    # Keep existing PDF unless a new one is uploaded
+    # Keep old PDF if not changed
     pdf_url = existing["pdfUrl"]
 
     if pdf:
@@ -204,8 +207,8 @@ shelfNo: str = Form(...),
         "department": department,
         "submissionYear": submissionYear,
         "category": category,
-         "cabinetNo": cabinetNo,
-    "shelfNo": shelfNo,
+        "cabinetNo": cabinetNo,
+        "shelfNo": shelfNo,
         "abstract": abstract,
         "keywords": keyword_list,
         "coverUrl": cover_url,
@@ -219,8 +222,20 @@ shelfNo: str = Form(...),
         {"$set": updated_data}
     )
 
-    updated = thesis_collection.find_one({"id": thesis_id})
+    # Update category counts only if category changed
+    if old_category != category:
 
+        category_collection.update_one(
+            {"name": old_category},
+            {"$inc": {"count": -1}}
+        )
+
+        category_collection.update_one(
+            {"name": category},
+            {"$inc": {"count": 1}}
+        )
+
+    updated = thesis_collection.find_one({"id": thesis_id})
     updated["_id"] = str(updated["_id"])
 
     return {
@@ -229,12 +244,14 @@ shelfNo: str = Form(...),
     }
 
 
+
+
 # ==========================
 # DELETE THESIS
 # ==========================
 @router.delete("/{thesis_id}")
 async def delete_thesis(thesis_id: str):
-    # Find thesis by custom Thesis ID
+
     thesis = thesis_collection.find_one({"id": thesis_id})
 
     if not thesis:
@@ -243,8 +260,16 @@ async def delete_thesis(thesis_id: str):
             detail="Thesis not found."
         )
 
+    # Decrease category count
+    category_collection.update_one(
+        {"name": thesis["category"]},
+        {"$inc": {"count": -1}}
+    )
+
     thesis_collection.delete_one({"id": thesis_id})
 
     return {
         "message": "Thesis deleted successfully."
     }
+
+

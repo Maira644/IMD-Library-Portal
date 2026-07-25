@@ -99,3 +99,78 @@ async def get_category_by_id(category_id: str):
         "message": "Category fetched successfully.",
         "category": category
     }
+
+# ==========================
+# UPDATE CATEGORY
+# ==========================
+@router.put("/{category_id}")
+async def update_category(category_id: str, category: CategoryCreate):
+
+    # Check if category exists
+    existing = category_collection.find_one({
+        "id": category_id
+    })
+
+    if not existing:
+        raise HTTPException(
+            status_code=404,
+            detail="Category not found."
+        )
+
+    # Check duplicate name
+    duplicate = category_collection.find_one({
+        "id": {"$ne": category_id},
+        "name": {
+            "$regex": f"^{category.name}$",
+            "$options": "i"
+        }
+    })
+
+    if duplicate:
+        raise HTTPException(
+            status_code=400,
+            detail="Category already exists."
+        )
+
+    category_collection.update_one(
+        {"id": category_id},
+        {
+            "$set": {
+                "name": category.name,
+                "description": category.description
+            }
+        }
+    )
+
+    updated = category_collection.find_one({
+        "id": category_id
+    })
+
+    updated["_id"] = str(updated["_id"])
+
+    return {
+        "message": "Category updated successfully.",
+        "category": updated
+    }
+
+# ==========================
+# DELETE CATEGORY
+# ==========================
+@router.delete("/{category_id}")
+async def delete_category(category_id: str):
+
+    # Check if category exists
+    category = category_collection.find_one({"id": category_id})
+
+    if not category:
+        raise HTTPException(
+            status_code=404,
+            detail="Category not found."
+        )
+
+    # Delete category
+    category_collection.delete_one({"id": category_id})
+
+    return {
+        "message": "Category deleted successfully."
+    }
