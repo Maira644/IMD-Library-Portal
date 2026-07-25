@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -25,13 +24,12 @@ export function BookForm({
       id: `BK-${Date.now()}`,
       title: "",
       author: "",
-      isbn: "",
       publisher: "",
       edition: "",
       publicationYear: new Date().getFullYear(),
-      language: "English",
       category: mockCategories[0].name,
-      description: "",
+      cabinetNo: "",
+      shelfNo: "",
       keywords: [],
       coverUrl: "",
       pdfUrl: "",
@@ -78,9 +76,6 @@ export function BookForm({
           <Field label="Author" required>
             <Input value={form.author} onChange={(e) => set("author", e.target.value)} required />
           </Field>
-          <Field label="ISBN">
-            <Input value={form.isbn} onChange={(e) => set("isbn", e.target.value)} />
-          </Field>
           <Field label="Publisher">
             <Input value={form.publisher} onChange={(e) => set("publisher", e.target.value)} />
           </Field>
@@ -93,9 +88,6 @@ export function BookForm({
               value={form.publicationYear}
               onChange={(e) => set("publicationYear", Number(e.target.value))}
             />
-          </Field>
-          <Field label="Language">
-            <Input value={form.language} onChange={(e) => set("language", e.target.value)} />
           </Field>
           <Field label="Category">
             <Select value={form.category} onValueChange={(v) => set("category", v)}>
@@ -111,18 +103,15 @@ export function BookForm({
               </SelectContent>
             </Select>
           </Field>
-          <div className="sm:col-span-2">
-            <Field label="Description">
-              <Textarea
-                rows={3}
-                value={form.description}
-                onChange={(e) => set("description", e.target.value)}
-              />
-            </Field>
-          </div>
+          <Field label="Cabinet No.">
+            <Input placeholder="e.g. Cabinet 1" value={form.cabinetNo} onChange={(e) => set("cabinetNo", e.target.value)} />
+          </Field>
+          <Field label="Shelf No.">
+            <Input placeholder="e.g. Shelf A" value={form.shelfNo} onChange={(e) => set("shelfNo", e.target.value)} />
+          </Field>
           <div className="sm:col-span-2">
             <Field label="Keywords (up to 5, comma-separated)">
-              <Input value={keywordsText} onChange={(e) => setKeywordsText(e.target.value)} />
+              <Input placeholder="Enter keywords separated by commas" value={keywordsText} onChange={(e) => setKeywordsText(e.target.value)} />
             </Field>
           </div>
           <div>
