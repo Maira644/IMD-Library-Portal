@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import { mockCategories } from "@/data/mockCategories";
 import { useSearchTracker } from "@/contexts/SearchContext";
 import type { Book } from "@/types";
 
-const HREF_BASE = "/student/library/books";
+const HREF_BASE = "/student/books";
 
 export function StudentBooksPage() {
   const [books] = useState<Book[]>(mockBooks);
@@ -20,6 +21,7 @@ export function StudentBooksPage() {
   const [category, setCategory] = useState<string>("all");
   const [sort, setSort] = useState<"newest" | "oldest" | "views">("newest");
   const { track } = useSearchTracker();
+  const navigate = useNavigate();
 
   const filtered = useMemo(() => {
     let list = books;
@@ -94,7 +96,12 @@ export function StudentBooksPage() {
         <div className="flex rounded-md border border-border" />
       </div>
 
-      <DataTable data={filtered} columns={columns} searchKeys={["title", "author", "category"]} />
+      <DataTable
+        data={filtered}
+        columns={columns}
+        searchKeys={["title", "author", "category"]}
+        onRowClick={(book) => navigate(`${HREF_BASE}/${book.id}`)}
+      />
     </div>
   );
 }
