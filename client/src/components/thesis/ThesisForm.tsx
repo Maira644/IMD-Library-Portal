@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockCategories } from "@/data/mockCategories";
+import { getCategories } from "@/api/category";
+import type { Category } from "@/types";
 import type { Thesis } from "@/types";
 import { createThesis, updateThesis } from "@/api/thesis";
 
@@ -28,7 +29,7 @@ export function ThesisForm({
       supervisor: "",
       department: "Industrial And Manufacturing",
       submissionYear: new Date().getFullYear(),
-      category: mockCategories[0].name,
+      category: "",
       abstract: "",
       cabinetNo: "",
       shelfNo: "",
@@ -43,6 +44,7 @@ export function ThesisForm({
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [keywordsText, setKeywordsText] = useState(form.keywords.join(", "));
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     if (initial) {
@@ -50,6 +52,27 @@ export function ThesisForm({
       setKeywordsText(initial.keywords.join(", "));
     }
   }, [initial]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const data = await getCategories();
+        setCategories(data);
+
+        // Set the first category automatically
+        if (!initial && data.length > 0) {
+          setForm((prev) => ({
+            ...prev,
+            category: data[0].name,
+          }));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchCategories();
+  }, []);
 
   function set<K extends keyof Thesis>(k: K, v: Thesis[K]) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -125,7 +148,7 @@ export function ThesisForm({
                 supervisor: "",
                 department: "Industrial And Manufacturing",
                 submissionYear: new Date().getFullYear(),
-                category: mockCategories[0].name,
+                category: "",
                 abstract: "",
                 cabinetNo: "",
                 shelfNo: "",
@@ -240,29 +263,33 @@ export function ThesisForm({
             <Select value={form.category} onValueChange={(v) => set("category", v)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                {mockCategories.map((c) => <SelectItem key={c.id} value={c.name}>{c.name}</SelectItem>)}
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={c.name}>
+                    {c.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            </div>
-            <div>
-              <Label>Cabinet No *</Label>
-              <Input
-                value={form.cabinetNo}
-                onChange={(e) => set("cabinetNo", e.target.value)}
-                placeholder="e.g. Cabinet 1"
-                required
-              />
-            </div>
+          </div>
+          <div>
+            <Label>Cabinet No *</Label>
+            <Input
+              value={form.cabinetNo}
+              onChange={(e) => set("cabinetNo", e.target.value)}
+              placeholder="e.g. Cabinet 1"
+              required
+            />
+          </div>
 
-            <div>
-              <Label>Shelf No *</Label>
-              <Input
-                value={form.shelfNo}
-                onChange={(e) => set("shelfNo", e.target.value)}
-                placeholder="e.g. Shelf A"
-                required
-              />
-            </div>
+          <div>
+            <Label>Shelf No *</Label>
+            <Input
+              value={form.shelfNo}
+              onChange={(e) => set("shelfNo", e.target.value)}
+              placeholder="e.g. Shelf A"
+              required
+            />
+          </div>
           
           <div className="sm:col-span-2">
             <Label>Abstract</Label>
