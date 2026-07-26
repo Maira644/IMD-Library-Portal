@@ -23,6 +23,7 @@ try:
     incharge_collection = db["incharge"]
     student_collection = db["student"]
     thesis_collection = db["thesis"]
+    book_collection = db["books"] 
     category_collection = db["categories"]
     announcement_collection = db["announcements"]
 
@@ -31,3 +32,5 @@ try:
 
 except Exception as e:
     print("MongoDB Connection Error:", e)
+
+    

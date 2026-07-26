@@ -18,6 +18,8 @@ export function InchargeThesisDetailPage() {
       try {
         setLoading(true);
 
+        if (!id) return;
+
         const t = await getThesisById(id);
         setThesis(t);
 
