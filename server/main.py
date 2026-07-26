@@ -5,6 +5,7 @@ from config.db import db
 from routes.auth import router as auth_router
 from routes.thesis import router as thesis_router
 from routes.category import router as category_router
+from routes.announcement import router as announcement_router
 from routes.book import router as book_router
 
 app = FastAPI(
@@ -45,4 +46,5 @@ def health():
 app.include_router(auth_router)
 app.include_router(thesis_router)
 app.include_router(category_router)
+app.include_router(announcement_router)
 app.include_router(book_router)

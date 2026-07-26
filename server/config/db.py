@@ -25,6 +25,7 @@ try:
     thesis_collection = db["thesis"]
     book_collection = db["books"] 
     category_collection = db["categories"]
+    announcement_collection = db["announcements"]
 
     print("MongoDB Connected Successfully")
     print("Database:", DB_NAME)
