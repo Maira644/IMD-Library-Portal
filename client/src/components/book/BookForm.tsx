@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getCategories } from "@/api/category";
 import type { Book, Category } from "@/types";
-import { createBook } from "@/api/book";
+import { createBook, updateBook } from "@/api/book";
 
 interface BookFormProps {
   open: boolean;
@@ -16,10 +16,23 @@ interface BookFormProps {
   onSubmit: (data: Book) => void;
 }
 
-export function BookForm({ open, onOpenChange, initial, onSubmit }: BookFormProps) {
+interface BookFormProps {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  initial?: Book;
+  onSubmit: (data: Book) => void;
+}
+
+export function BookForm({
+  open,
+  onOpenChange,
+  initial,
+  onSubmit,
+}: BookFormProps) {
+
   const [form, setForm] = useState<Book>(
     initial ?? {
-      
+      id: `BK-${Date.now()}`,
       title: "",
       author: "",
       publisher: "",
@@ -38,6 +51,7 @@ export function BookForm({ open, onOpenChange, initial, onSubmit }: BookFormProp
       views: 0,
     }
   );
+
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -92,51 +106,56 @@ export function BookForm({ open, onOpenChange, initial, onSubmit }: BookFormProp
   }
 
   async function submit(e: React.FormEvent) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const kws = keywordsText
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, 5);
+  const kws = keywordsText
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .slice(0, 5);
 
-    const formData = new FormData();
+  const formData = new FormData();
 
-    formData.append("title", form.title);
-    formData.append("author", form.author);
-    formData.append("publisher", form.publisher ?? "");
-    formData.append("edition", form.edition ?? "");
-    formData.append(
-      "publicationYear",
-      String(form.publicationYear ?? new Date().getFullYear())
-    );
-    formData.append("category", form.category ?? "");
-    formData.append("cabinetNo", form.cabinetNo ?? "");
-    formData.append("shelfNo", form.shelfNo ?? "");
-    formData.append("keywords", kws.join(","));
-    formData.append("physicalCopy", String(form.physicalCopy));
-    formData.append("digitalCopy", String(form.digitalCopy));
-    formData.append("uploadedBy", form.uploadedBy);
-    formData.append("uploadDate", form.uploadDate);
+  formData.append("title", form.title);
+  formData.append("author", form.author);
+  formData.append("publisher", form.publisher ?? "");
+  formData.append("edition", form.edition ?? "");
+  formData.append(
+    "publicationYear",
+    String(form.publicationYear ?? new Date().getFullYear())
+  );
+  formData.append("category", form.category ?? "");
+  formData.append("cabinetNo", form.cabinetNo ?? "");
+  formData.append("shelfNo", form.shelfNo ?? "");
+  formData.append("keywords", kws.join(","));
+  formData.append("physicalCopy", String(form.physicalCopy));
+  formData.append("digitalCopy", String(form.digitalCopy));
+  formData.append("uploadedBy", form.uploadedBy);
+  formData.append("uploadDate", form.uploadDate);
 
-    if (coverFile) {
-      formData.append("cover", coverFile);
-    }
-
-    if (pdfFile) {
-      formData.append("pdf", pdfFile);
-    }
-
-    try {
-      const response = await createBook(formData);
-
-      onSubmit(response.book);
-      onOpenChange(false);
-    } catch (error) {
-      console.error("Failed to create book:", error);
-    }
+  if (coverFile) {
+    formData.append("cover", coverFile);
   }
 
+  if (pdfFile) {
+    formData.append("pdf", pdfFile);
+  }
+
+  try {
+    let response;
+
+    if (initial) {
+      response = await updateBook(initial.id, formData);
+    } else {
+      response = await createBook(formData);
+    }
+
+    onSubmit(response.book);
+    onOpenChange(false);
+  } catch (error) {
+    console.error("Failed to save book:", error);
+  }
+}
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">

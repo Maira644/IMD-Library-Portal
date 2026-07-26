@@ -32,7 +32,10 @@ import { toast } from "sonner";
 
 import type { Book, Category } from "@/types";
 import { getCategories } from "@/api/category";
-import { getAllBooks } from "@/api/book";
+import {
+  getAllBooks,
+  deleteBook,
+} from "@/api/book";
 
 const HREF_BASE = "/library/books";
 const CAN_MANAGE = true;
@@ -267,7 +270,14 @@ export function InchargeBooksPage() {
         initial={editing}
         onSubmit={async () => {
           await fetchBooks();
-          toast.success("Book created successfully");
+
+          if (editing) {
+            toast.success("Book updated successfully");
+          } else {
+            toast.success("Book created successfully");
+          }
+
+          setEditing(undefined);
         }}
       />
 
@@ -276,9 +286,19 @@ export function InchargeBooksPage() {
         onOpenChange={(v) => !v && setDeletingId(null)}
         title="Delete this book?"
         description="This will remove the book from the catalog."
-        onConfirm={() => {
-          setBooks((prev) => prev.filter((b) => b.id !== deletingId));
-          toast.success("Book deleted");
+        onConfirm={async () => {
+          if (!deletingId) return;
+
+          try {
+            await deleteBook(deletingId);
+            await fetchBooks();
+
+            toast.success("Book deleted successfully");
+          } catch (error) {
+            console.error(error);
+            toast.error("Failed to delete book");
+          }
+
           setDeletingId(null);
         }}
       />
