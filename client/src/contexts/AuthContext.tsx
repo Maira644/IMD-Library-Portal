@@ -52,9 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       },
       logout() {
-        setUser(null);
-        localStorage.removeItem(STORAGE_KEY);
-        sessionStorage.removeItem(STORAGE_KEY);
+      setUser(null);
+      localStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem("access_token");
+      sessionStorage.removeItem("access_token");
+
       },
       hasRole(...roles) {
         return !!user && roles.includes(user.role);
