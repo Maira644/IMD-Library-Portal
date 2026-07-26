@@ -1,40 +1,103 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { mockBooks } from "@/data/mockBooks";
+
 import { ResourceDetail } from "@/components/shared/ResourceDetail";
 import { BookCard } from "@/components/book/BookCard";
+
+import { getBookById, getAllBooks } from "@/api/book";
+import type { Book } from "@/types";
 
 const HREF_BASE = "/student/library/books";
 
 export function StudentBookDetailsPage() {
   const { id } = useParams<{ id: string }>();
-  const book = mockBooks.find((b) => b.id === id);
-  if (!book) {
-    return <p className="text-center text-muted-foreground">Book not found.</p>;
+
+  const [book, setBook] = useState<Book | null>(null);
+  const [related, setRelated] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchBook();
+  }, [id]);
+
+  async function fetchBook() {
+    try {
+      if (!id) return;
+
+      const selectedBook = await getBookById(id);
+      setBook(selectedBook);
+
+      const response = await getAllBooks();
+
+      const relatedBooks = response.books.filter(
+        (b: Book) =>
+          b.category === selectedBook.category &&
+          b.id !== selectedBook.id
+      );
+
+      setRelated(relatedBooks.slice(0, 5));
+    } catch (error) {
+      console.error("Failed to fetch book:", error);
+    } finally {
+      setLoading(false);
+    }
   }
-  const related = mockBooks.filter((b) => b.category === book.category && b.id !== book.id).slice(0, 5);
+
+  if (loading) {
+    return (
+      <p className="text-center text-muted-foreground">
+        Loading...
+      </p>
+    );
+  }
+
+  if (!book) {
+    return (
+      <p className="text-center text-muted-foreground">
+        Book not found.
+      </p>
+    );
+  }
+
   return (
     <ResourceDetail
       cover={book.coverUrl}
       title={book.title}
       subtitle={`by ${book.author} · ${book.publisher}`}
       meta={[
-        { label: "Book ID", value: book.id },
-        { label: "ISBN", value: book.isbn ?? "—" },
+        { label: "Book ID", value: book.id ?? "—" },
         { label: "Edition", value: book.edition ?? "—" },
-        { label: "Publication year", value: book.publicationYear },
-        { label: "Language", value: book.language },
-        { label: "Category", value: book.category },
+        {
+          label: "Publication year",
+          value: book.publicationYear ?? "—",
+        },
+        { label: "Category", value: book.category ?? "—" },
         { label: "Uploaded by", value: book.uploadedBy },
-        { label: "Upload date", value: new Date(book.uploadDate).toLocaleDateString() },
-        { label: "Physical copy", value: book.physicalCopy ? "Available" : "Not available" },
-        { label: "Digital copy", value: book.digitalCopy ? "Available" : "Not available" },
+        {
+          label: "Upload date",
+          value: new Date(book.uploadDate).toLocaleDateString(),
+        },
+        {
+          label: "Physical copy",
+          value: book.physicalCopy ? "Available" : "Not available",
+        },
+        {
+          label: "Digital copy",
+          value: book.digitalCopy ? "Available" : "Not available",
+        },
       ]}
-      description={book.description}
+      description=""
       keywords={book.keywords}
       pdfUrl={book.pdfUrl}
       related={
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {related.map((b) => <BookCard key={b.id} book={b} hrefBase={HREF_BASE} />)}
+          {related.map((b) => (
+            <BookCard
+              key={b.id}
+              book={b}
+              hrefBase={HREF_BASE}
+            />
+          ))}
         </div>
       }
     />
