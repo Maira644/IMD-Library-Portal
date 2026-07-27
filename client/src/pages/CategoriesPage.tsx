@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, MoreHorizontal, Tag } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ import {
 
 export function CategoriesPage() {
   const [items, setItems] = useState<Category[]>([]);
+  const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Category | undefined>();
   const [delId, setDelId] = useState<string | null>(null);
@@ -63,6 +64,18 @@ export function CategoriesPage() {
       toast.error("Failed to load categories.");
     }
   };
+
+  const filtered = useMemo(() => {
+    if (!q.trim()) return items;
+
+    const search = q.toLowerCase();
+
+    return items.filter(
+      (category) =>
+        category.name.toLowerCase().includes(search) ||
+        (category.description ?? "").toLowerCase().includes(search)
+    );
+  }, [items, q]);
 
   const cols: DataTableColumn<Category>[] = [
     {
@@ -148,11 +161,16 @@ export function CategoriesPage() {
           </Button>
         }
       />
-
+      <div className="mb-4">
+        <Input
+          placeholder="Search categories..."
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+      </div>
       <DataTable
-        data={items}
+        data={filtered}
         columns={cols}
-        searchKeys={["name", "description"]}
       />
 
       <Dialog

@@ -26,13 +26,7 @@ export function SettingsPage() {
           <div className="sm:col-span-2"><Label>Footer text</Label><Textarea rows={2} value={footer} onChange={(e) => setFooter(e.target.value)} /></div>
         </CardContent>
       </Card>
-      <Card className="mt-4">
-        <CardHeader><CardTitle>Features</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <Row label="Enable announcements" hint="Show announcements section across dashboards" checked={announcementsEnabled} onChange={setAnnouncementsEnabled} />
-          <Row label="Public catalog" hint="Allow non-authenticated users to browse the catalog" checked={publicCatalog} onChange={setPublicCatalog} />
-        </CardContent>
-      </Card>
+      
       <div className="mt-6 flex justify-end">
         <Button onClick={() => toast.success("Settings saved")}>Save changes</Button>
       </div>
