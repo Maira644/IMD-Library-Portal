@@ -4,23 +4,17 @@ import { useNavigate } from "react-router-dom";
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 
 import { getAllThesis } from "@/api/thesis";
-import { mockCategories } from "@/data/mockCategories";
+
 import type { Thesis } from "@/types";
 import { useSearchTracker } from "@/contexts/SearchContext";
 
 export function StudentThesisPage() {
   const [items, setItems] = useState<Thesis[]>([]);
   const [q, setQ] = useState("");
-  const [dept, setDept] = useState("all");
+  
 
   const { track } = useSearchTracker();
   const navigate = useNavigate();
@@ -41,10 +35,6 @@ export function StudentThesisPage() {
   const filtered = useMemo(() => {
     let list = items;
 
-    if (dept !== "all") {
-      list = list.filter((t) => t.department === dept);
-    }
-
     if (q.trim()) {
       const n = q.toLowerCase();
 
@@ -56,7 +46,7 @@ export function StudentThesisPage() {
     }
 
     return list;
-  }, [items, q, dept]);
+  }, [items, q]);
 
   const columns: DataTableColumn<Thesis>[] = [
     {
@@ -102,35 +92,19 @@ export function StudentThesisPage() {
         actions={null}
       />
 
-      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_auto]">
-        <Input
-          placeholder="Search title, student…"
-          value={q}
-          onChange={(e) => {
-            setQ(e.target.value);
+      <div className="mb-4">
+  <Input
+    placeholder="Search title, student..."
+    value={q}
+    onChange={(e) => {
+      setQ(e.target.value);
 
-            if (e.target.value) {
-              track(e.target.value);
-            }
-          }}
-        />
-
-        <Select value={dept} onValueChange={setDept}>
-          <SelectTrigger className="w-full sm:w-56">
-            <SelectValue />
-          </SelectTrigger>
-
-          <SelectContent>
-            <SelectItem value="all">All departments</SelectItem>
-
-            {mockCategories.map((c) => (
-              <SelectItem key={c.id} value={c.name}>
-                {c.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      if (e.target.value) {
+        track(e.target.value);
+      }
+    }}
+  />
+</div>
 
       <DataTable
         data={filtered}

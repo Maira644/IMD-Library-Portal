@@ -43,14 +43,7 @@ export function DataTable<T extends { id: string }>({
   const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" } | null>(null);
   const [page, setPage] = useState(1);
 
-  const filtered = useMemo(() => {
-    if (!q.trim()) return data;
-    const needle = q.toLowerCase();
-    return data.filter((row) => {
-      const keys = searchKeys ?? (Object.keys(row) as (keyof T)[]);
-      return keys.some((k) => String((row as Record<string, unknown>)[k as string] ?? "").toLowerCase().includes(needle));
-    });
-  }, [data, q, searchKeys]);
+  const filtered = data;
 
   const sorted = useMemo(() => {
     if (!sort) return filtered;
@@ -72,21 +65,11 @@ export function DataTable<T extends { id: string }>({
 
   return (
     <Card className="overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 border-b border-border p-4">
-        <div className="relative min-w-0 flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={q}
-            onChange={(e) => {
-              setQ(e.target.value);
-              setPage(1);
-            }}
-            placeholder={searchPlaceholder}
-            className="h-9 pl-9"
-          />
+      {toolbar && (
+        <div className="flex flex-wrap items-center gap-3 border-b border-border p-4">
+          {toolbar}
         </div>
-        {toolbar}
-      </div>
+      )}
       <div className="overflow-x-auto">
         <Table>
           <TableHeader className="sticky top-0 bg-muted/50">

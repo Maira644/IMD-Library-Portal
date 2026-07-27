@@ -11,6 +11,10 @@ import { UnauthorizedPage } from "@/pages/UnauthorizedPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
 import { AdminDashboard } from "@/pages/AdminDashboard";
+import { AdminBooksPage } from "@/pages/AdminBooksPage";
+import { AdminBookDetailsPage } from "@/pages/AdminBookDetailPage";
+import { AdminThesisPage } from "./pages/AdminThesisPage";
+import { AdminThesisDetailPage } from "./pages/AdminThesisDetailPage";
 import { AnalyticsPage } from "@/pages/AnalyticsPage";
 import { AdminAnnouncementPage } from "@/pages/AdminAnnouncementPage";
 import { InchargesPage } from "@/pages/InchargesPage";
@@ -64,6 +68,38 @@ export function AppRouter() {
           element={
             <RoleRoute role="admin">
               <AdminDashboard />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/admin/books"
+          element={
+            <RoleRoute role="admin">
+              <AdminBooksPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/admin/books/:id"
+          element={
+            <RoleRoute role="admin">
+              <AdminBookDetailsPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/admin/thesis"
+          element={
+            <RoleRoute role="admin">
+              <AdminThesisPage />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="/admin/thesis/:id"
+          element={
+            <RoleRoute role="admin">
+              <AdminThesisDetailPage/>
             </RoleRoute>
           }
         />
