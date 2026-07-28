@@ -66,7 +66,12 @@ export interface Category {
   id: string;
   name: string;
   description?: string;
+
   count: number;
+
+  bookCount: number;
+  thesisCount: number;
+
   createdAt: string;
 }
 

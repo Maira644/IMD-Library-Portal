@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 
 import { ResourceDetail } from "@/components/shared/ResourceDetail";
 import { BookCard } from "@/components/book/BookCard";
-
-import { getBookById, getAllBooks } from "@/api/book";
+import {
+  getBookById,
+  getAllBooks,
+  incrementBookView,
+} from "@/api/book";;
 import type { Book } from "@/types";
 
 const HREF_BASE = "/student/library/books";
@@ -15,16 +18,25 @@ export function StudentBookDetailsPage() {
   const [book, setBook] = useState<Book | null>(null);
   const [related, setRelated] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
+  const viewCounted = useRef(false);
 
   useEffect(() => {
-    fetchBook();
-  }, [id]);
+  if (!id) return;
+
+  if (viewCounted.current) return;
+
+  viewCounted.current = true;
+
+  fetchBook();
+}, [id]);
 
   async function fetchBook() {
     try {
       if (!id) return;
 
-      const selectedBook = await getBookById(id);
+await incrementBookView(id);
+
+const selectedBook = await getBookById(id);
       setBook(selectedBook);
 
       const response = await getAllBooks();

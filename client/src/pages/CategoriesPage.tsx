@@ -42,12 +42,14 @@ export function CategoriesPage() {
   const [delId, setDelId] = useState<string | null>(null);
 
   const emptyForm: Category = {
-    id: "",
-    name: "",
-    description: "",
-    count: 0,
-    createdAt: new Date().toISOString(),
-  };
+  id: "",
+  name: "",
+  description: "",
+  count: 0,
+  bookCount: 0,
+  thesisCount: 0,
+  createdAt: new Date().toISOString(),
+};
 
   const [form, setForm] = useState<Category>(emptyForm);
 
@@ -98,16 +100,26 @@ export function CategoriesPage() {
         </span>
       ),
     },
-    {
-      key: "count",
-      header: "Items",
-      sortable: true,
-      render: (c) => (
-        <Badge variant="secondary">
-          {c.count}
-        </Badge>
-      ),
-    },
+   {
+  key: "bookCount",
+  header: "Books",
+  sortable: true,
+  render: (c) => (
+    <Badge variant="secondary">
+      {c.bookCount}
+    </Badge>
+  ),
+},
+{
+  key: "thesisCount",
+  header: "Thesis",
+  sortable: true,
+  render: (c) => (
+    <Badge variant="secondary">
+      {c.thesisCount}
+    </Badge>
+  ),
+},
     {
       key: "actions",
       header: "",
