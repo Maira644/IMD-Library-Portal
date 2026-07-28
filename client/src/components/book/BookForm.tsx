@@ -19,7 +19,7 @@ interface BookFormProps {
 export function BookForm({ open, onOpenChange, initial, onSubmit }: BookFormProps) {
   const [form, setForm] = useState<Book>(
     initial ?? {
-      
+      id: "",
       title: "",
       author: "",
       publisher: "",
@@ -49,7 +49,7 @@ export function BookForm({ open, onOpenChange, initial, onSubmit }: BookFormProp
       setKeywordsText(initial.keywords.join(", "));
     } else {
       setForm({
-        id: `BK-${Date.now()}`,
+        id: "",
         title: "",
         author: "",
         publisher: "",
@@ -193,7 +193,9 @@ export function BookForm({ open, onOpenChange, initial, onSubmit }: BookFormProp
             </Field>
           </div>
           <div>
-            <Label>Cover image</Label>
+            <Label>
+              Cover image <span className="text-muted-foreground">(optional)</span>
+            </Label>
             <Input
               type="file"
               accept="image/*"
@@ -208,7 +210,9 @@ export function BookForm({ open, onOpenChange, initial, onSubmit }: BookFormProp
             )}
           </div>
           <div>
-            <Label>PDF file (optional)</Label>
+            <Label>
+              PDF file <span className="text-muted-foreground">(optional)</span>
+            </Label>
             <Input
               type="file"
               accept="application/pdf"
