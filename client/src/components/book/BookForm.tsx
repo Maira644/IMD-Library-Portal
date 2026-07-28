@@ -16,13 +16,6 @@ interface BookFormProps {
   onSubmit: (data: Book) => void;
 }
 
-interface BookFormProps {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  initial?: Book;
-  onSubmit: (data: Book) => void;
-}
-
 export function BookForm({
   open,
   onOpenChange,
@@ -145,7 +138,7 @@ export function BookForm({
     let response;
 
     if (initial) {
-      response = await updateBook(initial.id, formData);
+      response = await updateBook(initial.id!, formData);
     } else {
       response = await createBook(formData);
     }
