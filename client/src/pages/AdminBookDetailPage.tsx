@@ -11,9 +11,9 @@ import {
 } from "@/api/book";
 import type { Book } from "@/types";
 
-const HREF_BASE = "/library/books";
+const HREF_BASE = "/admin/books";
 
-export function InchargeBookDetailsPage() {
+export function AdminBookDetailsPage() {
   const { id } = useParams<{ id: string }>();
 
   const [book, setBook] = useState<Book | null>(null);
@@ -32,13 +32,15 @@ export function InchargeBookDetailsPage() {
 }, [id]);
 
   async function fetchBook() {
+    console.log("fetchBook called");
     try {
       if (!id) return;
 
-await incrementBookView(id);
+      await incrementBookView(id);
 
 const selectedBook = await getBookById(id);
-      setBook(selectedBook);
+setBook(selectedBook);
+
 
       const response = await getAllBooks();
 

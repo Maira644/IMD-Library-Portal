@@ -37,10 +37,10 @@ import {
   deleteBook,
 } from "@/api/book";
 
-const HREF_BASE = "/library/books";
+const HREF_BASE = "/admin/books";
 const CAN_MANAGE = true;
 
-export function InchargeBooksPage() {
+export function AdminBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
 

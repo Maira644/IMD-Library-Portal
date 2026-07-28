@@ -46,11 +46,13 @@ async def create_category(category: CategoryCreate):
         new_id = "CAT-001"
 
     new_category = {
-        "id": new_id,
-        "name": category.name,
-        "description": category.description,
-        "count": 0
-    }
+    "id": new_id,
+    "name": category.name,
+    "description": category.description,
+    "count": 0,
+    "bookCount": 0,
+    "thesisCount": 0
+}
 
     result = category_collection.insert_one(new_category)
 

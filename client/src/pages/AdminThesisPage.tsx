@@ -24,7 +24,7 @@ import {
 
 import { useNavigate } from "react-router-dom"; // ADD
 
-export function InchargeThesisPage() {
+export function AdminThesisPage() {
   const navigate = useNavigate(); // ADD
   const [items, setItems] = useState<Thesis[]>([]);
   // ...rest stays the same
@@ -175,7 +175,7 @@ export function InchargeThesisPage() {
         data={filtered}
         columns={columns}
         // searchKeys={["title", "department"]}
-        onRowClick={(t) => navigate(`/library/thesis/${t.id}`)}
+        onRowClick={(t) => navigate(`/admin/thesis/${t.id}`)}
       />
 
       <ThesisForm

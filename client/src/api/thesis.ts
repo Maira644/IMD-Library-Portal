@@ -67,3 +67,19 @@ export async function getThesisById(thesisId: string) {
   const response = await API.get(`/thesis/${thesisId}`);
   return response.data.thesis;
 }
+
+// ==========================
+// GET MOST VIEWED THESIS
+// ==========================
+export async function getMostViewedThesis() {
+  const response = await API.get("/thesis/most-viewed");
+  return response.data.thesis;
+}
+
+// ==========================
+// INCREMENT THESIS VIEW
+// ==========================
+export async function incrementThesisView(thesisId: string) {
+  const response = await API.patch(`/thesis/${thesisId}/view`);
+  return response.data;
+}

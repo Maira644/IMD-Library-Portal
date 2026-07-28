@@ -9,16 +9,15 @@ import {
 } from "@/api/thesis";
 import type { Thesis } from "@/types";
 
-export function InchargeThesisDetailPage() {
+export function AdminThesisDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [thesis, setThesis] = useState<Thesis | null>(null);
   const [related, setRelated] = useState<Thesis[]>([]);
   const [loading, setLoading] = useState(true);
   const viewCounted = useRef(false);
 
- useEffect(() => {
+  useEffect(() => {
   if (!id) return;
-
   const thesisId = id;
 
   if (viewCounted.current) return;
@@ -26,32 +25,32 @@ export function InchargeThesisDetailPage() {
   viewCounted.current = true;
 
   async function load() {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      await incrementThesisView(thesisId);
+    await incrementThesisView(thesisId);
 
-      const t = await getThesisById(thesisId);
-      setThesis(t);
+    const selectedThesis = await getThesisById(thesisId);
+    setThesis(selectedThesis);
 
-      const all = await getAllThesis();
+    const all = await getAllThesis();
 
-      const relatedList = all.thesis
-        .filter(
-          (x: Thesis) =>
-            x.department === t.department &&
-            x.id !== t.id
-        )
-        .slice(0, 5);
+    const relatedList = all.thesis
+      .filter(
+        (x: Thesis) =>
+          x.department === selectedThesis.department &&
+          x.id !== selectedThesis.id
+      )
+      .slice(0, 5);
 
-      setRelated(relatedList);
-    } catch (error) {
-      console.error("Failed to fetch thesis:", error);
-      setThesis(null);
-    } finally {
-      setLoading(false);
-    }
+    setRelated(relatedList);
+  } catch (error) {
+    console.error("Failed to fetch thesis:", error);
+    setThesis(null);
+  } finally {
+    setLoading(false);
   }
+}
 
   load();
 }, [id]);
@@ -105,7 +104,7 @@ export function InchargeThesisDetailPage() {
             <ThesisCard
               key={x.id}
               thesis={x}
-              hrefBase="/library/thesis"
+              hrefBase="/admin/thesis"
             />
           ))}
         </div>
