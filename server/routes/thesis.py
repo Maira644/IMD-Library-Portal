@@ -160,7 +160,32 @@ async def get_thesis_by_id(thesis_id: str):
         "message": "Thesis fetched successfully.",
         "thesis": thesis
     }
+# ==========================
+# INCREMENT THESIS VIEW
+# ==========================
+@router.patch("/{thesis_id}/view")
+async def increment_thesis_view(thesis_id: str):
 
+    thesis = thesis_collection.find_one({"id": thesis_id})
+
+    if not thesis:
+        raise HTTPException(
+            status_code=404,
+            detail="Thesis not found."
+        )
+
+    thesis_collection.update_one(
+        {"id": thesis_id},
+        {
+            "$inc": {
+                "views": 1
+            }
+        }
+    )
+
+    return {
+        "message": "Thesis view updated successfully."
+    }
 # ==========================
 # UPDATE THESIS
 # ==========================

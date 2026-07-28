@@ -75,3 +75,11 @@ export async function getMostViewedThesis() {
   const response = await API.get("/thesis/most-viewed");
   return response.data.thesis;
 }
+
+// ==========================
+// INCREMENT THESIS VIEW
+// ==========================
+export async function incrementThesisView(thesisId: string) {
+  const response = await API.patch(`/thesis/${thesisId}/view`);
+  return response.data;
+}

@@ -1,10 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 
 import { ResourceDetail } from "@/components/shared/ResourceDetail";
 import { ThesisCard } from "@/components/thesis/ThesisCard";
 
-import { getAllThesis, getThesisById } from "@/api/thesis";
+import {
+  getAllThesis,
+  getThesisById,
+  incrementThesisView,
+} from "@/api/thesis";
 import type { Thesis } from "@/types";
 
 export function StudentThesisDetailPage() {
@@ -13,37 +17,47 @@ export function StudentThesisDetailPage() {
   const [t, setThesis] = useState<Thesis | null>(null);
   const [related, setRelated] = useState<Thesis[]>([]);
   const [loading, setLoading] = useState(true);
+  const viewCounted = useRef(false);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        if (!id) return;
+  if (!id) return;
 
-        // Fetch selected thesis
-        const thesis = await getThesisById(id);
-        setThesis(thesis);
+  const thesisId = id;
 
-        // Fetch all thesis
-        const all = await getAllThesis();
+  if (viewCounted.current) return;
 
-        const relatedThesis = all.thesis
-          .filter(
-            (x: Thesis) =>
-              x.department === thesis.department &&
-              x.id !== thesis.id
-          )
-          .slice(0, 5);
+  viewCounted.current = true;
 
-        setRelated(relatedThesis);
-      } catch (error) {
-        console.error("Failed to fetch thesis:", error);
-      } finally {
-        setLoading(false);
-      }
+  async function fetchData() {
+    try {
+      setLoading(true);
+
+      await incrementThesisView(thesisId);
+
+      const thesis = await getThesisById(thesisId);
+      setThesis(thesis);
+
+      const all = await getAllThesis();
+
+      const relatedThesis = all.thesis
+        .filter(
+          (x: Thesis) =>
+            x.department === thesis.department &&
+            x.id !== thesis.id
+        )
+        .slice(0, 5);
+
+      setRelated(relatedThesis);
+    } catch (error) {
+      console.error("Failed to fetch thesis:", error);
+      setThesis(null);
+    } finally {
+      setLoading(false);
     }
+  }
 
-    fetchData();
-  }, [id]);
+  fetchData();
+}, [id]);
 
   if (loading) {
     return (
