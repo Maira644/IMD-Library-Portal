@@ -6,8 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { useEffect, useState } from "react";
+import type { Book, Thesis } from "@/types";
 import { mockBooks } from "@/data/mockBooks";
 import { mockThesis } from "@/data/mockThesis";
+import { getMostViewedBooks } from "@/api/book";
+import { getMostViewedThesis } from "@/api/thesis";
 import { mockIncharges } from "@/data/mockIncharges";
 import { categoryDistribution, monthlyUploads, recentActivity, topKeywords } from "@/data/mockAnalytics";
 
@@ -19,16 +23,46 @@ const chartConfig = {
 };
 
 export function AdminDashboard() {
-  const topBooks = [...mockBooks].sort((a, b) => b.views - a.views).slice(0, 5);
-  const topThesis = [...mockThesis].sort((a, b) => b.views - a.views).slice(0, 5);
+  const [topBooks, setTopBooks] = useState<Book[]>([]);
+  const [topThesis, setTopThesis] = useState<Thesis[]>([]);
+  const [bookCount, setBookCount] = useState(0);
+  const [thesisCount, setThesisCount] = useState(0);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  async function fetchDashboardData() {
+    try {
+      const books = await getMostViewedBooks();
+      const thesis = await getMostViewedThesis();
+
+      setTopBooks(books);
+      setTopThesis(thesis);
+
+      setBookCount(books.length);
+      setThesisCount(thesis.length);
+    } catch (error) {
+      console.error("Failed to load dashboard data:", error);
+    }
+  }
 
   return (
     <div>
       <PageHeader title="Admin dashboard" description="Overview of your library system." />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total books" value={mockBooks.length} icon={BookOpen} trend="+12 this month" />
-        <StatCard label="Total thesis" value={mockThesis.length} icon={GraduationCap} trend="+4 this month" />
+        <StatCard
+          label="Total books"
+          value={bookCount}
+          icon={BookOpen}
+        />
+
+        <StatCard
+          label="Total thesis"
+          value={thesisCount}
+          icon={GraduationCap}
+        />
         <StatCard label="Library incharges" value={mockIncharges.length} icon={Users} hint={`${mockIncharges.filter(i => i.active).length} active`} />
         <StatCard label="Announcements" value={4} icon={Megaphone} />
       </div>

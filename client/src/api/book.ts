@@ -64,3 +64,19 @@ export async function deleteBook(bookId: string) {
   const response = await API.delete(`/book/${bookId}`);
   return response.data;
 }
+
+// ==========================
+// GET MOST VIEWED BOOKS
+// ==========================
+export async function getMostViewedBooks() {
+  const response = await API.get("/book/most-viewed");
+  return response.data.books;
+}
+
+// ==========================
+// INCREMENT BOOK VIEW
+// ==========================
+export async function incrementBookView(bookId: string) {
+  const response = await API.put(`/book/${bookId}/view`);
+  return response.data;
+}

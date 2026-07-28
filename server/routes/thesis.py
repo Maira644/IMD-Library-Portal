@@ -93,9 +93,14 @@ async def create_thesis(
 
     # Increase category count
     category_collection.update_one(
-        {"name": category},
-        {"$inc": {"count": 1}}
-    )
+    {"name": category},
+    {
+        "$inc": {
+            "count": 1,
+            "thesisCount": 1
+        }
+    }
+)
 
     thesis["_id"] = str(result.inserted_id)
 
@@ -119,7 +124,23 @@ async def get_all_thesis():
         "message": "Thesis fetched successfully.",
         "thesis": theses
     }
+# ==========================
+# GET MOST VIEWED THESIS
+# ==========================
+@router.get("/most-viewed")
+async def get_most_viewed_thesis():
 
+    thesis = list(
+        thesis_collection.find().sort("views", -1).limit(5)
+    )
+
+    for item in thesis:
+        item["_id"] = str(item["_id"])
+
+    return {
+        "message": "Most viewed thesis fetched successfully.",
+        "thesis": thesis
+    }
 # ==========================
 # GET SINGLE THESIS
 # ==========================
@@ -139,7 +160,32 @@ async def get_thesis_by_id(thesis_id: str):
         "message": "Thesis fetched successfully.",
         "thesis": thesis
     }
+# ==========================
+# INCREMENT THESIS VIEW
+# ==========================
+@router.patch("/{thesis_id}/view")
+async def increment_thesis_view(thesis_id: str):
 
+    thesis = thesis_collection.find_one({"id": thesis_id})
+
+    if not thesis:
+        raise HTTPException(
+            status_code=404,
+            detail="Thesis not found."
+        )
+
+    thesis_collection.update_one(
+        {"id": thesis_id},
+        {
+            "$inc": {
+                "views": 1
+            }
+        }
+    )
+
+    return {
+        "message": "Thesis view updated successfully."
+    }
 # ==========================
 # UPDATE THESIS
 # ==========================
@@ -226,14 +272,24 @@ async def update_thesis(
     if old_category != category:
 
         category_collection.update_one(
-            {"name": old_category},
-            {"$inc": {"count": -1}}
-        )
+    {"name": old_category},
+    {
+        "$inc": {
+            "count": -1,
+            "thesisCount": -1
+        }
+    }
+)
 
         category_collection.update_one(
-            {"name": category},
-            {"$inc": {"count": 1}}
-        )
+    {"name": category},
+    {
+        "$inc": {
+            "count": 1,
+            "thesisCount": 1
+        }
+    }
+)
 
     updated = thesis_collection.find_one({"id": thesis_id})
     updated["_id"] = str(updated["_id"])
@@ -262,9 +318,14 @@ async def delete_thesis(thesis_id: str):
 
     # Decrease category count
     category_collection.update_one(
-        {"name": thesis["category"]},
-        {"$inc": {"count": -1}}
-    )
+    {"name": thesis["category"]},
+    {
+        "$inc": {
+            "count": -1,
+            "thesisCount": -1
+        }
+    }
+)
 
     thesis_collection.delete_one({"id": thesis_id})
 
