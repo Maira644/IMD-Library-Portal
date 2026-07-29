@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 import type { Book, Thesis } from "@/types";
 
 import { getAllBooks } from "@/api/book";
-import { getMostViewedThesis } from "@/api/thesis";
+import { getAllThesis, getMostViewedThesis } from "@/api/thesis";
 
 import { mockIncharges } from "@/data/mockIncharges";
 import {
@@ -46,6 +46,7 @@ export function AdminDashboard() {
   const [digitalBooks, setDigitalBooks] = useState(0);
 
   const [thesisCount, setThesisCount] = useState(0);
+  const [thesisAddedThisMonth, setThesisAddedThisMonth] = useState(0);
 
   useEffect(() => {
     fetchDashboardData();
@@ -53,18 +54,15 @@ export function AdminDashboard() {
 
   async function fetchDashboardData() {
     try {
+      // ================= BOOKS =================
       const booksResponse = await getAllBooks();
-      const books = booksResponse.books;
-
-      const thesis = await getMostViewedThesis();
+      const books: Book[] = booksResponse.books;
 
       setTopBooks(
         [...books]
           .sort((a, b) => b.views - a.views)
           .slice(0, 5)
       );
-
-      setTopThesis(thesis);
 
       setBookCount(books.length);
 
@@ -76,7 +74,28 @@ export function AdminDashboard() {
         books.filter((b) => b.digitalCopy).length
       );
 
+      // ================= THESIS =================
+      const thesisResponse = await getAllThesis();
+      const thesis: Thesis[] = thesisResponse.thesis;
+
       setThesisCount(thesis.length);
+
+      const now = new Date();
+
+      setThesisAddedThisMonth(
+        thesis.filter((t) => {
+          const upload = new Date(t.uploadDate);
+
+          return (
+            upload.getMonth() === now.getMonth() &&
+            upload.getFullYear() === now.getFullYear()
+          );
+        }).length
+      );
+
+      const mostViewedThesis = await getMostViewedThesis();
+      setTopThesis(mostViewedThesis);
+
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
     }
@@ -101,6 +120,7 @@ export function AdminDashboard() {
           label="Total thesis"
           value={thesisCount}
           icon={GraduationCap}
+          hint={`${thesisAddedThisMonth} added this month`}
         />
 
         <StatCard
