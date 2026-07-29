@@ -23,6 +23,7 @@ import type { Book, Thesis } from "@/types";
 
 import { getAllBooks } from "@/api/book";
 import { getAllThesis, getMostViewedThesis } from "@/api/thesis";
+import { getAnnouncements } from "@/api/announcement";
 
 import { mockIncharges } from "@/data/mockIncharges";
 import {
@@ -46,6 +47,8 @@ export function AdminDashboard() {
   const [digitalBooks, setDigitalBooks] = useState(0);
 
   const [thesisCount, setThesisCount] = useState(0);
+  const [announcementCount, setAnnouncementCount] = useState(0);
+  const [pinnedAnnouncements, setPinnedAnnouncements] = useState(0);
   const [thesisAddedThisMonth, setThesisAddedThisMonth] = useState(0);
 
   useEffect(() => {
@@ -96,6 +99,15 @@ export function AdminDashboard() {
       const mostViewedThesis = await getMostViewedThesis();
       setTopThesis(mostViewedThesis);
 
+      // ================= ANNOUNCEMENTS =================
+      const announcements = await getAnnouncements();
+
+      setAnnouncementCount(announcements.length);
+
+      setPinnedAnnouncements(
+        announcements.filter((a) => a.pinned).length
+      );
+
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
     }
@@ -113,7 +125,7 @@ export function AdminDashboard() {
           label="Total books"
           value={bookCount}
           icon={BookOpen}
-          hint={`${physicalBooks} physical • ${digitalBooks} digital`}
+          hint={`${digitalBooks} digital`}
         />
 
         <StatCard
@@ -132,8 +144,9 @@ export function AdminDashboard() {
 
         <StatCard
           label="Announcements"
-          value={4}
+          value={announcementCount}
           icon={Megaphone}
+          hint={`${pinnedAnnouncements} pinned`}
         />
       </div>
 
