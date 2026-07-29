@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import {
   BookOpen,
   GraduationCap,
@@ -156,10 +156,9 @@ export function AdminDashboard() {
 
           <CardContent className="divide-y p-0">
             {topBooks.map((b) => (
-              <Link
+              <div
                 key={b.id}
-                to="/admin/analytics"
-                className="flex items-center justify-between p-4 hover:bg-muted/50"
+                className="flex items-center justify-between p-4"
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">
@@ -173,7 +172,7 @@ export function AdminDashboard() {
                 <Badge variant="secondary">
                   {b.views}
                 </Badge>
-              </Link>
+              </div>
             ))}
           </CardContent>
         </Card>
