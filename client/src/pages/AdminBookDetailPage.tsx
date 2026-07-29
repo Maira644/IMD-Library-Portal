@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { ResourceDetail } from "@/components/shared/ResourceDetail";
@@ -7,8 +7,8 @@ import { BookCard } from "@/components/book/BookCard";
 import {
   getBookById,
   getAllBooks,
-  incrementBookView,
 } from "@/api/book";
+
 import type { Book } from "@/types";
 
 const HREF_BASE = "/admin/books";
@@ -19,28 +19,19 @@ export function AdminBookDetailsPage() {
   const [book, setBook] = useState<Book | null>(null);
   const [related, setRelated] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
-  const viewCounted = useRef(false);
 
   useEffect(() => {
-  if (!id) return;
+    if (!id) return;
 
-  if (viewCounted.current) return;
-
-  viewCounted.current = true;
-
-  fetchBook();
-}, [id]);
+    fetchBook();
+  }, [id]);
 
   async function fetchBook() {
-    console.log("fetchBook called");
     try {
       if (!id) return;
 
-      await incrementBookView(id);
-
-const selectedBook = await getBookById(id);
-setBook(selectedBook);
-
+      const selectedBook = await getBookById(id);
+      setBook(selectedBook);
 
       const response = await getAllBooks();
 
@@ -52,7 +43,7 @@ setBook(selectedBook);
 
       setRelated(relatedBooks.slice(0, 5));
     } catch (error) {
-      console.error(error);
+      console.error("Failed to fetch book:", error);
     } finally {
       setLoading(false);
     }
@@ -88,8 +79,8 @@ setBook(selectedBook);
         {
           label: "Upload date",
           value: book.uploadDate
-          ? new Date(book.uploadDate).toLocaleDateString()
-          : "—",
+            ? new Date(book.uploadDate).toLocaleDateString()
+            : "—",
         },
         {
           label: "Physical copy",

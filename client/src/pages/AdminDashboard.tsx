@@ -19,7 +19,7 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { useEffect, useState } from "react";
 
-import type { Book, Thesis } from "@/types";
+import type { Book, Thesis, Announcement } from "@/types";
 
 import { getAllBooks } from "@/api/book";
 import { getAllThesis, getMostViewedThesis } from "@/api/thesis";
@@ -43,7 +43,6 @@ export function AdminDashboard() {
   const [topThesis, setTopThesis] = useState<Thesis[]>([]);
 
   const [bookCount, setBookCount] = useState(0);
-  const [physicalBooks, setPhysicalBooks] = useState(0);
   const [digitalBooks, setDigitalBooks] = useState(0);
 
   const [thesisCount, setThesisCount] = useState(0);
@@ -68,10 +67,6 @@ export function AdminDashboard() {
       );
 
       setBookCount(books.length);
-
-      setPhysicalBooks(
-        books.filter((b) => b.physicalCopy).length
-      );
 
       setDigitalBooks(
         books.filter((b) => b.digitalCopy).length
@@ -100,7 +95,7 @@ export function AdminDashboard() {
       setTopThesis(mostViewedThesis);
 
       // ================= ANNOUNCEMENTS =================
-      const announcements = await getAnnouncements();
+      const announcements: Announcement[] = await getAnnouncements();
 
       setAnnouncementCount(announcements.length);
 
