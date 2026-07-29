@@ -5,42 +5,41 @@ import { ThesisCard } from "@/components/thesis/ThesisCard";
 import {
   getAllThesis,
   getThesisById,
-  incrementThesisView,
 } from "@/api/thesis";
 import type { Thesis } from "@/types";
 
 export function InchargeThesisDetailPage() {
   const { id } = useParams<{ id: string }>();
+
   const [thesis, setThesis] = useState<Thesis | null>(null);
   const [related, setRelated] = useState<Thesis[]>([]);
   const [loading, setLoading] = useState(true);
   const viewCounted = useRef(false);
 
- useEffect(() => {
-  if (!id) return;
+  useEffect(() => {
+    if (!id) return;
 
-  const thesisId = id;
+    if (viewCounted.current) return;
 
-  if (viewCounted.current) return;
+    viewCounted.current = true;
 
-  viewCounted.current = true;
+    load();
+  }, [id]);
 
   async function load() {
     try {
-      setLoading(true);
+      if (!id) return;
 
-      await incrementThesisView(thesisId);
-
-      const t = await getThesisById(thesisId);
-      setThesis(t);
+      const selectedThesis = await getThesisById(id);
+      setThesis(selectedThesis);
 
       const all = await getAllThesis();
 
       const relatedList = all.thesis
         .filter(
           (x: Thesis) =>
-            x.department === t.department &&
-            x.id !== t.id
+            x.department === selectedThesis.department &&
+            x.id !== selectedThesis.id
         )
         .slice(0, 5);
 
@@ -52,9 +51,6 @@ export function InchargeThesisDetailPage() {
       setLoading(false);
     }
   }
-
-  load();
-}, [id]);
 
   if (loading) {
     return (

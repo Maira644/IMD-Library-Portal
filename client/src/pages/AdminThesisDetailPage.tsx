@@ -1,59 +1,56 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
 import { ResourceDetail } from "@/components/shared/ResourceDetail";
 import { ThesisCard } from "@/components/thesis/ThesisCard";
+
 import {
   getAllThesis,
   getThesisById,
-  incrementThesisView,
 } from "@/api/thesis";
+
 import type { Thesis } from "@/types";
 
 export function AdminThesisDetailPage() {
   const { id } = useParams<{ id: string }>();
+
   const [thesis, setThesis] = useState<Thesis | null>(null);
   const [related, setRelated] = useState<Thesis[]>([]);
   const [loading, setLoading] = useState(true);
-  const viewCounted = useRef(false);
 
   useEffect(() => {
-  if (!id) return;
-  const thesisId = id;
+    if (!id) return;
 
-  if (viewCounted.current) return;
-
-  viewCounted.current = true;
+    load();
+  }, [id]);
 
   async function load() {
-  try {
-    setLoading(true);
+    try {
+      if (!id) return;
 
-    await incrementThesisView(thesisId);
+      setLoading(true);
 
-    const selectedThesis = await getThesisById(thesisId);
-    setThesis(selectedThesis);
+      const selectedThesis = await getThesisById(id);
+      setThesis(selectedThesis);
 
-    const all = await getAllThesis();
+      const all = await getAllThesis();
 
-    const relatedList = all.thesis
-      .filter(
-        (x: Thesis) =>
-          x.department === selectedThesis.department &&
-          x.id !== selectedThesis.id
-      )
-      .slice(0, 5);
+      const relatedList = all.thesis
+        .filter(
+          (x: Thesis) =>
+            x.department === selectedThesis.department &&
+            x.id !== selectedThesis.id
+        )
+        .slice(0, 5);
 
-    setRelated(relatedList);
-  } catch (error) {
-    console.error("Failed to fetch thesis:", error);
-    setThesis(null);
-  } finally {
-    setLoading(false);
+      setRelated(relatedList);
+    } catch (error) {
+      console.error("Failed to fetch thesis:", error);
+      setThesis(null);
+    } finally {
+      setLoading(false);
+    }
   }
-}
-
-  load();
-}, [id]);
 
   if (loading) {
     return (
