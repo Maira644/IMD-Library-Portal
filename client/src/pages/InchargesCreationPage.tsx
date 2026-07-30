@@ -161,7 +161,14 @@ export function InchargesPage() {
 
             } catch (error: any) {
 
-              toast.error(error.message);
+              console.log("Status:", error.response?.status);
+              console.log("Response:", error.response?.data);
+
+              toast.error(
+                error.response?.data?.detail ||
+                error.response?.data?.message ||
+                error.message
+              );
 
             }
           }}>

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
-
+from fastapi import Depends
+from helper.jwt_helper import require_roles
 from config.db import incharge_collection
 
 from model.incharge_model import CreateIncharge
@@ -17,7 +18,10 @@ router = APIRouter(
 
 
 @router.post("/create-incharge")
-def create_incharge(data: CreateIncharge):
+def create_incharge(
+    data: CreateIncharge,
+    admin=Depends(require_roles("admin"))
+):
 
     # Check username
     existing_username = incharge_collection.find_one(
@@ -82,7 +86,9 @@ def create_incharge(data: CreateIncharge):
 
 
 @router.get("/incharges")
-def get_all_incharges():
+def get_all_incharges(
+    admin=Depends(require_roles("admin"))
+):
 
     incharges = []
 
@@ -95,7 +101,8 @@ def get_all_incharges():
 @router.put("/incharges/{incharge_id}")
 def update_incharge(
     incharge_id: str,
-    data: CreateIncharge
+    data: CreateIncharge,
+    admin=Depends(require_roles("admin"))
 ):
 
     # Check username uniqueness
@@ -145,7 +152,10 @@ def update_incharge(
     }
 
 @router.patch("/incharges/{incharge_id}/status")
-def toggle_incharge_status(incharge_id: str):
+def toggle_incharge_status(
+    incharge_id: str,
+    admin=Depends(require_roles("admin"))
+):
 
     incharge = incharge_collection.find_one(
         {"inchargeId": incharge_id}
@@ -173,7 +183,10 @@ def toggle_incharge_status(incharge_id: str):
     }
 
 @router.delete("/incharges/{incharge_id}")
-def delete_incharge(incharge_id: str):
+def delete_incharge(
+    incharge_id: str,
+    admin=Depends(require_roles("admin"))
+):
 
     result = incharge_collection.delete_one(
         {"inchargeId": incharge_id}

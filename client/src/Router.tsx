@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { type ReactNode } from "react";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -55,7 +55,7 @@ function RoleRoute({ role, children }: { role: Role; children: ReactNode }) {
  */
 export function AppRouter() {
   return (
-    <BrowserRouter>
+   
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
@@ -279,6 +279,6 @@ export function AppRouter() {
         {/* Fallback */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </BrowserRouter>
+   
   );
 }

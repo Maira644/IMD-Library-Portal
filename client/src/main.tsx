@@ -7,6 +7,7 @@ import { AppRouter } from "@/router";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SearchProvider } from "@/contexts/SearchContext";
+import { BrowserRouter } from "react-router-dom";
 
 import "./styles.css";
 
@@ -39,14 +40,16 @@ function PointerEventsWatchdog() {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ThemeProvider>
-      <AuthProvider>
-        <SearchProvider>
-          <PointerEventsWatchdog />
-          <AppRouter />
-          <Toaster position="top-right" richColors closeButton />
-        </SearchProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider>
+          <SearchProvider>
+            <PointerEventsWatchdog />
+            <AppRouter />
+            <Toaster position="top-right" richColors closeButton />
+          </SearchProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
