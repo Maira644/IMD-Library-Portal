@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { type ReactNode } from "react";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,7 +17,7 @@ import { AdminThesisPage } from "./pages/AdminThesisPage";
 import { AdminThesisDetailPage } from "./pages/AdminThesisDetailPage";
 import { AnalyticsPage } from "@/pages/AnalyticsPage";
 import { AdminAnnouncementPage } from "@/pages/AdminAnnouncementPage";
-import { InchargesPage } from "@/pages/InchargesPage";
+import { InchargesPage } from "@/pages/InchargesCreationPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { ThemesPage } from "@/pages/ThemesPage";
@@ -55,7 +55,7 @@ function RoleRoute({ role, children }: { role: Role; children: ReactNode }) {
  */
 export function AppRouter() {
   return (
-    <BrowserRouter>
+   
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
@@ -279,6 +279,6 @@ export function AppRouter() {
         {/* Fallback */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </BrowserRouter>
+   
   );
 }
