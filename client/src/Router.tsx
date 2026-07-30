@@ -17,7 +17,7 @@ import { AdminThesisPage } from "./pages/AdminThesisPage";
 import { AdminThesisDetailPage } from "./pages/AdminThesisDetailPage";
 import { AnalyticsPage } from "@/pages/AnalyticsPage";
 import { AdminAnnouncementPage } from "@/pages/AdminAnnouncementPage";
-import { InchargesPage } from "@/pages/InchargesPage";
+import { InchargesPage } from "@/pages/InchargesCreationPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { ThemesPage } from "@/pages/ThemesPage";

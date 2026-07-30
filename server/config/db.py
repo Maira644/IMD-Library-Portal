@@ -27,6 +27,8 @@ try:
     category_collection = db["categories"]
     announcement_collection = db["announcements"]
 
+    counter_collection = db["counters"]
+
     print("MongoDB Connected Successfully")
     print("Database:", DB_NAME)
 
