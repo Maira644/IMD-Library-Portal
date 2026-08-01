@@ -18,6 +18,8 @@ import { AdminBooksPage } from "@/pages/AdminBooksPage";
 import { AdminBookDetailsPage } from "@/pages/AdminBookDetailPage";
 import { AdminThesisPage } from "./pages/AdminThesisPage";
 import { AdminThesisDetailPage } from "./pages/AdminThesisDetailPage";
+import { AdminCategoriesPage } from "@/pages/AdminCategoriesPage";
+import { AdminCategoryDetailsPage } from "@/pages/AdminCategoryDetailsPage";
 import { AnalyticsPage } from "@/pages/AnalyticsPage";
 import { AdminAnnouncementPage } from "@/pages/AdminAnnouncementPage";
 import { InchargesPage } from "@/pages/InchargesCreationPage";
@@ -38,6 +40,8 @@ import { InchargeAnnouncementPage } from "@/pages/InchargeAnnouncementPage";
 import { StudentAnnouncementPage } from "@/pages/StudentAnnouncementPage";
 import { CategoriesPage } from "@/pages/CategoriesPage";
 import { CategoryDetailsPage } from "./pages/CategoryDetailsPage";
+import { StudentCategoriesPage } from "./pages/StudentCategoriesPage";
+import { StudentCategoryDetailsPage } from "./pages/StudentCategoryDetailsPage";
 
 import { StudentDashboard } from "@/pages/StudentDashboard";
 
@@ -144,6 +148,23 @@ export function AppRouter() {
             element={
               <RoleRoute role="admin">
                 <AdminAnnouncementPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/categories"
+            element={
+              <RoleRoute role="admin">
+                <AdminCategoriesPage />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/admin/categories/:id"
+            element={
+              <RoleRoute role="admin">
+                <AdminCategoryDetailsPage />
               </RoleRoute>
             }
           />
@@ -292,6 +313,23 @@ export function AppRouter() {
             element={
               <RoleRoute role="student">
                 <StudentAnnouncementPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/student/categories"
+            element={
+              <RoleRoute role="student">
+                <StudentCategoriesPage />
+              </RoleRoute>
+            }
+          />
+
+          <Route
+            path="/student/categories/:id"
+            element={
+              <RoleRoute role="student">
+                <StudentCategoryDetailsPage />
               </RoleRoute>
             }
           />

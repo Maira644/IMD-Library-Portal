@@ -70,7 +70,7 @@ const NAV: Record<Role, { section: string; items: NavItem[] }[]> = {
       items: [
         { label: "Books", to: "/admin/books", icon: BookOpen },
         { label: "Thesis", to: "/admin/thesis", icon: GraduationCap },
-        // { label: "Categories", to: "/library/categories", icon: Tags },
+        { label: "Categories", to: "/admin/categories", icon: Tags },
       ],
     },
     {
@@ -120,6 +120,14 @@ const NAV: Record<Role, { section: string; items: NavItem[] }[]> = {
       items: [
         { label: "Books", to: "/student/books", icon: BookOpen },
         { label: "Thesis", to: "/student/thesis", icon: GraduationCap },
+        { label: "Categories", to: "/student/categories", icon: Tags },
+        
+         
+      ],
+    },
+    {
+      section: "Communication",
+      items: [
         { label: "Announcements", to: "/student/announcements", icon: Megaphone },
       ],
     },
