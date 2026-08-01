@@ -35,7 +35,7 @@ import {
   deleteCategory,
 } from "@/api/category";
 
-export function CategoriesPage() {
+export function AdminCategoriesPage() {
   const [items, setItems] = useState<Category[]>([]);
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
@@ -188,7 +188,7 @@ export function CategoriesPage() {
               data={filtered}
               columns={cols}
               onRowClick={(category) =>
-                navigate(`/library/categories/${category.id}`)
+                navigate(`/admin/categories/${category.id}`)
               }
             />
 

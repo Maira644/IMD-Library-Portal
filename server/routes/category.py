@@ -1,7 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from config.db import category_collection
+from config.db import (
+    category_collection,
+    book_collection,
+    thesis_collection,
+)
 
 router = APIRouter(
     prefix="/category",
@@ -95,11 +99,30 @@ async def get_category_by_id(category_id: str):
             detail="Category not found."
         )
 
+    books = list(
+    book_collection.find({
+        "category": category["name"]
+    })
+)
+    thesis = list(
+    thesis_collection.find({
+        "category": category["name"]
+    })
+)
+     # Convert ObjectIds
     category["_id"] = str(category["_id"])
+
+    for book in books:
+        book["_id"] = str(book["_id"])
+
+    for item in thesis:
+        item["_id"] = str(item["_id"])
 
     return {
         "message": "Category fetched successfully.",
-        "category": category
+        "category": category,
+        "books": books,
+        "thesis": thesis
     }
 
 # ==========================
