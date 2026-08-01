@@ -24,6 +24,7 @@ import { AnalyticsPage } from "@/pages/AnalyticsPage";
 import { AdminAnnouncementPage } from "@/pages/AdminAnnouncementPage";
 import { InchargesPage } from "@/pages/InchargesCreationPage";
 import { AdminProfilePage } from "@/pages/AdminProfilePage";
+import { AdminStudentProfilePage } from "@/pages/AdminStudentProfilePage";
 import { InchargeProfilePage } from "@/pages/InchargeProfilePage";
 import { StudentProfilePage } from "@/pages/StudentProfilePage";
 import { SettingsPage } from "@/pages/SettingsPage";
@@ -191,6 +192,14 @@ export function AppRouter() {
             element={
               <RoleRoute role="admin">
                 <AdminProfilePage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/students"
+            element={
+              <RoleRoute role="admin">
+                <AdminStudentProfilePage />
               </RoleRoute>
             }
           />

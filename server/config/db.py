@@ -26,7 +26,7 @@ try:
     book_collection = db["books"] 
     category_collection = db["categories"]
     announcement_collection = db["announcements"]
-
+    settings_collection = db["settings"]
     counter_collection = db["counters"]
 
     print("MongoDB Connected Successfully")
