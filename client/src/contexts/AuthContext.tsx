@@ -24,6 +24,7 @@ interface AuthContextValue {
   ) => Promise<User>;
   logout: () => void;
   hasRole: (...roles: Role[]) => boolean;
+  updateUser: (user: User) => void;   // add this
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -152,9 +153,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasRole(...roles) {
         return !!user && roles.includes(user.role);
       },
-    }),
-    [user],
-  );
+      updateUser(updated: User) {
+      setUser(updated);
+
+      const storage = localStorage.getItem(STORAGE_KEY)
+        ? localStorage
+        : sessionStorage;
+
+      storage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    },
+  }),
+  [user],
+);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
