@@ -16,8 +16,8 @@ export const getCategories = async () => {
 // GET SINGLE CATEGORY
 // ==========================
 export const getCategory = async (id: string) => {
-  const response = await API.get(`/category/${id}`);
-  return response.data.category;
+    const response = await API.get(`/category/${id}`);
+    return response.data;
 };
 
 // ==========================

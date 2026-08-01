@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { type ReactNode } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+// import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   BookOpen,
@@ -139,17 +139,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex flex-1 flex-col">
           <AppHeader />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={location.pathname}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                {children}
-              </motion.div>
-            </AnimatePresence>
+            {children}
           </main>
         </div>
       </div>
@@ -235,7 +225,7 @@ function AppHeader() {
       <SidebarTrigger>
         <Menu className="h-5 w-5" />
       </SidebarTrigger>
-     
+
       <div className="ml-auto flex items-center gap-2">
         <Button size="icon" variant="ghost" onClick={toggleMode} aria-label="Toggle theme">
           {config.mode === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}

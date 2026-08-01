@@ -20,11 +20,10 @@ export function InchargeBookDetailsPage() {
   const [related, setRelated] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!id) return;
-
+ useEffect(() => {
+    if (!id || !id.startsWith("BK-")) return;
     fetchBook();
-  }, [id]);
+}, [id]);
 
   async function fetchBook() {
     try {

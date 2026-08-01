@@ -1,5 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { type ReactNode } from "react";
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { useAuth } from "@/contexts/AuthContext";
 import type { Role } from "@/types";
@@ -34,6 +37,7 @@ import { StudentThesisDetailPage } from "@/pages/StudentThesisDetailPage";
 import { InchargeAnnouncementPage } from "@/pages/InchargeAnnouncementPage";
 import { StudentAnnouncementPage } from "@/pages/StudentAnnouncementPage";
 import { CategoriesPage } from "@/pages/CategoriesPage";
+import { CategoryDetailsPage } from "./pages/CategoryDetailsPage";
 
 import { StudentDashboard } from "@/pages/StudentDashboard";
 
@@ -54,231 +58,256 @@ function RoleRoute({ role, children }: { role: Role; children: ReactNode }) {
  * Pages live in src/pages and are rendered through this table.
  */
 export function AppRouter() {
+  const location = useLocation();
+  const [displayLocation, setDisplayLocation] = useState(location);
+  const [isExiting, setIsExiting] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname !== displayLocation.pathname) {
+      setIsExiting(true);
+    }
+  }, [location, displayLocation]);
   return (
-   
-      <Routes>
-        {/* Public */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/unauthorized" element={<UnauthorizedPage />} />
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Routes location={location}>
+          {/* Public */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-        {/* Admin */}
-        <Route
-          path="/admin"
-          element={
-            <RoleRoute role="admin">
-              <AdminDashboard />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/admin/books"
-          element={
-            <RoleRoute role="admin">
-              <AdminBooksPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/admin/books/:id"
-          element={
-            <RoleRoute role="admin">
-              <AdminBookDetailsPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/admin/thesis"
-          element={
-            <RoleRoute role="admin">
-              <AdminThesisPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/admin/thesis/:id"
-          element={
-            <RoleRoute role="admin">
-              <AdminThesisDetailPage/>
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/admin/analytics"
-          element={
-            <RoleRoute role="admin">
-              <AnalyticsPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/admin/incharges"
-          element={
-            <RoleRoute role="admin">
-              <InchargesPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/admin/announcements"
-          element={
-            <RoleRoute role="admin">
-              <AdminAnnouncementPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/admin/themes"
-          element={
-            <RoleRoute role="admin">
-              <ThemesPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/admin/settings"
-          element={
-            <RoleRoute role="admin">
-              <SettingsPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/admin/profile"
-          element={
-            <RoleRoute role="admin">
-              <ProfilePage editable />
-            </RoleRoute>
-          }
-        />
+          {/* Admin */}
+          <Route
+            path="/admin"
+            element={
+              <RoleRoute role="admin">
+                <AdminDashboard />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/books"
+            element={
+              <RoleRoute role="admin">
+                <AdminBooksPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/books/:id"
+            element={
+              <RoleRoute role="admin">
+                <AdminBookDetailsPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/thesis"
+            element={
+              <RoleRoute role="admin">
+                <AdminThesisPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/thesis/:id"
+            element={
+              <RoleRoute role="admin">
+                <AdminThesisDetailPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/analytics"
+            element={
+              <RoleRoute role="admin">
+                <AnalyticsPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/incharges"
+            element={
+              <RoleRoute role="admin">
+                <InchargesPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/announcements"
+            element={
+              <RoleRoute role="admin">
+                <AdminAnnouncementPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/themes"
+            element={
+              <RoleRoute role="admin">
+                <ThemesPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <RoleRoute role="admin">
+                <SettingsPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/profile"
+            element={
+              <RoleRoute role="admin">
+                <ProfilePage editable />
+              </RoleRoute>
+            }
+          />
 
-        {/* Library Incharge */}
-        <Route
-          path="/library"
-          element={
-            <RoleRoute role="incharge">
-              <LibraryDashboard />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/library/books"
-          element={
-            <RoleRoute role="incharge">
-              <InchargeBooksPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/library/books/:id"
-          element={
-            <RoleRoute role="incharge">
-              <InchargeBookDetailsPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/library/thesis"
-          element={
-            <RoleRoute role="incharge">
-              <InchargeThesisPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/library/thesis/:id"
-          element={
-            <RoleRoute role="incharge">
-              <InchargeThesisDetailPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/library/categories"
-          element={
-            <RoleRoute role="incharge">
-              <CategoriesPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/library/announcements"
-          element={
-            <RoleRoute role="incharge">
-              <InchargeAnnouncementPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/library/profile"
-          element={
-            <RoleRoute role="incharge">
-              <ProfilePage editable />
-            </RoleRoute>
-          }
-        />
+          {/* Library Incharge */}
+          <Route
+            path="/library"
+            element={
+              <RoleRoute role="incharge">
+                <LibraryDashboard />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/library/books"
+            element={
+              <RoleRoute role="incharge">
+                <InchargeBooksPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/library/books/:id"
+            element={
+              <RoleRoute role="incharge">
+                <InchargeBookDetailsPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/library/thesis"
+            element={
+              <RoleRoute role="incharge">
+                <InchargeThesisPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/library/thesis/:id"
+            element={
+              <RoleRoute role="incharge">
+                <InchargeThesisDetailPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/library/categories"
+            element={
+              <RoleRoute role="incharge">
+                <CategoriesPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/library/categories/:id"
+            element={
+              <RoleRoute role="incharge">
+                <CategoryDetailsPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/library/announcements"
+            element={
+              <RoleRoute role="incharge">
+                <InchargeAnnouncementPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/library/profile"
+            element={
+              <RoleRoute role="incharge">
+                <ProfilePage editable />
+              </RoleRoute>
+            }
+          />
 
-        {/* Student */}
-        <Route
-          path="/student"
-          element={
-            <RoleRoute role="student">
-              <StudentDashboard />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/student/books"
-          element={
-            <RoleRoute role="student">
-              <StudentBooksPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/student/books/:id"
-          element={
-            <RoleRoute role="student">
-              <StudentBookDetailsPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/student/thesis"
-          element={
-            <RoleRoute role="student">
-              <StudentThesisPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/student/thesis/:id"
-          element={
-            <RoleRoute role="student">
-              <StudentThesisDetailPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/student/announcements"
-          element={
-            <RoleRoute role="student">
-              <StudentAnnouncementPage />
-            </RoleRoute>
-          }
-        />
-        <Route
-          path="/student/profile"
-          element={
-            <RoleRoute role="student">
-              <ProfilePage editable={false} />
-            </RoleRoute>
-          }
-        />
+          {/* Student */}
+          <Route
+            path="/student"
+            element={
+              <RoleRoute role="student">
+                <StudentDashboard />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/student/books"
+            element={
+              <RoleRoute role="student">
+                <StudentBooksPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/student/books/:id"
+            element={
+              <RoleRoute role="student">
+                <StudentBookDetailsPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/student/thesis"
+            element={
+              <RoleRoute role="student">
+                <StudentThesisPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/student/thesis/:id"
+            element={
+              <RoleRoute role="student">
+                <StudentThesisDetailPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/student/announcements"
+            element={
+              <RoleRoute role="student">
+                <StudentAnnouncementPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/student/profile"
+            element={
+              <RoleRoute role="student">
+                <ProfilePage editable={false} />
+              </RoleRoute>
+            }
+          />
 
-        {/* Fallback */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-   
+          {/* Fallback */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
   );
 }
