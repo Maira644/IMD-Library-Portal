@@ -63,6 +63,7 @@
 
 :root {
   --radius: 0.75rem;
+  --motion-scale: 1;
 
   /* Brand: KC Royals Blue #004687 shades */
   --primary-50: oklch(0.97 0.02 255);
@@ -170,20 +171,50 @@
   --sidebar-ring: oklch(0.7 0.14 255);
 }
 
+/* ==========================
+   Card Style
+========================== */
+
+[data-card-style="flat"] {
+  --card-shadow: none;
+}
+
+[data-card-style="elevated"] {
+  --card-shadow:
+    0 4px 12px rgba(0, 0, 0, .08);
+}
+
+/* ==========================
+   Compact Mode
+========================== */
+
+[data-compact="true"] {
+  --spacing-scale: .8;
+}
+
+[data-compact="false"] {
+  --spacing-scale: 1;
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
+
+    transition-duration: calc(150ms * var(--motion-scale));
   }
+
   html,
   body {
     font-family: var(--font-sans);
   }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
+
   h1,
   h2,
   h3,

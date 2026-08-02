@@ -24,8 +24,7 @@ import type { Book, Thesis, Announcement } from "@/types";
 import { getAllBooks } from "@/api/book";
 import { getAllThesis, getMostViewedThesis } from "@/api/thesis";
 import { getAnnouncements } from "@/api/announcement";
-
-import { mockIncharges } from "@/data/mockIncharges";
+import { getAllIncharges } from "@/api/incharge";
 import {
   recentActivity,
   topKeywords,
@@ -49,6 +48,8 @@ export function AdminDashboard() {
   const [announcementCount, setAnnouncementCount] = useState(0);
   const [pinnedAnnouncements, setPinnedAnnouncements] = useState(0);
   const [thesisAddedThisMonth, setThesisAddedThisMonth] = useState(0);
+  const [inchargeCount, setInchargeCount] = useState(0);
+  const [activeIncharges, setActiveIncharges] = useState(0);
 
   useEffect(() => {
     fetchDashboardData();
@@ -103,6 +104,15 @@ export function AdminDashboard() {
         announcements.filter((a) => a.pinned).length
       );
 
+      // ================= INCHARGES =================
+      const incharges = await getAllIncharges();
+
+      setInchargeCount(incharges.length);
+
+      setActiveIncharges(
+        incharges.filter((i: any) => i.active).length
+      );
+
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
     }
@@ -132,9 +142,9 @@ export function AdminDashboard() {
 
         <StatCard
           label="Library incharges"
-          value={mockIncharges.length}
+          value={inchargeCount}
           icon={Users}
-          hint={`${mockIncharges.filter((i) => i.active).length} active`}
+          hint={`${activeIncharges} active`}
         />
 
         <StatCard
