@@ -23,7 +23,10 @@ import { AdminCategoryDetailsPage } from "@/pages/AdminCategoryDetailsPage";
 import { AnalyticsPage } from "@/pages/AnalyticsPage";
 import { AdminAnnouncementPage } from "@/pages/AdminAnnouncementPage";
 import { InchargesPage } from "@/pages/InchargesCreationPage";
-import { ProfilePage } from "@/pages/ProfilePage";
+import { AdminProfilePage } from "@/pages/AdminProfilePage";
+import { AdminStudentProfilePage } from "@/pages/AdminStudentProfilePage";
+import { InchargeProfilePage } from "@/pages/InchargeProfilePage";
+import { StudentProfilePage } from "@/pages/StudentProfilePage";
 import { SettingsPage } from "@/pages/SettingsPage";
 import { ThemesPage } from "@/pages/ThemesPage";
 
@@ -188,7 +191,15 @@ export function AppRouter() {
             path="/admin/profile"
             element={
               <RoleRoute role="admin">
-                <ProfilePage editable />
+                <AdminProfilePage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/admin/students"
+            element={
+              <RoleRoute role="admin">
+                <AdminStudentProfilePage />
               </RoleRoute>
             }
           />
@@ -262,7 +273,7 @@ export function AppRouter() {
             path="/library/profile"
             element={
               <RoleRoute role="incharge">
-                <ProfilePage editable />
+                <InchargeProfilePage />
               </RoleRoute>
             }
           />
@@ -337,7 +348,7 @@ export function AppRouter() {
             path="/student/profile"
             element={
               <RoleRoute role="student">
-                <ProfilePage editable={false} />
+                <StudentProfilePage />
               </RoleRoute>
             }
           />

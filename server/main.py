@@ -8,6 +8,8 @@ from routes.category import router as category_router
 from routes.announcement import router as announcement_router
 from routes.book import router as book_router
 from routes.admin_routes import router as admin_router
+from routes.profile import router as profile_router
+from routes.student import router as student_router
 from routes.theme import router as theme_router
 
 app = FastAPI(
@@ -51,5 +53,7 @@ app.include_router(category_router)
 app.include_router(announcement_router)
 app.include_router(book_router)
 app.include_router(admin_router)
+app.include_router(profile_router)
+app.include_router(student_router)
 app.include_router(theme_router)
 
