@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   BookOpen,
@@ -14,22 +15,191 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { mockBooks } from "@/data/mockBooks";
-import { mockThesis } from "@/data/mockThesis";
-import { mockAnnouncements } from "@/data/mockAnnouncements";
+import { useAuth } from "@/contexts/AuthContext";
+import { getAllBooks } from "@/api/book";
+import { getAllThesis } from "@/api/thesis";
+import { getAnnouncements } from "@/api/announcement";
+import { getCategories } from "@/api/category";
+import type { Role } from "@/types";
+
+interface PreviewItem {
+  id: string;
+  title: string;
+  sub: string;
+}
+
+function dashboardPath(role: Role) {
+  if (role === "admin") return "/admin";
+  if (role === "incharge") return "/library";
+  return "/student";
+}
+
+function bookDetailPath(role: Role, id: string) {
+  if (role === "admin") return `/admin/books/${id}`;
+  if (role === "incharge") return `/library/books/${id}`;
+  return `/student/books/${id}`;
+}
+
+function thesisDetailPath(role: Role, id: string) {
+  if (role === "admin") return `/admin/thesis/${id}`;
+  if (role === "incharge") return `/library/thesis/${id}`;
+  return `/student/thesis/${id}`;
+}
+
+function announcementsPath(role: Role) {
+  if (role === "admin") return "/admin/announcements";
+  if (role === "incharge") return "/library/announcements";
+  return "/student/announcements";
+}
+
+function booksListPath(role: Role) {
+  if (role === "admin") return "/admin/books";
+  if (role === "incharge") return "/library/books";
+  return "/student/books";
+}
 
 export function LandingPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [books, setBooks] = useState<PreviewItem[]>([]);
+  const [thesis, setThesis] = useState<PreviewItem[]>([]);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+
+  const [booksTotal, setBooksTotal] = useState(0);
+  const [thesisTotal, setThesisTotal] = useState(0);
+  const [categoriesTotal, setCategoriesTotal] = useState(0);
+
+  const [booksLoading, setBooksLoading] = useState(true);
+  const [thesisLoading, setThesisLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [announcementsLoading, setAnnouncementsLoading] = useState(!!user);
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getAllBooks();
+        const all = data.books ?? [];
+        setBooksTotal(all.length);
+        const list = all.slice(0, 4).map((b: any) => ({
+          id: b.id,
+          title: b.title,
+          sub: b.author,
+        }));
+        setBooks(list);
+      } catch {
+        setBooks([]);
+      } finally {
+        setBooksLoading(false);
+      }
+    })();
+
+    (async () => {
+      try {
+        const data = await getAllThesis();
+        const all = data.thesis ?? [];
+        setThesisTotal(all.length);
+        const list = all.slice(0, 4).map((t: any) => ({
+          id: t.id,
+          title: t.title,
+          sub: Array.isArray(t.studentNames) ? t.studentNames.join(", ") : t.studentNames,
+        }));
+        setThesis(list);
+      } catch {
+        setThesis([]);
+      } finally {
+        setThesisLoading(false);
+      }
+    })();
+
+    (async () => {
+      try {
+        const categories = await getCategories();
+        setCategoriesTotal(categories?.length ?? 0);
+      } catch {
+        setCategoriesTotal(0);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setAnnouncements([]);
+      setAnnouncementsLoading(false);
+      return;
+    }
+
+    setAnnouncementsLoading(true);
+    (async () => {
+      try {
+        const list = await getAnnouncements();
+        setAnnouncements(list.slice(0, 2));
+      } catch {
+        setAnnouncements([]);
+      } finally {
+        setAnnouncementsLoading(false);
+      }
+    })();
+  }, [user]);
+
+  function handleBookClick(id: string) {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    navigate(bookDetailPath(user.role, id));
+  }
+
+  function handleThesisClick(id: string) {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    navigate(thesisDetailPath(user.role, id));
+  }
+
+  function handleAnnouncementsClick() {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    navigate(announcementsPath(user.role));
+  }
+
+  function handleSearchSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    const path = booksListPath(user.role);
+    navigate(searchTerm.trim() ? `${path}?search=${encodeURIComponent(searchTerm.trim())}` : path);
+  }
+
+  function handlePrimaryCta() {
+    if (user) {
+      navigate(dashboardPath(user.role));
+    } else {
+      navigate("/login");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <PublicHeader />
 
-      {/* Hero — styled as a card-catalog entry, not a generic centered stack */}
+      {/* Hero */}
       <section className="relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/[0.06] via-background to-background" />
 
         <div className="mx-auto max-w-7xl px-6 pb-16 pt-16 md:pt-24">
           <div className="grid gap-12 md:grid-cols-[1fr_320px] md:items-start">
-            {/* Left: the "entry" itself */}
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-primary">
                 <span className="h-px w-6 bg-primary/50" />
@@ -46,33 +216,26 @@ export function LandingPage() {
                 Every book, thesis, and academic resource — cataloged, cross-referenced, and one search away.
               </p>
 
-              {/* Search styled like a request slip: underline, not a pill */}
-              <form
-                className="mt-9 max-w-md"
-                onSubmit={(e) => e.preventDefault()}
-              >
+              <form className="mt-9 max-w-md" onSubmit={handleSearchSubmit}>
                 <label className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
                   Search request
                 </label>
                 <div className="mt-2 flex items-center gap-3 border-b-2 border-foreground/70 pb-2 focus-within:border-primary">
                   <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
                   <input
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Title, author, keyword…"
                     className="w-full bg-transparent text-base text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
                   />
                 </div>
-                <Button asChild size="lg" className="group mt-5">
-                  <Link to="/login">
-                    Get started
-                    <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </Link>
+                <Button type="submit" size="lg" className="group mt-5">
+                  {user ? "Search catalog" : "Sign in to search"}
+                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Button>
               </form>
             </motion.div>
 
-            {/* Right: the signature element — a rotated index card of stats,
-                dotted leaders like a real catalog entry. items-start above
-                keeps this from ever stretching to a mismatched height. */}
             <motion.div
               initial={{ opacity: 0, rotate: -3, y: 20 }}
               animate={{ opacity: 1, rotate: -2, y: 0 }}
@@ -84,10 +247,10 @@ export function LandingPage() {
                 Accession Record
               </p>
               <div className="mt-4 space-y-3 font-mono text-sm">
-                <CatalogRow label="Books" value="1,240+" />
-                <CatalogRow label="Thesis" value="480+" />
-                <CatalogRow label="Categories" value="24" />
-                <CatalogRow label="Departments" value="12" />
+                <CatalogRow label="Books" value={booksLoading ? "…" : `${booksTotal}+`} />
+                <CatalogRow label="Thesis" value={thesisLoading ? "…" : `${thesisTotal}+`} />
+                <CatalogRow label="Categories" value={categoriesLoading ? "…" : `${categoriesTotal}`} />
+                <CatalogRow label="Department" value="IMD" />
               </div>
               <div className="mt-6 flex gap-[3px]">
                 {[3, 1, 2, 1, 4, 1, 2, 3, 1, 2, 1, 3, 2, 1, 4, 1, 2, 1].map((w, i) => (
@@ -97,35 +260,6 @@ export function LandingPage() {
             </motion.div>
           </div>
         </div>
-
-        {/*
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="relative mx-auto mt-4 h-56 max-w-4xl px-6 md:h-64"
-        >
-          <div className="flex h-full items-end justify-center gap-3 sm:gap-4">
-            {mockBooks.slice(0, 5).map((b, i) => (
-              <motion.div
-                key={b.id}
-                initial={{ opacity: 0, y: 24, rotate: i % 2 === 0 ? -4 : 4 }}
-                whileInView={{ opacity: 1, y: 0, rotate: i % 2 === 0 ? -4 : 4 }}
-                whileHover={{ y: -10, rotate: 0, scale: 1.04 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.4 }}
-                className="w-20 shrink-0 sm:w-28 md:w-32"
-              >
-                <Card className="overflow-hidden shadow-lg">
-                  <img src={b.coverUrl} alt={b.title} className="aspect-[3/4] w-full object-cover" />
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-          <div className="mx-auto -mt-px h-3 max-w-4xl rounded-sm bg-gradient-to-b from-primary to-primary/70 shadow-md" />
-          <div className="mx-auto h-2 max-w-4xl scale-x-95 rounded-full bg-foreground/10 blur-sm" />
-        </motion.div>
-        */}
       </section>
 
       {/* Features */}
@@ -203,34 +337,55 @@ export function LandingPage() {
             <PreviewList
               title="Latest books"
               icon={BookOpen}
-              items={mockBooks.slice(0, 4).map((b) => ({ id: b.id, title: b.title, sub: b.author }))}
+              items={books}
+              loading={booksLoading}
+              emptyLabel="No books available yet."
+              onItemClick={handleBookClick}
             />
             <PreviewList
               title="Latest thesis"
               icon={GraduationCap}
-              items={mockThesis.slice(0, 4).map((t) => ({
-                id: t.id,
-                title: t.title,
-                sub: Array.isArray(t.studentNames) ? t.studentNames.join(", ") : t.studentNames,
-              }))}
+              items={thesis}
+              loading={thesisLoading}
+              emptyLabel="No thesis available yet."
+              onItemClick={handleThesisClick}
             />
           </div>
+
           <div id="announcements" className="mt-10">
             <div className="mb-4 flex items-center gap-2">
               <Clock className="h-5 w-5 text-primary" />
               <h3 className="text-lg font-semibold">Announcements</h3>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              {mockAnnouncements.slice(0, 2).map((a) => (
-                <Card key={a.id} className="transition-shadow hover:shadow-md">
-                  <CardContent className="p-5">
-                    <p className="text-xs font-medium uppercase tracking-wide text-primary">Announcement</p>
-                    <p className="mt-1 font-semibold">{a.title}</p>
-                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{a.body}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+
+            {!user ? (
+              <Card>
+                <CardContent className="flex items-center justify-between gap-4 p-5">
+                  <p className="text-sm text-muted-foreground">Sign in to view the latest announcements.</p>
+                  <Button size="sm" onClick={() => navigate("/login")}>Sign in</Button>
+                </CardContent>
+              </Card>
+            ) : announcementsLoading ? (
+              <p className="text-sm text-muted-foreground">Loading announcements…</p>
+            ) : announcements.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No announcements yet.</p>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                {announcements.map((a) => (
+                  <Card
+                    key={a.id}
+                    className="cursor-pointer transition-shadow hover:shadow-md"
+                    onClick={handleAnnouncementsClick}
+                  >
+                    <CardContent className="p-5">
+                      <p className="text-xs font-medium uppercase tracking-wide text-primary">Announcement</p>
+                      <p className="mt-1 font-semibold">{a.title}</p>
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{a.body}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -249,14 +404,14 @@ export function LandingPage() {
             <div>
               <h2 className="text-3xl font-bold">Ready to explore the library?</h2>
               <p className="mt-2 text-primary-foreground/80">
-                Sign in with your university account to access the full catalog.
+                {user
+                  ? "Jump back into your dashboard to pick up where you left off."
+                  : "Sign in with your university account to access the full catalog."}
               </p>
             </div>
-            <Button asChild size="lg" variant="secondary" className="group w-fit">
-              <Link to="/login">
-                Sign in
-                <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
+            <Button size="lg" variant="secondary" className="group w-fit" onClick={handlePrimaryCta}>
+              {user ? "Go to dashboard" : "Sign in"}
+              <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
           </CardContent>
         </Card>
@@ -281,10 +436,16 @@ function PreviewList({
   title,
   icon: Icon,
   items,
+  loading,
+  emptyLabel,
+  onItemClick,
 }: {
   title: string;
   icon: React.ComponentType<{ className?: string }>;
-  items: { id: string; title: string; sub: string }[];
+  items: PreviewItem[];
+  loading: boolean;
+  emptyLabel: string;
+  onItemClick: (id: string) => void;
 }) {
   return (
     <div>
@@ -294,18 +455,25 @@ function PreviewList({
       </div>
       <Card>
         <CardContent className="divide-y p-0">
-          {items.map((i) => (
-            <div
-              key={i.id}
-              className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-muted/60"
-            >
-              <div className="min-w-0">
-                <p className="truncate font-medium">{i.title}</p>
-                <p className="truncate text-xs text-muted-foreground">{i.sub}</p>
-              </div>
-              <Badge variant="outline">{i.id}</Badge>
-            </div>
-          ))}
+          {loading ? (
+            <p className="px-5 py-6 text-sm text-muted-foreground">Loading…</p>
+          ) : items.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-muted-foreground">{emptyLabel}</p>
+          ) : (
+            items.map((i) => (
+              <button
+                key={i.id}
+                onClick={() => onItemClick(i.id)}
+                className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-muted/60"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{i.title}</p>
+                  <p className="truncate text-xs text-muted-foreground">{i.sub}</p>
+                </div>
+                <Badge variant="outline">{i.id}</Badge>
+              </button>
+            ))
+          )}
         </CardContent>
       </Card>
     </div>
@@ -313,6 +481,8 @@ function PreviewList({
 }
 
 function PublicHeader() {
+  const { user } = useAuth();
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
@@ -331,7 +501,9 @@ function PublicHeader() {
           <a href="#announcements" className="transition-colors hover:text-foreground">Announcements</a>
         </nav>
         <Button asChild>
-          <Link to="/login">Sign in</Link>
+          <Link to={user ? dashboardPath(user.role) : "/login"}>
+            {user ? "Dashboard" : "Sign in"}
+          </Link>
         </Button>
       </div>
     </header>
