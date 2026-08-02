@@ -71,6 +71,7 @@ async def login(login_data: LoginRequest):
     "email": user["email"],
     "role": user["role"],
     "department": user.get("department"),
+    "avatar": user.get("avatar"),
     "createdAt": user["createdAt"],
     "active": user["active"]
 }

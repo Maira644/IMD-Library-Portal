@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from helper.jwt_helper import get_current_user, require_roles
 from helper.auth_helper import hash_password, verify_password
+from helper.cloudinary_helper import upload_avatar, delete_asset
 from config.db import admin_collection, incharge_collection, student_collection
 from model.profile_model import UpdateProfileRequest
 
@@ -27,6 +28,7 @@ def _serialize(user: dict, role: str) -> dict:
         "email": user["email"],
         "role": user["role"],
         "department": user.get("department"),
+        "avatar": user.get("avatar"),
         "createdAt": user["createdAt"],
         "active": user["active"],
     }
@@ -61,10 +63,17 @@ def update_my_profile(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Email uniqueness check (excluding self) within same collection
+    username_exists = collection.find_one({
+        "username": data.username,
+        "_id": {"$ne": user["_id"]}
+    })
+
+    if username_exists:
+        raise HTTPException(status_code=400, detail="Username already exists.")
+
     email_exists = collection.find_one({
         "email": data.email,
-        "username": {"$ne": current["username"]}
+        "_id": {"$ne": user["_id"]}
     })
 
     if email_exists:
@@ -72,13 +81,13 @@ def update_my_profile(
 
     update_fields = {
         "name": data.name,
+        "username": data.username,
         "email": data.email,
     }
 
     if data.department is not None:
         update_fields["department"] = data.department
 
-    # Handle password change
     if data.newPassword:
         if not data.currentPassword:
             raise HTTPException(
@@ -95,13 +104,71 @@ def update_my_profile(
         update_fields["password"] = hash_password(data.newPassword)
 
     collection.update_one(
-        {"username": current["username"]},
+        {"_id": user["_id"]},
         {"$set": update_fields}
     )
 
-    updated_user = collection.find_one({"username": current["username"]})
+    updated_user = collection.find_one({"_id": user["_id"]})
 
     return {
         "message": "Profile updated successfully.",
+        "user": _serialize(updated_user, role)
+    }
+
+
+@router.post("/me/avatar")
+def upload_my_avatar(
+    file: UploadFile = File(...),
+    current=Depends(require_roles("admin", "incharge"))
+):
+    role = current["role"]
+    collection = COLLECTIONS[role]
+
+    user = collection.find_one({"username": current["username"]})
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # remove old avatar from Cloudinary if one exists, to avoid orphaned files
+    if user.get("avatarPublicId"):
+        delete_asset(user["avatarPublicId"])
+
+    avatar_url, public_id = upload_avatar(file.file)
+
+    collection.update_one(
+        {"_id": user["_id"]},
+        {"$set": {"avatar": avatar_url, "avatarPublicId": public_id}}
+    )
+
+    updated_user = collection.find_one({"_id": user["_id"]})
+
+    return {
+        "message": "Profile picture updated successfully.",
+        "user": _serialize(updated_user, role)
+    }
+
+
+@router.delete("/me/avatar")
+def delete_my_avatar(current=Depends(require_roles("admin", "incharge"))):
+    role = current["role"]
+    collection = COLLECTIONS[role]
+
+    user = collection.find_one({"username": current["username"]})
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.get("avatarPublicId"):
+        delete_asset(user["avatarPublicId"])
+
+    collection.update_one(
+        {"_id": user["_id"]},
+        {"$unset": {"avatar": "", "avatarPublicId": ""}}
+    )
+
+    updated_user = collection.find_one({"_id": user["_id"]})
+
+    return {
+        "message": "Profile picture removed.",
         "user": _serialize(updated_user, role)
     }

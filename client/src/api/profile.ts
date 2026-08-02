@@ -19,6 +19,7 @@ API.interceptors.request.use((config) => {
 
 export interface UpdateProfilePayload {
   name: string;
+  username: string;
   email: string;
   department?: string;
   currentPassword?: string;
@@ -32,5 +33,20 @@ export const getMyProfile = async () => {
 
 export const updateMyProfile = async (payload: UpdateProfilePayload) => {
   const response = await API.put("/profile/me", payload);
+  return response.data;
+};
+
+export const uploadMyAvatar = async (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await API.post("/profile/me/avatar", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return response.data;
+};
+
+export const deleteMyAvatar = async () => {
+  const response = await API.delete("/profile/me/avatar");
   return response.data;
 };

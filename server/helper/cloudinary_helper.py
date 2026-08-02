@@ -33,3 +33,14 @@ def upload_pdf(file):
     )
 
     return result["secure_url"]
+
+def upload_avatar(file):
+    result = cloudinary.uploader.upload(
+        file,
+        folder="library/avatars"
+    )
+    return result["secure_url"], result["public_id"]
+
+
+def delete_asset(public_id: str):
+    cloudinary.uploader.destroy(public_id)
