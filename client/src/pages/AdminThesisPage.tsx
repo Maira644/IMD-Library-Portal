@@ -104,6 +104,12 @@ export function AdminThesisPage() {
       render: (t) => t.submissionYear,
     },
     {
+      key: "views",
+      header: "Views",
+      sortable: true,
+      className: "text-center",
+    },
+    {
       key: "actions",
       header: "",
       className: "w-12 text-right",

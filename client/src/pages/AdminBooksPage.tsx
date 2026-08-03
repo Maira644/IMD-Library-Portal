@@ -137,6 +137,12 @@ export function AdminBooksPage() {
       sortable: true,
     },
     {
+      key: "views",
+      header: "Views",
+      sortable: true,
+      className: "text-center",
+    },
+    {
       key: "publisher",
       header: "Publisher",
     },

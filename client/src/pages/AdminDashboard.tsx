@@ -1,4 +1,4 @@
-// import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   BookOpen,
   GraduationCap,
@@ -165,11 +165,18 @@ export function AdminDashboard() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Eye className="h-4 w-4" />
               Most viewed books
             </CardTitle>
+
+            <Link
+              to="/admin/books"
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              View all
+            </Link>
           </CardHeader>
 
           <CardContent className="divide-y p-0">
@@ -196,11 +203,18 @@ export function AdminDashboard() {
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Eye className="h-4 w-4" />
               Most viewed thesis
             </CardTitle>
+
+            <Link
+              to="/admin/thesis"
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              View all
+            </Link>
           </CardHeader>
 
           <CardContent className="divide-y p-0">
