@@ -1,21 +1,20 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, EyeOff, Loader2, Pencil, Camera, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
-import { getMyProfile, updateMyProfile, uploadMyAvatar, deleteMyAvatar } from "@/api/profile";
+import { getMyProfile, updateMyProfile } from "@/api/profile";
 
 export function InchargeProfilePage() {
   const { user, updateUser, logout } = useAuth();
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [editing, setEditing] = useState(false);
 
@@ -23,7 +22,6 @@ export function InchargeProfilePage() {
   const [username, setUsername] = useState(user?.username ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [department, setDepartment] = useState(user?.department ?? "");
-  const [avatar, setAvatar] = useState(user?.avatar ?? "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [showCurrentPw, setShowCurrentPw] = useState(false);
@@ -33,8 +31,6 @@ export function InchargeProfilePage() {
 
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  const [avatarUploading, setAvatarUploading] = useState(false);
-  const [avatarDeleting, setAvatarDeleting] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -44,7 +40,6 @@ export function InchargeProfilePage() {
         setUsername(profile.username);
         setEmail(profile.email);
         setDepartment(profile.department ?? "");
-        setAvatar(profile.avatar ?? "");
         setSnapshot({
           name: profile.name,
           username: profile.username,
@@ -75,52 +70,6 @@ export function InchargeProfilePage() {
     setCurrentPassword("");
     setPassword("");
     setEditing(false);
-  }
-
-  function onPickAvatar() {
-    fileInputRef.current?.click();
-  }
-
-  async function onAvatarSelected(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = ""; // allow re-selecting the same file later
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be under 5MB");
-      return;
-    }
-
-    setAvatarUploading(true);
-    try {
-      const res = await uploadMyAvatar(file);
-      setAvatar(res.user.avatar);
-      updateUser(res.user);
-      toast.success("Profile picture updated");
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? "Failed to upload profile picture");
-    } finally {
-      setAvatarUploading(false);
-    }
-  }
-
-  async function onRemoveAvatar() {
-    setAvatarDeleting(true);
-    try {
-      const res = await deleteMyAvatar();
-      setAvatar("");
-      updateUser(res.user);
-      toast.success("Profile picture removed");
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail ?? "Failed to remove profile picture");
-    } finally {
-      setAvatarDeleting(false);
-    }
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -172,53 +121,15 @@ export function InchargeProfilePage() {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="relative">
-                <Avatar className="h-16 w-16">
-                  {avatar && <AvatarImage src={avatar} alt={user.name} />}
-                  <AvatarFallback className="bg-primary text-lg font-semibold text-primary-foreground">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <button
-                  type="button"
-                  onClick={onPickAvatar}
-                  disabled={avatarUploading || avatarDeleting}
-                  className="absolute -bottom-1 -right-1 rounded-full border border-border bg-background p-1.5 shadow hover:bg-muted disabled:opacity-50"
-                  aria-label="Change profile picture"
-                >
-                  {avatarUploading ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Camera className="h-3.5 w-3.5" />
-                  )}
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={onAvatarSelected}
-                />
-              </div>
+              <Avatar className="h-16 w-16">
+                <AvatarFallback className="bg-primary text-lg font-semibold text-primary-foreground">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
               <div>
                 <p className="text-xl font-semibold">{user.name}</p>
                 <p className="text-sm text-muted-foreground">{user.email}</p>
                 <Badge className="mt-2 capitalize" variant="secondary">{user.role}</Badge>
-                {avatar && (
-                  <button
-                    type="button"
-                    onClick={onRemoveAvatar}
-                    disabled={avatarUploading || avatarDeleting}
-                    className="mt-2 flex items-center gap-1 text-xs text-destructive hover:underline disabled:opacity-50"
-                  >
-                    {avatarDeleting ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-3 w-3" />
-                    )}
-                    Remove photo
-                  </button>
-                )}
               </div>
             </div>
             {!editing && (

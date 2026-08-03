@@ -62,7 +62,7 @@ async def create_announcement(
 # GET ALL ANNOUNCEMENTS
 # ==========================
 @router.get("/")
-async def get_all_announcements(user: dict = Depends(get_current_user)):
+async def get_all_announcements():
 
     announcements = list(
         announcement_collection.find().sort("createdAt", -1)

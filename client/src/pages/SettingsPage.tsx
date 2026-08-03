@@ -77,19 +77,19 @@ export function SettingsPage() {
 
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle>Student Accounts</CardTitle>
+          <CardTitle>Student Account</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between rounded-lg border border-border p-3">
             <div>
-              <p className="text-sm font-medium">Manage student profiles</p>
+              <p className="text-sm font-medium">Manage student profile</p>
               <p className="text-xs text-muted-foreground">
                 Edit student details or reset a student's password.
               </p>
             </div>
             <Button variant="outline" size="sm" onClick={() => navigate("/admin/students")}>
               <Users className="mr-2 h-4 w-4" />
-              Manage Students
+              Manage Student
             </Button>
           </div>
         </CardContent>
