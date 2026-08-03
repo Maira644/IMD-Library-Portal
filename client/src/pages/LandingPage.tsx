@@ -73,7 +73,7 @@ export function LandingPage() {
   const [booksLoading, setBooksLoading] = useState(true);
   const [thesisLoading, setThesisLoading] = useState(true);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
-  const [announcementsLoading, setAnnouncementsLoading] = useState(!!user);
+  const [announcementsLoading, setAnnouncementsLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -124,16 +124,7 @@ export function LandingPage() {
         setCategoriesLoading(false);
       }
     })();
-  }, []);
 
-  useEffect(() => {
-    if (!user) {
-      setAnnouncements([]);
-      setAnnouncementsLoading(false);
-      return;
-    }
-
-    setAnnouncementsLoading(true);
     (async () => {
       try {
         const list = await getAnnouncements();
@@ -144,7 +135,7 @@ export function LandingPage() {
         setAnnouncementsLoading(false);
       }
     })();
-  }, [user]);
+  }, []);
 
   function handleBookClick(id: string) {
     if (!user) {
@@ -296,6 +287,38 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Announcements — now its own section, public, before How it works */}
+      <section id="announcements" className="border-t border-border bg-muted/40">
+        <div className="mx-auto max-w-7xl px-6 py-16">
+          <div className="mb-4 flex items-center gap-2">
+            <Clock className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold">Announcements</h3>
+          </div>
+
+          {announcementsLoading ? (
+            <p className="text-sm text-muted-foreground">Loading announcements…</p>
+          ) : announcements.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No announcements yet.</p>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {announcements.map((a) => (
+                <Card
+                  key={a.id}
+                  className="cursor-pointer transition-shadow hover:shadow-md"
+                  onClick={handleAnnouncementsClick}
+                >
+                  <CardContent className="p-5">
+                    <p className="text-xs font-medium uppercase tracking-wide text-primary">Announcement</p>
+                    <p className="mt-1 font-semibold">{a.title}</p>
+                    <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{a.body}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* How it works */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-7xl px-6 py-20">
@@ -330,8 +353,8 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Previews */}
-      <section id="catalog" className="border-t border-border bg-muted/40">
+      {/* Book / Thesis Previews */}
+      <section id="catalog" className="border-t border-border">
         <div className="mx-auto max-w-7xl px-6 py-20">
           <div className="grid gap-10 md:grid-cols-2">
             <PreviewList
@@ -350,42 +373,6 @@ export function LandingPage() {
               emptyLabel="No thesis available yet."
               onItemClick={handleThesisClick}
             />
-          </div>
-
-          <div id="announcements" className="mt-10">
-            <div className="mb-4 flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold">Announcements</h3>
-            </div>
-
-            {!user ? (
-              <Card>
-                <CardContent className="flex items-center justify-between gap-4 p-5">
-                  <p className="text-sm text-muted-foreground">Sign in to view the latest announcements.</p>
-                  <Button size="sm" onClick={() => navigate("/login")}>Sign in</Button>
-                </CardContent>
-              </Card>
-            ) : announcementsLoading ? (
-              <p className="text-sm text-muted-foreground">Loading announcements…</p>
-            ) : announcements.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No announcements yet.</p>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {announcements.map((a) => (
-                  <Card
-                    key={a.id}
-                    className="cursor-pointer transition-shadow hover:shadow-md"
-                    onClick={handleAnnouncementsClick}
-                  >
-                    <CardContent className="p-5">
-                      <p className="text-xs font-medium uppercase tracking-wide text-primary">Announcement</p>
-                      <p className="mt-1 font-semibold">{a.title}</p>
-                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{a.body}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </section>
@@ -497,8 +484,8 @@ function PublicHeader() {
         </Link>
         <nav className="hidden gap-6 text-sm text-muted-foreground md:flex">
           <a href="#features" className="transition-colors hover:text-foreground">Features</a>
-          <a href="#catalog" className="transition-colors hover:text-foreground">Catalog</a>
           <a href="#announcements" className="transition-colors hover:text-foreground">Announcements</a>
+          <a href="#catalog" className="transition-colors hover:text-foreground">Catalog</a>
         </nav>
         <Button asChild>
           <Link to={user ? dashboardPath(user.role) : "/login"}>
