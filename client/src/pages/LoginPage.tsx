@@ -28,34 +28,34 @@ const roleOptions: {
   demoUser: string;
   demoPass: string;
 }[] = [
-  {
-    value: "student",
-    label: "Student",
-    icon: GraduationCap,
-    headline: "A calm place to think, read, and research.",
-    blurb: "Sign in to your university account to access the full digital library.",
-    demoUser: "student",
-    demoPass: "student123",
-  },
-  {
-    value: "incharge",
-    label: "Incharge",
-    icon: Library,
-    headline: "Run the library, without the busywork.",
-    blurb: "Manage catalog, circulation, and members from one dashboard.",
-    demoUser: "incharge",
-    demoPass: "incharge123",
-  },
-  {
-    value: "admin",
-    label: "Admin",
-    icon: ShieldCheck,
-    headline: "Oversee every branch, in one view.",
-    blurb: "Full administrative access to accounts, policy, and reporting.",
-    demoUser: "admin",
-    demoPass: "admin123",
-  },
-];
+    {
+      value: "student",
+      label: "Student",
+      icon: GraduationCap,
+      headline: "A calm place to think, read, and research.",
+      blurb: "Sign in to your university account to access the full digital library.",
+      demoUser: "student",
+      demoPass: "student123",
+    },
+    {
+      value: "incharge",
+      label: "Incharge",
+      icon: Library,
+      headline: "Run the library, without the busywork.",
+      blurb: "Manage catalog, circulation, and members from one dashboard.",
+      demoUser: "incharge",
+      demoPass: "incharge123",
+    },
+    {
+      value: "admin",
+      label: "Admin",
+      icon: ShieldCheck,
+      headline: "Oversee every branch, in one view.",
+      blurb: "Full administrative access to accounts, policy, and reporting.",
+      demoUser: "admin",
+      demoPass: "admin123",
+    },
+  ];
 
 export function LoginPage() {
   const { login, user } = useAuth();
@@ -77,8 +77,11 @@ export function LoginPage() {
   }, [user, navigate, redirect]);
 
   function handleRoleChange(next: Role) {
-    setRole(next);
-  }
+  setRole(next);
+  setUsername("");
+  setPassword("");
+  setShowPw(false);
+}
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -150,11 +153,10 @@ export function LoginPage() {
                       key={opt.value}
                       type="button"
                       onClick={() => handleRoleChange(opt.value)}
-                      className={`relative z-10 flex flex-col items-center gap-1 rounded-lg px-2 py-2.5 text-xs font-medium transition-colors sm:flex-row sm:justify-center sm:gap-1.5 sm:text-sm ${
-                        isActive
+                      className={`relative z-10 flex flex-col items-center gap-1 rounded-lg px-2 py-2.5 text-xs font-medium transition-colors sm:flex-row sm:justify-center sm:gap-1.5 sm:text-sm ${isActive
                           ? "text-primary-foreground"
                           : "text-muted-foreground hover:text-foreground"
-                      }`}
+                        }`}
                     >
                       {isActive && (
                         <motion.span
@@ -207,12 +209,15 @@ export function LoginPage() {
                     <Checkbox checked={remember} onCheckedChange={(v) => setRemember(!!v)} />
                     <span className="text-muted-foreground">Remember me</span>
                   </label>
-                  <span
-                    className="cursor-not-allowed text-muted-foreground/60"
-                    title="Contact your library administrator"
-                  >
-                    Forgot password?
-                  </span>
+
+                  {(role === "admin" || role === "incharge") && (
+                    <Link
+                      to="/forgot-password"
+                      className="text-primary transition-colors hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  )}
                 </div>
                 <Button className="w-full" size="lg" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

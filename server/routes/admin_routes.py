@@ -56,16 +56,20 @@ def create_incharge(
 
     # Create document
     new_incharge = {
-        "inchargeId": incharge_id,
-        "name": data.name,
-        "username": data.username,
-        "email": data.email,
-        "department": data.department,
-        "password": hashed_password,
-        "role": "incharge",
-        "createdAt": datetime.utcnow().isoformat(),
-        "active": True
-    }
+    "inchargeId": incharge_id,
+    "name": data.name,
+    "username": data.username,
+    "email": data.email,
+    "department": data.department,
+    "password": hashed_password,
+    "role": "incharge",
+    "createdAt": datetime.utcnow().isoformat(),
+    "active": True,
+
+    # Password reset
+    "resetToken": None,
+    "resetTokenExpiry": None,
+}
 
     # Save to MongoDB
     incharge_collection.insert_one(new_incharge)
