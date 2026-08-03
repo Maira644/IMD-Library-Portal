@@ -18,6 +18,43 @@ export async function loginUser(
 }
 
 // ======================
+// FORGOT PASSWORD
+// ======================
+export async function forgotPassword(email: string) {
+  const response = await API.post("/auth/forgot-password", {
+    email,
+  });
+
+  return response.data;
+}
+
+// ======================
+// VALIDATE RESET TOKEN
+// ======================
+export async function validateResetToken(token: string) {
+  const response = await API.get("/auth/validate-reset-token", {
+    params: { token },
+  });
+
+  return response.data;
+}
+
+// ======================
+// RESET PASSWORD
+// ======================
+export async function resetPassword(
+  token: string,
+  password: string
+) {
+  const response = await API.post("/auth/reset-password", {
+    token,
+    password,
+  });
+
+  return response.data;
+}
+
+// ======================
 // GET ALL THESIS
 // ======================
 export async function getAllThesis() {
