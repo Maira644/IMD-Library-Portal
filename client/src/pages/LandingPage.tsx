@@ -83,7 +83,12 @@ export function LandingPage() {
         const data = await getAllBooks();
         const all = data.books ?? [];
         setBooksTotal(all.length);
-        const list = all.slice(0, 4).map((b: any) => ({
+
+        const sorted = [...all].sort(
+          (a: any, b: any) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
+        );
+
+        const list = sorted.slice(0, 4).map((b: any) => ({
           id: b.id,
           title: b.title,
           sub: b.author,
@@ -101,7 +106,12 @@ export function LandingPage() {
         const data = await getAllThesis();
         const all = data.thesis ?? [];
         setThesisTotal(all.length);
-        const list = all.slice(0, 4).map((t: any) => ({
+
+        const sorted = [...all].sort(
+          (a: any, b: any) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime()
+        );
+
+        const list = sorted.slice(0, 4).map((t: any) => ({
           id: t.id,
           title: t.title,
           sub: Array.isArray(t.studentNames) ? t.studentNames.join(", ") : t.studentNames,
@@ -238,8 +248,8 @@ export function LandingPage() {
                 Accession Record
               </p>
               <div className="mt-4 space-y-3 font-mono text-sm">
-                <CatalogRow label="Books" value={booksLoading ? "…" : `${booksTotal-1}+`} />
-                <CatalogRow label="Thesis" value={thesisLoading ? "…" : `${thesisTotal-1}+`} />
+                <CatalogRow label="Books" value={booksLoading ? "…" : `${booksTotal - 1}+`} />
+                <CatalogRow label="Thesis" value={thesisLoading ? "…" : `${thesisTotal - 1}+`} />
                 <CatalogRow label="Categories" value={categoriesLoading ? "…" : `${categoriesTotal}`} />
                 <CatalogRow label="Department" value="IMD" />
               </div>
@@ -451,13 +461,15 @@ function PreviewList({
               <button
                 key={i.id}
                 onClick={() => onItemClick(i.id)}
-                className="flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-muted/60"
+                className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-muted/60"
               >
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{i.title}</p>
                   <p className="truncate text-xs text-muted-foreground">{i.sub}</p>
                 </div>
-                <Badge variant="outline">{i.id}</Badge>
+                <Badge variant="outline" className="shrink-0 whitespace-nowrap">
+                  {i.id}
+                </Badge>
               </button>
             ))
           )}
