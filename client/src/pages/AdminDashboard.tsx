@@ -25,10 +25,8 @@ import { getAllBooks } from "@/api/book";
 import { getAllThesis, getMostViewedThesis } from "@/api/thesis";
 import { getAnnouncements } from "@/api/announcement";
 import { getAllIncharges } from "@/api/incharge";
-import {
-  recentActivity,
-  topKeywords,
-} from "@/data/mockAnalytics";
+import { recentActivity } from "@/data/mockAnalytics";
+import { getTopKeywords } from "@/api/analytics";
 
 const chartConfig = {
   books: { label: "Books", color: "var(--chart-1)" },
@@ -40,6 +38,12 @@ const chartConfig = {
 export function AdminDashboard() {
   const [topBooks, setTopBooks] = useState<Book[]>([]);
   const [topThesis, setTopThesis] = useState<Thesis[]>([]);
+  const [topKeywords, setTopKeywords] = useState<
+    {
+      keyword: string;
+      count: number;
+    }[]
+  >([]);
 
   const [bookCount, setBookCount] = useState(0);
   const [digitalBooks, setDigitalBooks] = useState(0);
@@ -112,6 +116,10 @@ export function AdminDashboard() {
       setActiveIncharges(
         incharges.filter((i: any) => i.active).length
       );
+
+      // ================= TOP SEARCHED KEYWORDS =================
+      const keywords = await getTopKeywords();
+      setTopKeywords(keywords);
 
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
@@ -227,15 +235,25 @@ export function AdminDashboard() {
             </CardTitle>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="px-2">
             <ChartContainer
               config={chartConfig}
               className="h-64 w-full"
             >
-              <BarChart data={topKeywords} layout="vertical">
+              <BarChart
+                data={topKeywords}
+                layout="vertical"
+                margin={{
+                  left: 10,
+                  right: 20,
+                  top: 5,
+                  bottom: 5,
+                }}
+              >
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  opacity={0.3}
+                  horizontal={false}
+                  opacity={0.25}
                 />
 
                 <XAxis type="number" hide />
@@ -243,7 +261,15 @@ export function AdminDashboard() {
                 <YAxis
                   type="category"
                   dataKey="keyword"
-                  width={100}
+                  width={145}
+                  tick={{
+                    fontSize: 12,
+                  }}
+                  axisLine={{
+                    stroke: "#d1d5db",
+                    strokeWidth: 1,
+                  }}
+                  tickLine={false}
                 />
 
                 <ChartTooltip
@@ -254,6 +280,7 @@ export function AdminDashboard() {
                   dataKey="count"
                   fill="var(--chart-1)"
                   radius={4}
+                  barSize={26}
                 />
               </BarChart>
             </ChartContainer>

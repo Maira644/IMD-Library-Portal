@@ -49,6 +49,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import type { Role } from "@/types";
+import { GlobalSearch } from "@/components/shared/GlobalSearch";
 
 interface NavItem {
   label: string;
@@ -233,6 +234,8 @@ function AppHeader() {
       <SidebarTrigger>
         <Menu className="h-5 w-5" />
       </SidebarTrigger>
+
+      <GlobalSearch />
 
       <div className="ml-auto flex items-center gap-2">
         <Button size="icon" variant="ghost" onClick={toggleMode} aria-label="Toggle theme">

@@ -28,7 +28,7 @@ try:
     announcement_collection = db["announcements"]
     settings_collection = db["settings"]
     theme_collection = db["theme_settings"]
-
+    search_keyword_collection = db["search_keywords"]
     counter_collection = db["counters"]
 
     print("MongoDB Connected Successfully")

@@ -11,6 +11,8 @@ from routes.admin_routes import router as admin_router
 from routes.profile import router as profile_router
 from routes.student import router as student_router
 from routes.theme import router as theme_router
+from routes.search import router as search_router
+from routes.analytics import router as analytics_router
 
 app = FastAPI(
     title="Library Portal API",
@@ -56,4 +58,6 @@ app.include_router(admin_router)
 app.include_router(profile_router)
 app.include_router(student_router)
 app.include_router(theme_router)
+app.include_router(search_router)
+app.include_router(analytics_router)
 
