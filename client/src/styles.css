@@ -63,7 +63,6 @@
 
 :root {
   --radius: 0.75rem;
-  --motion-scale: 1;
 
   /* Brand: KC Royals Blue #004687 shades */
   --primary-50: oklch(0.97 0.02 255);
@@ -199,8 +198,6 @@
 @layer base {
   * {
     border-color: var(--color-border);
-
-    transition-duration: calc(150ms * var(--motion-scale));
   }
 
   html,
