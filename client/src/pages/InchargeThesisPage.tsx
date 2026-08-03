@@ -182,6 +182,7 @@ export function InchargeThesisPage() {
         open={openForm}
         onOpenChange={setOpenForm}
         initial={editing}
+        uploadedBy="Incharge"
         onSubmit={async () => {
           await fetchThesis();
 

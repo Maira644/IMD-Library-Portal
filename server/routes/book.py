@@ -8,6 +8,7 @@ from fastapi import (
 
 from config.db import book_collection, category_collection
 from helper.cloudinary_helper import upload_image, upload_pdf
+from helper.activity_helper import log_activity
 
 router = APIRouter(
     prefix="/book",
@@ -20,7 +21,6 @@ router = APIRouter(
 # ==========================
 @router.post("/")
 async def create_book(
-
     title: str = Form(...),
     author: str = Form(...),
     publisher: str = Form(...),
@@ -100,15 +100,21 @@ async def create_book(
 
     result = book_collection.insert_one(book)
 
+    log_activity(
+        actor=uploadedBy,
+        action="uploaded book",
+        target=title
+    )
+
     category_collection.update_one(
-    {"name": category},
-    {
-        "$inc": {
-            "count": 1,
-            "bookCount": 1
+        {"name": category},
+        {
+            "$inc": {
+                "count": 1,
+                "bookCount": 1
+            }
         }
-    }
-)
+    )
 
     book["_id"] = str(result.inserted_id)
 
@@ -172,6 +178,7 @@ async def get_book_by_id(book_id: str):
         "message": "Book fetched successfully.",
         "book": book
     }
+
 # ==========================
 # INCREMENT BOOK VIEW
 # ==========================
@@ -198,12 +205,12 @@ async def increment_book_view(book_id: str):
     return {
         "message": "Book view updated successfully."
     }
+
 # ==========================
 # UPDATE BOOK
 # ==========================
 @router.put("/{book_id}")
 async def update_book(
-
     book_id: str,
 
     title: str = Form(...),
@@ -255,24 +262,24 @@ async def update_book(
     if existing["category"] != category:
 
         category_collection.update_one(
-    {"name": existing["category"]},
-    {
-        "$inc": {
-            "count": -1,
-            "bookCount": -1
-        }
-    }
-)
+            {"name": existing["category"]},
+            {
+                "$inc": {
+                    "count": -1,
+                    "bookCount": -1
+                }
+            }
+        )
 
         category_collection.update_one(
-    {"name": category},
-    {
-        "$inc": {
-            "count": 1,
-            "bookCount": 1
-        }
-    }
-)
+            {"name": category},
+            {
+                "$inc": {
+                    "count": 1,
+                    "bookCount": 1
+                }
+            }
+        )
 
     updated_data = {
         "title": title,
@@ -301,6 +308,12 @@ async def update_book(
 
     updated["_id"] = str(updated["_id"])
 
+    log_activity(
+        actor=uploadedBy,
+        action="updated book",
+        target=title
+    )
+
     return {
         "message": "Book updated successfully.",
         "book": updated
@@ -321,18 +334,23 @@ async def delete_book(book_id: str):
         )
 
     category_collection.update_one(
-    {"name": book["category"]},
-    {
-        "$inc": {
-            "count": -1,
-            "bookCount": -1
+        {"name": book["category"]},
+        {
+            "$inc": {
+                "count": -1,
+                "bookCount": -1
+            }
         }
-    }
-)
+    )
 
     book_collection.delete_one({"id": book_id})
+
+    log_activity(
+        actor=book["uploadedBy"],
+        action="deleted book",
+        target=book["title"]
+    )
 
     return {
         "message": "Book deleted successfully."
     }
-

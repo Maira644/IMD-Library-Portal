@@ -10,6 +10,7 @@ from helper.id_generator import generate_incharge_id
 from helper.password_generator import generate_password
 from helper.auth_helper import hash_password
 from helper.email_helper import send_incharge_credentials
+from helper.activity_helper import log_activity
 
 router = APIRouter(
     prefix="/admin",
@@ -70,6 +71,12 @@ def create_incharge(
     # Save to MongoDB
     incharge_collection.insert_one(new_incharge)
 
+    log_activity(
+        actor="Admin",
+        action="created incharge",
+        target=data.name
+    )
+
     # Send Email
     send_incharge_credentials(
         recipient_email=data.email,
@@ -105,6 +112,16 @@ def update_incharge(
     admin=Depends(require_roles("admin"))
 ):
 
+    existing = incharge_collection.find_one(
+        {"inchargeId": incharge_id}
+    )
+
+    if not existing:
+        raise HTTPException(
+            status_code=404,
+            detail="Incharge not found."
+        )
+
     # Check username uniqueness
     username_exists = incharge_collection.find_one({
         "username": data.username,
@@ -129,7 +146,7 @@ def update_incharge(
             detail="Email already exists."
         )
 
-    result = incharge_collection.update_one(
+    incharge_collection.update_one(
         {"inchargeId": incharge_id},
         {
             "$set": {
@@ -141,11 +158,11 @@ def update_incharge(
         }
     )
 
-    if result.matched_count == 0:
-        raise HTTPException(
-            status_code=404,
-            detail="Incharge not found."
-        )
+    log_activity(
+        actor="Admin",
+        action="updated incharge",
+        target=data.name
+    )
 
     return {
         "message": "Incharge updated successfully."
@@ -188,15 +205,25 @@ def delete_incharge(
     admin=Depends(require_roles("admin"))
 ):
 
-    result = incharge_collection.delete_one(
+    existing = incharge_collection.find_one(
         {"inchargeId": incharge_id}
     )
 
-    if result.deleted_count == 0:
+    if not existing:
         raise HTTPException(
             status_code=404,
             detail="Incharge not found."
         )
+
+    log_activity(
+        actor="Admin",
+        action="deleted incharge",
+        target=existing["name"]
+    )
+
+    incharge_collection.delete_one(
+        {"inchargeId": incharge_id}
+    )
 
     return {
         "message": "Incharge deleted successfully."

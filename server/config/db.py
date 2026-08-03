@@ -30,6 +30,7 @@ try:
     theme_collection = db["theme_settings"]
     search_keyword_collection = db["search_keywords"]
     counter_collection = db["counters"]
+    activity_collection = db["activity_logs"]
 
     print("MongoDB Connected Successfully")
     print("Database:", DB_NAME)

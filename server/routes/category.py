@@ -7,6 +7,8 @@ from config.db import (
     thesis_collection,
 )
 
+from helper.activity_helper import log_activity
+
 router = APIRouter(
     prefix="/category",
     tags=["Category"]
@@ -24,7 +26,6 @@ class CategoryCreate(BaseModel):
 @router.post("/")
 async def create_category(category: CategoryCreate):
 
-    # Check duplicate category name
     existing = category_collection.find_one({
         "name": {
             "$regex": f"^{category.name}$",
@@ -38,7 +39,6 @@ async def create_category(category: CategoryCreate):
             detail="Category already exists."
         )
 
-    # Generate Category ID
     last_category = category_collection.find_one(
         sort=[("id", -1)]
     )
@@ -50,15 +50,21 @@ async def create_category(category: CategoryCreate):
         new_id = "CAT-001"
 
     new_category = {
-    "id": new_id,
-    "name": category.name,
-    "description": category.description,
-    "count": 0,
-    "bookCount": 0,
-    "thesisCount": 0
-}
+        "id": new_id,
+        "name": category.name,
+        "description": category.description,
+        "count": 0,
+        "bookCount": 0,
+        "thesisCount": 0
+    }
 
     result = category_collection.insert_one(new_category)
+
+    log_activity(
+        actor="Admin",
+        action="created category",
+        target=category.name
+    )
 
     new_category["_id"] = str(result.inserted_id)
 
@@ -66,6 +72,7 @@ async def create_category(category: CategoryCreate):
         "message": "Category created successfully.",
         "category": new_category
     }
+
 
 # ==========================
 # GET ALL CATEGORIES
@@ -85,6 +92,7 @@ async def get_all_categories():
         "categories": categories
     }
 
+
 # ==========================
 # GET CATEGORY BY ID
 # ==========================
@@ -100,16 +108,17 @@ async def get_category_by_id(category_id: str):
         )
 
     books = list(
-    book_collection.find({
-        "category": category["name"]
-    })
-)
+        book_collection.find({
+            "category": category["name"]
+        })
+    )
+
     thesis = list(
-    thesis_collection.find({
-        "category": category["name"]
-    })
-)
-     # Convert ObjectIds
+        thesis_collection.find({
+            "category": category["name"]
+        })
+    )
+
     category["_id"] = str(category["_id"])
 
     for book in books:
@@ -125,13 +134,13 @@ async def get_category_by_id(category_id: str):
         "thesis": thesis
     }
 
+
 # ==========================
 # UPDATE CATEGORY
 # ==========================
 @router.put("/{category_id}")
 async def update_category(category_id: str, category: CategoryCreate):
 
-    # Check if category exists
     existing = category_collection.find_one({
         "id": category_id
     })
@@ -142,7 +151,8 @@ async def update_category(category_id: str, category: CategoryCreate):
             detail="Category not found."
         )
 
-    # Check duplicate name
+    old_name = existing["name"]
+
     duplicate = category_collection.find_one({
         "id": {"$ne": category_id},
         "name": {
@@ -167,11 +177,37 @@ async def update_category(category_id: str, category: CategoryCreate):
         }
     )
 
+    # Update all books using this category
+    book_collection.update_many(
+        {"category": old_name},
+        {
+            "$set": {
+                "category": category.name
+            }
+        }
+    )
+
+    # Update all thesis using this category
+    thesis_collection.update_many(
+        {"category": old_name},
+        {
+            "$set": {
+                "category": category.name
+            }
+        }
+    )
+
     updated = category_collection.find_one({
         "id": category_id
     })
 
     updated["_id"] = str(updated["_id"])
+
+    log_activity(
+        actor="Admin",
+        action="updated category",
+        target=category.name
+    )
 
     return {
         "message": "Category updated successfully.",
@@ -184,7 +220,6 @@ async def update_category(category_id: str, category: CategoryCreate):
 @router.delete("/{category_id}")
 async def delete_category(category_id: str):
 
-    # Check if category exists
     category = category_collection.find_one({"id": category_id})
 
     if not category:
@@ -193,8 +228,34 @@ async def delete_category(category_id: str):
             detail="Category not found."
         )
 
+    # Check if any books exist in this category
+    book_count = book_collection.count_documents(
+        {"category": category["name"]}
+    )
+
+    # Check if any thesis exist in this category
+    thesis_count = thesis_collection.count_documents(
+        {"category": category["name"]}
+    )
+
+    # Prevent deletion if category is in use
+    if book_count > 0 or thesis_count > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Cannot delete category. "
+                f"It contains {book_count} book(s) and {thesis_count} thesis(es)."
+            )
+        )
+
     # Delete category
     category_collection.delete_one({"id": category_id})
+
+    log_activity(
+        actor="Admin",
+        action="deleted category",
+        target=category["name"]
+    )
 
     return {
         "message": "Category deleted successfully."

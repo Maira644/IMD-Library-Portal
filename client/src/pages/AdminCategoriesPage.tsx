@@ -154,180 +154,178 @@ export function AdminCategoriesPage() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          </div>
-          ),
+        </div>
+      ),
     },
-          ];
+  ];
 
-          return (
-          <div>
-            <PageHeader
-              title="Categories"
-              description="Organize books and thesis by topic."
-              actions={
-                <Button
-                  onClick={() => {
-                    setEditing(undefined);
-                    setForm(emptyForm);
-                    setOpen(true);
-                  }}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  New category
-                </Button>
+  return (
+    <div>
+      <PageHeader
+        title="Categories"
+        description="Organize books and thesis by topic."
+        actions={
+          <Button
+            onClick={() => {
+              setEditing(undefined);
+              setForm(emptyForm);
+              setOpen(true);
+            }}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            New category
+          </Button>
+        }
+      />
+      <div className="mb-4">
+        <Input
+          placeholder="Search categories..."
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+      </div>
+      <DataTable
+        data={filtered}
+        columns={cols}
+        onRowClick={(category) =>
+          navigate(`/admin/categories/${category.id}`)
+        }
+      />
+
+      <Dialog
+        open={open}
+        onOpenChange={(value) => {
+          setOpen(value);
+
+          if (!value) {
+            setEditing(undefined);
+            setForm(emptyForm);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {editing ? "Edit Category" : "New Category"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <form
+            className="space-y-4"
+            onSubmit={async (e) => {
+              e.preventDefault();
+
+              if (!form.name.trim()) {
+                toast.error("Category name is required.");
+                return;
               }
-            />
-            <div className="mb-4">
+
+              try {
+                if (editing) {
+                  await updateCategory(editing.id, {
+                    name: form.name,
+                    description: form.description ?? "",
+                  });
+
+                  toast.success("Category updated successfully.");
+                } else {
+                  await createCategory({
+                    name: form.name,
+                    description: form.description ?? "",
+                  });
+
+                  toast.success("Category created successfully.");
+                }
+
+                await fetchCategories();
+
+                setEditing(undefined);
+                setForm(emptyForm);
+                setOpen(false);
+              } catch (error: any) {
+                console.error(error);
+
+                if (error.response) {
+                  toast.error(error.response.data.detail);
+                } else {
+                  toast.error("Something went wrong.");
+                }
+              }
+            }}
+          >
+            <div>
+              <Label>Name *</Label>
+
               <Input
-                placeholder="Search categories..."
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
+                value={form.name}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    name: e.target.value,
+                  })
+                }
               />
             </div>
-            <DataTable
-              data={filtered}
-              columns={cols}
-              onRowClick={(category) =>
-                navigate(`/admin/categories/${category.id}`)
-              }
-            />
 
-            <Dialog
-              open={open}
-              onOpenChange={(value) => {
-                setOpen(value);
+            <div>
+              <Label>Description</Label>
 
-                if (!value) {
+              <Textarea
+                rows={3}
+                value={form.description}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    description: e.target.value,
+                  })
+                }
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => {
+                  setOpen(false);
                   setEditing(undefined);
                   setForm(emptyForm);
-                }
-              }}
-            >
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>
-                    {editing ? "Edit Category" : "New Category"}
-                  </DialogTitle>
-                </DialogHeader>
+                }}
+              >
+                Cancel
+              </Button>
 
-                <form
-                  className="space-y-4"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
+              <Button type="submit">
+                {editing ? "Save" : "Create"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-                    if (!form.name.trim()) {
-                      toast.error("Category name is required.");
-                      return;
-                    }
+      <ConfirmDialog
+        open={!!delId}
+        onOpenChange={(v) => !v && setDelId(null)}
+        onConfirm={async () => {
+          if (!delId) return;
 
-                    try {
-                      if (editing) {
-                        await updateCategory(editing.id, {
-                          name: form.name,
-                          description: form.description ?? "",
-                        });
+          try {
+            await deleteCategory(delId);
 
-                        toast.success("Category updated successfully.");
-                      } else {
-                        await createCategory({
-                          name: form.name,
-                          description: form.description ?? "",
-                        });
+            toast.success("Category deleted successfully.");
+            await fetchCategories();
+            setDelId(null);
 
-                        toast.success("Category created successfully.");
-                      }
+          } catch (error: any) {
+            console.error(error);
 
-                      await fetchCategories();
-
-                      setEditing(undefined);
-                      setForm(emptyForm);
-                      setOpen(false);
-                    } catch (error: any) {
-                      console.error(error);
-
-                      if (error.response) {
-                        toast.error(error.response.data.detail);
-                      } else {
-                        toast.error("Something went wrong.");
-                      }
-                    }
-                  }}
-                >
-                  <div>
-                    <Label>Name *</Label>
-
-                    <Input
-                      value={form.name}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          name: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Description</Label>
-
-                    <Textarea
-                      rows={3}
-                      value={form.description}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          description: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={() => {
-                        setOpen(false);
-                        setEditing(undefined);
-                        setForm(emptyForm);
-                      }}
-                    >
-                      Cancel
-                    </Button>
-
-                    <Button type="submit">
-                      {editing ? "Save" : "Create"}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-
-            <ConfirmDialog
-              open={!!delId}
-              onOpenChange={(v) => !v && setDelId(null)}
-              onConfirm={async () => {
-                if (!delId) return;
-
-                try {
-                  await deleteCategory(delId);
-
-                  toast.success("Category deleted successfully.");
-
-                  await fetchCategories();
-
-                  setDelId(null);
-                } catch (error: any) {
-                  console.error(error);
-
-                  if (error.response) {
-                    toast.error(error.response.data.detail);
-                  } else {
-                    toast.error("Something went wrong.");
-                  }
-                }
-              }}
-            />
-          </div>
-          );
+            toast.error(
+              error?.response?.data?.detail ||
+              "Failed to delete category."
+            );
+          }
+        }}
+      />
+    </div>
+  );
 }

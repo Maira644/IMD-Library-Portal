@@ -14,6 +14,7 @@ interface BookFormProps {
   onOpenChange: (v: boolean) => void;
   initial?: Book;
   onSubmit: (data: Book) => void;
+  uploadedBy: string;
 }
 
 export function BookForm({
@@ -21,6 +22,7 @@ export function BookForm({
   onOpenChange,
   initial,
   onSubmit,
+  uploadedBy,
 }: BookFormProps) {
 
   const [form, setForm] = useState<Book>(
@@ -39,7 +41,7 @@ export function BookForm({
       pdfUrl: "",
       physicalCopy: true,
       digitalCopy: false,
-      uploadedBy: "You",
+      uploadedBy: uploadedBy,
       uploadDate: new Date().toISOString(),
       views: 0,
     }
@@ -70,7 +72,7 @@ export function BookForm({
         pdfUrl: "",
         physicalCopy: true,
         digitalCopy: false,
-        uploadedBy: "You",
+        uploadedBy: uploadedBy,
         uploadDate: new Date().toISOString(),
         views: 0,
       });
@@ -99,56 +101,57 @@ export function BookForm({
   }
 
   async function submit(e: React.FormEvent) {
-  e.preventDefault();
+    e.preventDefault();
 
-  const kws = keywordsText
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .slice(0, 5);
+    const kws = keywordsText
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 5);
 
-  const formData = new FormData();
+    const formData = new FormData();
 
-  formData.append("title", form.title);
-  formData.append("author", form.author);
-  formData.append("publisher", form.publisher ?? "");
-  formData.append("edition", form.edition ?? "");
-  formData.append(
-    "publicationYear",
-    String(form.publicationYear ?? new Date().getFullYear())
-  );
-  formData.append("category", form.category ?? "");
-  formData.append("cabinetNo", form.cabinetNo ?? "");
-  formData.append("shelfNo", form.shelfNo ?? "");
-  formData.append("keywords", kws.join(","));
-  formData.append("physicalCopy", String(form.physicalCopy));
-  formData.append("digitalCopy", String(form.digitalCopy));
-  formData.append("uploadedBy", form.uploadedBy);
-  formData.append("uploadDate", form.uploadDate);
+    formData.append("title", form.title);
+    formData.append("author", form.author);
+    formData.append("publisher", form.publisher ?? "");
+    formData.append("edition", form.edition ?? "");
+    formData.append(
+      "publicationYear",
+      String(form.publicationYear ?? new Date().getFullYear())
+    );
+    formData.append("category", form.category ?? "");
+    formData.append("cabinetNo", form.cabinetNo ?? "");
+    formData.append("shelfNo", form.shelfNo ?? "");
+    formData.append("keywords", kws.join(","));
+    formData.append("physicalCopy", String(form.physicalCopy));
+    formData.append("digitalCopy", String(form.digitalCopy));
+    formData.append("uploadedBy", form.uploadedBy);
+    formData.append("uploadDate", form.uploadDate);
 
-  if (coverFile) {
-    formData.append("cover", coverFile);
-  }
-
-  if (pdfFile) {
-    formData.append("pdf", pdfFile);
-  }
-
-  try {
-    let response;
-
-    if (initial) {
-      response = await updateBook(initial.id!, formData);
-    } else {
-      response = await createBook(formData);
+    if (coverFile) {
+      formData.append("cover", coverFile);
     }
 
-    onSubmit(response.book);
-    onOpenChange(false);
-  } catch (error) {
-    console.error("Failed to save book:", error);
+    if (pdfFile) {
+      formData.append("pdf", pdfFile);
+    }
+
+    try {
+      let response;
+
+      if (initial) {
+        response = await updateBook(initial.id!, formData);
+      } else {
+        response = await createBook(formData);
+      }
+
+      onSubmit(response.book);
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Failed to save book:", error);
+    }
   }
-}
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
@@ -163,7 +166,7 @@ export function BookForm({
             <Input value={form.author} onChange={(e) => set("author", e.target.value)} required />
           </Field>
           <Field label="Publisher" required>
-            <Input value={form.publisher} onChange={(e) => set("publisher", e.target.value)} required/>
+            <Input value={form.publisher} onChange={(e) => set("publisher", e.target.value)} required />
           </Field>
           <Field label="Edition" required>
             <Input value={form.edition} onChange={(e) => set("edition", e.target.value)} required />
@@ -186,13 +189,13 @@ export function BookForm({
 
               <SelectContent>
                 {categories.map((c) => (
-              <SelectItem key={c.id} value={c.name}>
-                {c.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </Field>
+                  <SelectItem key={c.id} value={c.name}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
           <Field label="Cabinet No." required>
             <Input placeholder="e.g. Cabinet 1" value={form.cabinetNo} onChange={(e) => set("cabinetNo", e.target.value)} required />
           </Field>
@@ -201,7 +204,7 @@ export function BookForm({
           </Field>
           <div className="sm:col-span-2">
             <Field label="Keywords (up to 5, comma-separated)" required>
-              <Input placeholder="Enter keywords separated by commas" value={keywordsText} onChange={(e) => setKeywordsText(e.target.value)} required/>
+              <Input placeholder="Enter keywords separated by commas" value={keywordsText} onChange={(e) => setKeywordsText(e.target.value)} required />
             </Field>
           </div>
           <div>

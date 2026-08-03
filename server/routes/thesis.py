@@ -8,6 +8,7 @@ from fastapi import (
 
 from config.db import thesis_collection, category_collection
 from helper.cloudinary_helper import upload_image, upload_pdf
+from helper.activity_helper import log_activity
 
 router = APIRouter(
     prefix="/thesis",
@@ -90,6 +91,12 @@ async def create_thesis(
     }
 
     result = thesis_collection.insert_one(thesis)
+
+    log_activity(
+        actor=uploadedBy,
+        action="uploaded thesis",
+        target=title
+    )
 
     # Increase category count
     category_collection.update_one(
@@ -294,6 +301,12 @@ async def update_thesis(
     updated = thesis_collection.find_one({"id": thesis_id})
     updated["_id"] = str(updated["_id"])
 
+    log_activity(
+        actor=uploadedBy,
+        action="updated thesis",
+        target=title
+    )
+
     return {
         "message": "Thesis updated successfully.",
         "thesis": updated
@@ -329,8 +342,12 @@ async def delete_thesis(thesis_id: str):
 
     thesis_collection.delete_one({"id": thesis_id})
 
+    log_activity(
+        actor=thesis["uploadedBy"],
+        action="deleted thesis",
+        target=thesis["title"]
+    )
+
     return {
         "message": "Thesis deleted successfully."
     }
-
-

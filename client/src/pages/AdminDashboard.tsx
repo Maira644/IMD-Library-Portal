@@ -25,8 +25,10 @@ import { getAllBooks } from "@/api/book";
 import { getAllThesis, getMostViewedThesis } from "@/api/thesis";
 import { getAnnouncements } from "@/api/announcement";
 import { getAllIncharges } from "@/api/incharge";
-import { recentActivity } from "@/data/mockAnalytics";
-import { getTopKeywords } from "@/api/analytics";
+import {
+  getTopKeywords,
+  getRecentActivity,
+} from "@/api/analytics";
 
 const chartConfig = {
   books: { label: "Books", color: "var(--chart-1)" },
@@ -42,6 +44,16 @@ export function AdminDashboard() {
     {
       keyword: string;
       count: number;
+    }[]
+  >([]);
+
+  const [recentActivity, setRecentActivity] = useState<
+    {
+      actor: string;
+      initials: string;
+      action: string;
+      target: string;
+      time: string;
     }[]
   >([]);
 
@@ -120,6 +132,10 @@ export function AdminDashboard() {
       // ================= TOP SEARCHED KEYWORDS =================
       const keywords = await getTopKeywords();
       setTopKeywords(keywords);
+
+      // ================= RECENT ACTIVITY =================
+      const activity = await getRecentActivity();
+      setRecentActivity(activity);
 
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
@@ -308,29 +324,26 @@ export function AdminDashboard() {
         </CardHeader>
 
         <CardContent className="divide-y p-0">
-          {recentActivity.map((r) => (
+          {recentActivity.map((r, index) => (
             <div
-              key={r.id}
-              className="flex items-center gap-3 p-4"
+              key={index}
+              className="flex items-center justify-between gap-4 p-4"
             >
-              <div className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-xs font-medium text-primary">
-                {r.actor
-                  .split(" ")
-                  .map((s) => s[0])
-                  .join("")}
+              {/* Left side */}
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+                  {r.initials}
+                </div>
+
+                <p className="truncate text-sm">
+                  <span className="font-medium">{r.actor}</span>{" "}
+                  {r.action}{" "}
+                  <span className="font-medium">{r.target}</span>
+                </p>
               </div>
 
-              <p className="flex-1 text-sm">
-                <span className="font-medium">
-                  {r.actor}
-                </span>{" "}
-                {r.action}{" "}
-                <span className="font-medium">
-                  {r.target}
-                </span>
-              </p>
-
-              <span className="text-xs text-muted-foreground">
+              {/* Right side */}
+              <span className="shrink-0 text-xs text-muted-foreground">
                 {r.time}
               </span>
             </div>

@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from config.db import announcement_collection
 from model.announcement_model import AnnouncementCreate
 from helper.jwt_helper import get_current_user, require_roles
+from helper.activity_helper import log_activity
 
 router = APIRouter(
     prefix="/announcement",
@@ -43,6 +44,12 @@ async def create_announcement(
     }
 
     result = announcement_collection.insert_one(new_announcement)
+
+    log_activity(
+        actor=user["username"].title(),
+        action="created announcement",
+        target=announcement.title
+    )
 
     new_announcement["_id"] = str(result.inserted_id)
 
@@ -127,6 +134,12 @@ async def update_announcement(
     updated = announcement_collection.find_one({"id": announcement_id})
     updated["_id"] = str(updated["_id"])
 
+    log_activity(
+        actor=user["username"].title(),
+        action="updated announcement",
+        target=announcement.title
+    )
+
     return {
         "message": "Announcement updated successfully.",
         "announcement": updated
@@ -180,6 +193,12 @@ async def delete_announcement(
             status_code=404,
             detail="Announcement not found."
         )
+
+    log_activity(
+        actor=user["username"].title(),
+        action="deleted announcement",
+        target=announcement["title"]
+    )
 
     announcement_collection.delete_one({"id": announcement_id})
 

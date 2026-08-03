@@ -15,11 +15,13 @@ export function ThesisForm({
   onOpenChange,
   initial,
   onSubmit,
+  uploadedBy,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   initial?: Thesis;
   onSubmit: () => Promise<void>;
+  uploadedBy: "Admin" | "Incharge";
 }) {
   const [form, setForm] = useState<Thesis>(
     initial ?? {
@@ -36,7 +38,7 @@ export function ThesisForm({
       keywords: [],
       coverUrl: "",
       pdfUrl: "",
-      uploadedBy: "You",
+      uploadedBy,
       uploadDate: new Date().toISOString(),
       views: 0,
     },
@@ -155,7 +157,7 @@ export function ThesisForm({
                 keywords: [],
                 coverUrl: "",
                 pdfUrl: "",
-                uploadedBy: "You",
+                uploadedBy,
                 uploadDate: new Date().toISOString(),
                 views: 0,
               });

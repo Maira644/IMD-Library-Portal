@@ -188,6 +188,7 @@ export function AdminThesisPage() {
         open={openForm}
         onOpenChange={setOpenForm}
         initial={editing}
+        uploadedBy="Admin"
         onSubmit={async () => {
           await fetchThesis();
 
