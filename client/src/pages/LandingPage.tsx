@@ -238,8 +238,8 @@ export function LandingPage() {
                 Accession Record
               </p>
               <div className="mt-4 space-y-3 font-mono text-sm">
-                <CatalogRow label="Books" value={booksLoading ? "…" : `${booksTotal}+`} />
-                <CatalogRow label="Thesis" value={thesisLoading ? "…" : `${thesisTotal}+`} />
+                <CatalogRow label="Books" value={booksLoading ? "…" : `${booksTotal-1}+`} />
+                <CatalogRow label="Thesis" value={thesisLoading ? "…" : `${thesisTotal-1}+`} />
                 <CatalogRow label="Categories" value={categoriesLoading ? "…" : `${categoriesTotal}`} />
                 <CatalogRow label="Department" value="IMD" />
               </div>
