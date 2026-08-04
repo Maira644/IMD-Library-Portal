@@ -33,7 +33,7 @@ export function StudentBooksPage() {
 
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("all");
-  const [sort, setSort] = useState<"newest" | "oldest" | "views">("newest");
+  const [sort, setSort] = useState<"newest" | "oldest" | "views">("oldest");
 
   const { track } = useSearchTracker();
   const navigate = useNavigate();

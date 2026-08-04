@@ -46,7 +46,7 @@ export function InchargeBooksPage() {
 
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("all");
-  const [sort, setSort] = useState<"newest" | "oldest" | "views">("newest");
+  const [sort, setSort] = useState<"newest" | "oldest" | "views">("oldest");
 
   const [openForm, setOpenForm] = useState(false);
   const [editing, setEditing] = useState<Book | undefined>();
