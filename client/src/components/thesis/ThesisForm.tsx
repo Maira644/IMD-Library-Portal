@@ -183,11 +183,11 @@ export function ThesisForm({
           className="grid gap-4 sm:grid-cols-2"
         >
           <div>
-            <Label>Thesis ID *</Label>
+            <Label>FYDP ID *</Label>
             <Input
               value={form.id}
               onChange={(e) => set("id", e.target.value)}
-              placeholder="e.g. TH-001"
+              placeholder=""
               required
               disabled={!!initial}
             />
@@ -197,14 +197,14 @@ export function ThesisForm({
             <Input value={form.title} onChange={(e) => set("title", e.target.value)} required />
           </div>
           <div className="sm:col-span-2">
-            <Label>Student names (up to 4) *</Label>
+            <Label>Student names (up to 4) </Label>
             <div className="grid gap-2">
               {form.studentNames.map((name, i) => (
                 <div key={i} className="flex gap-2">
                   <Input
                     value={name}
                     placeholder={`Student ${i + 1}`}
-                    required={i === 0}
+                    // required={i === 0}
                     onChange={(e) => {
                       const next = [...form.studentNames];
                       next[i] = e.target.value;
@@ -274,22 +274,22 @@ export function ThesisForm({
             </Select>
           </div>
           <div>
-            <Label>Cabinet No *</Label>
+            <Label>Cabinet No </Label>
             <Input
               value={form.cabinetNo}
               onChange={(e) => set("cabinetNo", e.target.value)}
               placeholder="e.g. Cabinet 1"
-              required
+              
             />
           </div>
 
           <div>
-            <Label>Shelf No *</Label>
+            <Label>Shelf No </Label>
             <Input
               value={form.shelfNo}
               onChange={(e) => set("shelfNo", e.target.value)}
               placeholder="e.g. Shelf A"
-              required
+              
             />
           </div>
           
