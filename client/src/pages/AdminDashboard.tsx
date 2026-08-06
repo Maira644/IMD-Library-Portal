@@ -158,7 +158,7 @@ export function AdminDashboard() {
         />
 
         <StatCard
-          label="Total thesis"
+          label="Total FYDP"
           value={thesisCount}
           icon={GraduationCap}
           hint={`${thesisAddedThisMonth} added this month`}
@@ -222,7 +222,7 @@ export function AdminDashboard() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Eye className="h-4 w-4" />
-              Most viewed thesis
+              Most viewed FYDP
             </CardTitle>
 
             <Link

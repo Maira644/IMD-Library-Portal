@@ -38,6 +38,7 @@ export interface Thesis {
   studentNames: string[];
   supervisor: string;
   department: string;
+  industry: string;
   submissionYear: number;
   category: string;
   abstract: string;

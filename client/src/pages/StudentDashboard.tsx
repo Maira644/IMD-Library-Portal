@@ -141,12 +141,12 @@ export function StudentDashboard() {
 
   return (
     <div>
-      <PageHeader title={`Welcome back, ${user?.name.split(" ")[0]}`} description="Discover the latest books, thesis, and announcements." />
+      <PageHeader title={`Welcome back, ${user?.name.split(" ")[0]}`} description="Discover the latest books, FYDP, and announcements." />
 
       <Card className="border-none bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
         <CardContent className="p-8">
           <h2 className="text-2xl font-bold">Find your next resource</h2>
-          <p className="mt-1 text-primary-foreground/80">Search across books, thesis, and keywords.</p>
+          <p className="mt-1 text-primary-foreground/80">Search across books, FYDP, and keywords.</p>
           <form className="mt-5 flex max-w-2xl items-center gap-2" onSubmit={handleSearch}>
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -199,7 +199,7 @@ export function StudentDashboard() {
           <div>
             <SectionHeader icon={GraduationCap} title={`Thesis (${matchedThesis.length})`} />
             {matchedThesis.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No thesis matched your search.</p>
+              <p className="text-sm text-muted-foreground">No FYDP matched your search.</p>
             ) : (
               <DataTable data={matchedThesis} columns={thesisColumns} searchKeys={["title", "department"]} />
             )}
@@ -217,9 +217,9 @@ export function StudentDashboard() {
           </section>
 
           <section className="mt-8">
-            <SectionHeader icon={GraduationCap} title="Latest thesis" href="/student/thesis" />
+            <SectionHeader icon={GraduationCap} title="Latest FYDP" href="/student/thesis" />
             {loading ? (
-              <p className="text-sm text-muted-foreground">Loading thesis...</p>
+              <p className="text-sm text-muted-foreground">Loading FYDP...</p>
             ) : (
               <DataTable data={latestThesis} columns={thesisColumns} searchKeys={["title", "department"]} />
             )}
