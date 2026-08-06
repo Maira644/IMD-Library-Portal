@@ -75,7 +75,7 @@ export function LibraryDashboard() {
       <PageHeader title="Library dashboard" description="Manage the catalog and stay on top of your uploads." />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Books" value={loading ? "..." : books.length} icon={BookOpen} />
-        <StatCard label="Thesis" value={loading ? "..." : thesisCount} icon={GraduationCap} />
+        <StatCard label="FYDP" value={loading ? "..." : thesisCount} icon={GraduationCap} />
         <StatCard label="Categories" value={loading ? "..." : categoryCount} icon={Tags} />
         <StatCard label="Today's uploads" value={loading ? "..." : todayUploads} icon={Upload} />
       </div>
@@ -85,7 +85,7 @@ export function LibraryDashboard() {
           <CardHeader><CardTitle>Quick actions</CardTitle></CardHeader>
           <CardContent className="grid gap-2">
             <Button asChild variant="secondary" className="justify-start"><Link to="/library/books"><Plus className="mr-2 h-4 w-4" /> Add new book</Link></Button>
-            <Button asChild variant="secondary" className="justify-start"><Link to="/library/thesis"><Plus className="mr-2 h-4 w-4" /> Add new thesis</Link></Button>
+            <Button asChild variant="secondary" className="justify-start"><Link to="/library/thesis"><Plus className="mr-2 h-4 w-4" /> Add new FYDP</Link></Button>
             <Button asChild variant="secondary" className="justify-start"><Link to="/library/categories"><Plus className="mr-2 h-4 w-4" /> New category</Link></Button>
             <Button asChild variant="secondary" className="justify-start"><Link to="/library/announcements"><Plus className="mr-2 h-4 w-4" /> Post announcement</Link></Button>
           </CardContent>

@@ -30,6 +30,7 @@ export function ThesisForm({
       studentNames: [""],
       supervisor: "",
       department: "Industrial And Manufacturing",
+      industry: "",
       submissionYear: new Date().getFullYear(),
       category: "",
       abstract: "",
@@ -84,7 +85,7 @@ export function ThesisForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{initial ? "Edit thesis" : "Add new thesis"}</DialogTitle>
+          <DialogTitle>{initial ? "Edit FYDP" : "Add new FYDP"}</DialogTitle>
         </DialogHeader>
         <form
           onSubmit={async (e) => {
@@ -113,6 +114,7 @@ export function ThesisForm({
               );
               formData.append("supervisor", form.supervisor);
               formData.append("department", form.department);
+              formData.append("industry", form.industry);
               formData.append(
                 "submissionYear",
                 String(form.submissionYear)
@@ -149,6 +151,7 @@ export function ThesisForm({
                 studentNames: [""],
                 supervisor: "",
                 department: "Industrial And Manufacturing",
+                industry: "",
                 submissionYear: new Date().getFullYear(),
                 category: "",
                 abstract: "",
@@ -252,6 +255,14 @@ export function ThesisForm({
             />
           </div>
           <div>
+            <Label>Industry</Label>
+            <Input
+              value={form.industry}
+              onChange={(e) => set("industry", e.target.value)}
+              placeholder="e.g. IMC, GSK, Pharmaceutical"
+            />
+          </div>
+          <div>
             <Label>Submission year</Label>
             <Input
               type="number"
@@ -279,7 +290,7 @@ export function ThesisForm({
               value={form.cabinetNo}
               onChange={(e) => set("cabinetNo", e.target.value)}
               placeholder="e.g. Cabinet 1"
-              
+
             />
           </div>
 
@@ -289,10 +300,10 @@ export function ThesisForm({
               value={form.shelfNo}
               onChange={(e) => set("shelfNo", e.target.value)}
               placeholder="e.g. Shelf A"
-              
+
             />
           </div>
-          
+
           <div className="sm:col-span-2">
             <Label>Abstract</Label>
             <Textarea
@@ -348,7 +359,7 @@ export function ThesisForm({
           </div>
           <DialogFooter className="sm:col-span-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit">{initial ? "Save changes" : "Create thesis"}</Button>
+            <Button type="submit">{initial ? "Save changes" : "Create FYDP"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

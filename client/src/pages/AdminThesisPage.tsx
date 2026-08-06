@@ -42,7 +42,7 @@ export function AdminThesisPage() {
       const response = await getAllThesis();
       setItems(response.thesis);
     } catch (error) {
-      console.error("Failed to fetch thesis:", error);
+      console.error("Failed to fetch FYDP:", error);
     }
   };
 
@@ -93,6 +93,7 @@ export function AdminThesisPage() {
       header: "Department",
       sortable: true,
     },
+    
     {
       key: "supervisor",
       header: "Supervisor",
@@ -148,8 +149,8 @@ export function AdminThesisPage() {
   return (
     <div>
       <PageHeader
-        title="Thesis"
-        description="Manage the thesis archive."
+        title="FYDP"
+        description="Manage the FYDP archive."
         actions={
           <Button
             onClick={() => {
@@ -158,7 +159,7 @@ export function AdminThesisPage() {
             }}
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add Thesis
+            Add FYDP
           </Button>
         }
       />
@@ -194,8 +195,8 @@ export function AdminThesisPage() {
 
           toast.success(
             editing
-              ? "Thesis updated successfully"
-              : "Thesis created successfully"
+              ? "FYDP updated successfully"
+              : "FYDP created successfully"
           );
 
           setEditing(undefined);
@@ -213,10 +214,10 @@ export function AdminThesisPage() {
 
             await fetchThesis();
 
-            toast.success("Thesis deleted successfully");
+            toast.success("FYDP deleted successfully");
           } catch (error) {
             console.error(error);
-            toast.error("Failed to delete thesis");
+            toast.error("Failed to delete FYDP");
           }
 
           setDelId(null);

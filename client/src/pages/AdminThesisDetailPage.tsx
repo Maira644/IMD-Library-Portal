@@ -45,7 +45,7 @@ export function AdminThesisDetailPage() {
 
       setRelated(relatedList);
     } catch (error) {
-      console.error("Failed to fetch thesis:", error);
+      console.error("Failed to fetch FYDP:", error);
       setThesis(null);
     } finally {
       setLoading(false);
@@ -63,7 +63,7 @@ export function AdminThesisDetailPage() {
   if (!thesis) {
     return (
       <p className="text-center text-muted-foreground">
-        Thesis not found.
+        FYDP not found.
       </p>
     );
   }
@@ -80,9 +80,11 @@ export function AdminThesisDetailPage() {
       title={thesis.title}
       subtitle={`by ${thesis.studentNames.join(", ")} · Supervised by ${thesis.supervisor}`}
       meta={[
-        { label: "Thesis ID", value: thesis.id },
+        { label: "FYDP ID", value: thesis.id },
         { label: "Department", value: thesis.department },
+       
         { label: "Submission year", value: thesis.submissionYear },
+         { label: "Industry", value: thesis.industry },
         { label: "Category", value: thesis.category },
         { label: "Cabinet No.", value: thesis.cabinetNo },
         { label: "Shelf No.", value: thesis.shelfNo },

@@ -25,7 +25,7 @@ export function StudentThesisPage() {
         const data = await getAllThesis();
         setItems(data.thesis);
       } catch (error) {
-        console.error("Failed to fetch thesis:", error);
+        console.error("Failed to fetch FYDP:", error);
       }
     }
 
@@ -73,6 +73,7 @@ export function StudentThesisPage() {
       header: "Department",
       sortable: true,
     },
+    
     {
       key: "supervisor",
       header: "Supervisor",
@@ -87,8 +88,8 @@ export function StudentThesisPage() {
   return (
     <div>
       <PageHeader
-        title="Thesis"
-        description="Browse the university thesis archive."
+        title="FYDP"
+        description="Browse the department FYDP archive."
         actions={null}
       />
 
