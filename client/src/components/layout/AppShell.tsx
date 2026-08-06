@@ -70,7 +70,7 @@ const NAV: Record<Role, { section: string; items: NavItem[] }[]> = {
       section: "Catalog",
       items: [
         { label: "Books", to: "/admin/books", icon: BookOpen },
-        { label: "Thesis", to: "/admin/thesis", icon: GraduationCap },
+        { label: "FYDP", to: "/admin/thesis", icon: GraduationCap },
         { label: "Categories", to: "/admin/categories", icon: Tags },
       ],
     },
@@ -99,7 +99,7 @@ const NAV: Record<Role, { section: string; items: NavItem[] }[]> = {
       section: "Catalog",
       items: [
         { label: "Books", to: "/library/books", icon: BookOpen },
-        { label: "Thesis", to: "/library/thesis", icon: GraduationCap },
+        { label: "FYDP", to: "/library/thesis", icon: GraduationCap },
         { label: "Categories", to: "/library/categories", icon: Tags },
       ],
     },
@@ -120,7 +120,7 @@ const NAV: Record<Role, { section: string; items: NavItem[] }[]> = {
       section: "Explore",
       items: [
         { label: "Books", to: "/student/books", icon: BookOpen },
-        { label: "Thesis", to: "/student/thesis", icon: GraduationCap },
+        { label: "FYDP", to: "/student/thesis", icon: GraduationCap },
         { label: "Categories", to: "/student/categories", icon: Tags },
         
          
