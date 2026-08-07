@@ -7,7 +7,11 @@ from fastapi import (
 )
 
 from config.db import thesis_collection, category_collection
-from helper.cloudinary_helper import upload_image, upload_pdf
+from helper.cloudinary_helper import (
+    upload_image,
+    upload_pdf,
+    delete_asset,
+)
 from helper.activity_helper import log_activity
 
 router = APIRouter(
@@ -29,7 +33,7 @@ async def create_thesis(
     submissionYear: int = Form(...),
     category: str = Form(""),
     cabinetNo: str = Form(""),
-shelfNo: str = Form(""),
+    shelfNo: str = Form(""),
     abstract: str = Form(...),
     keywords: str = Form(...),
     uploadedBy: str = Form(...),
@@ -63,13 +67,15 @@ shelfNo: str = Form(""),
 
     # Upload cover only if selected
     cover_url = None
+    cover_public_id = None
     if cover:
-        cover_url = upload_image(cover.file)
+        cover_url, cover_public_id = upload_image(cover.file)
 
     # Upload PDF only if selected
     pdf_url = None
+    pdf_public_id = None
     if pdf:
-        pdf_url = upload_pdf(pdf)
+        pdf_url, pdf_public_id = upload_pdf(pdf)
 
     thesis = {
         "id": id,
@@ -84,7 +90,9 @@ shelfNo: str = Form(""),
         "abstract": abstract,
         "keywords": keyword_list,
         "coverUrl": cover_url,
+        "coverPublicId": cover_public_id,
         "pdfUrl": pdf_url,
+        "pdfPublicId": pdf_public_id,
         "uploadedBy": uploadedBy,
         "uploadDate": uploadDate,
         "views": 0,
@@ -100,14 +108,14 @@ shelfNo: str = Form(""),
 
     # Increase category count
     category_collection.update_one(
-    {"name": category},
-    {
-        "$inc": {
-            "count": 1,
-            "thesisCount": 1
+        {"name": category},
+        {
+            "$inc": {
+                "count": 1,
+                "thesisCount": 1
+            }
         }
-    }
-)
+    )
 
     thesis["_id"] = str(result.inserted_id)
 
@@ -131,6 +139,8 @@ async def get_all_thesis():
         "message": "Thesis fetched successfully.",
         "thesis": theses
     }
+
+
 # ==========================
 # GET MOST VIEWED THESIS
 # ==========================
@@ -148,6 +158,8 @@ async def get_most_viewed_thesis():
         "message": "Most viewed thesis fetched successfully.",
         "thesis": thesis
     }
+
+
 # ==========================
 # GET SINGLE THESIS
 # ==========================
@@ -167,6 +179,8 @@ async def get_thesis_by_id(thesis_id: str):
         "message": "Thesis fetched successfully.",
         "thesis": thesis
     }
+
+
 # ==========================
 # INCREMENT THESIS VIEW
 # ==========================
@@ -193,6 +207,8 @@ async def increment_thesis_view(thesis_id: str):
     return {
         "message": "Thesis view updated successfully."
     }
+
+
 # ==========================
 # UPDATE THESIS
 # ==========================
@@ -242,16 +258,26 @@ async def update_thesis(
     ]
 
     # Keep old cover if not changed
-    cover_url = existing["coverUrl"]
+    cover_url = existing.get("coverUrl")
+    cover_public_id = existing.get("coverPublicId")
 
     if cover:
-        cover_url = upload_image(cover.file)
+        # Delete old cover from Cloudinary
+        if cover_public_id:
+            delete_asset(cover_public_id)
+
+        cover_url, cover_public_id = upload_image(cover.file)
 
     # Keep old PDF if not changed
-    pdf_url = existing["pdfUrl"]
+    pdf_url = existing.get("pdfUrl")
+    pdf_public_id = existing.get("pdfPublicId")
 
     if pdf:
-        pdf_url = upload_pdf(pdf)
+        # Delete old PDF from Cloudinary
+        if pdf_public_id:
+            delete_asset(pdf_public_id)
+
+        pdf_url, pdf_public_id = upload_pdf(pdf)
 
     updated_data = {
         "title": title,
@@ -265,7 +291,9 @@ async def update_thesis(
         "abstract": abstract,
         "keywords": keyword_list,
         "coverUrl": cover_url,
+        "coverPublicId": cover_public_id,
         "pdfUrl": pdf_url,
+        "pdfPublicId": pdf_public_id,
         "uploadedBy": uploadedBy,
         "uploadDate": uploadDate,
     }
@@ -279,24 +307,24 @@ async def update_thesis(
     if old_category != category:
 
         category_collection.update_one(
-    {"name": old_category},
-    {
-        "$inc": {
-            "count": -1,
-            "thesisCount": -1
-        }
-    }
-)
+            {"name": old_category},
+            {
+                "$inc": {
+                    "count": -1,
+                    "thesisCount": -1
+                }
+            }
+        )
 
         category_collection.update_one(
-    {"name": category},
-    {
-        "$inc": {
-            "count": 1,
-            "thesisCount": 1
-        }
-    }
-)
+            {"name": category},
+            {
+                "$inc": {
+                    "count": 1,
+                    "thesisCount": 1
+                }
+            }
+        )
 
     updated = thesis_collection.find_one({"id": thesis_id})
     updated["_id"] = str(updated["_id"])
@@ -311,8 +339,6 @@ async def update_thesis(
         "message": "Thesis updated successfully.",
         "thesis": updated
     }
-
-
 
 
 # ==========================
@@ -331,14 +357,22 @@ async def delete_thesis(thesis_id: str):
 
     # Decrease category count
     category_collection.update_one(
-    {"name": thesis["category"]},
-    {
-        "$inc": {
-            "count": -1,
-            "thesisCount": -1
+        {"name": thesis["category"]},
+        {
+            "$inc": {
+                "count": -1,
+                "thesisCount": -1
+            }
         }
-    }
-)
+    )
+
+    # Delete cover from Cloudinary
+    if thesis.get("coverPublicId"):
+        delete_asset(thesis["coverPublicId"])
+
+    # Delete PDF from Cloudinary
+    if thesis.get("pdfPublicId"):
+        delete_asset(thesis["pdfPublicId"])
 
     thesis_collection.delete_one({"id": thesis_id})
 

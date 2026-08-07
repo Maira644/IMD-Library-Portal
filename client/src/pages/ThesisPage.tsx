@@ -221,9 +221,14 @@ export function ThesisPage({
         open={openForm}
         onOpenChange={setOpenForm}
         initial={editing}
+        uploadedBy={canManage ? "Incharge" : "Admin"}
         onSubmit={async () => {
           await fetchThesis();
-          toast.success("Thesis created successfully");
+          toast.success(
+            editing
+              ? "Thesis updated successfully"
+              : "Thesis created successfully"
+          );
         }}
       />
 

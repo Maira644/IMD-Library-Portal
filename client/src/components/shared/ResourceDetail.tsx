@@ -21,6 +21,7 @@ interface DetailProps {
 export function ResourceDetail({ cover, title, subtitle, meta, description, keywords, pdfUrl, related }: DetailProps) {
   const navigate = useNavigate();
   const [pdfError, setPdfError] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -33,7 +34,12 @@ export function ResourceDetail({ cover, title, subtitle, meta, description, keyw
           <Card className="overflow-hidden">
             <div className="aspect-[3/4] bg-muted">
               {cover ? (
-                <img src={cover} alt={title} className="h-full w-full object-cover" />
+                <img
+                  src={cover}
+                  alt={title}
+                  onClick={() => setPreviewOpen(true)}
+                  className="h-full w-full object-cover cursor-pointer transition hover:scale-[1.02]"
+                />
               ) : (
                 <div className="grid h-full place-items-center text-muted-foreground">
                   <FileText className="h-10 w-10" />
@@ -49,7 +55,6 @@ export function ResourceDetail({ cover, title, subtitle, meta, description, keyw
                     <ExternalLink className="mr-2 h-4 w-4" /> Open PDF in New Tab
                   </a>
                 </Button>
-              
               </div>
             ) : (
               <Button className="w-full" variant="outline" disabled>
@@ -125,6 +130,31 @@ export function ResourceDetail({ cover, title, subtitle, meta, description, keyw
           )}
         </motion.div>
       </div>
+
+      {previewOpen && cover && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+          onClick={() => setPreviewOpen(false)}
+        >
+          <div
+            className="relative max-h-[90vh] max-w-[80vw]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setPreviewOpen(false)}
+              className="absolute -top-3 -right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white text-black shadow-md hover:bg-gray-100"
+            >
+              ✕
+            </button>
+
+            <img
+              src={cover}
+              alt={title}
+              className="max-h-[90vh] max-w-[80vw] rounded-lg object-contain shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
