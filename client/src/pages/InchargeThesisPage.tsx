@@ -73,16 +73,20 @@ export function InchargeThesisPage() {
       key: "id",
       header: "ID",
       sortable: true,
-      className: "w-28",
+      className: "w-24",
     },
     {
       key: "title",
       header: "Title",
       sortable: true,
+      className: "min-w-[450px]",
       render: (t) => (
         <div className="min-w-0">
-          <p className="truncate font-medium">{t.title}</p>
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="font-medium break-words line-clamp-2 leading-6">
+            {t.title}
+          </p>
+
+          <p className="text-xs text-muted-foreground truncate">
             {t.studentNames.join(", ")}
           </p>
         </div>
