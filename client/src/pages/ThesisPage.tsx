@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Plus, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { DataTable, type DataTableColumn } from "@/components/tables/DataTable";
 import {
   DropdownMenu,
@@ -20,11 +20,10 @@ import {
 import { ThesisForm } from "@/components/thesis/ThesisForm";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { getCategories } from "@/api/category";
-import type { Thesis } from "@/types";
+import type { Thesis, Category } from "@/types";
 import { toast } from "sonner";
 import { useSearchTracker } from "@/contexts/SearchContext";
 import { getAllThesis } from "@/api/thesis";
-import type { Category } from "@/types";
 
 export function ThesisPage({
   hrefBase,
@@ -43,7 +42,6 @@ export function ThesisPage({
 
   const { track } = useSearchTracker();
 
-  // Load thesis on page load
   useEffect(() => {
     fetchThesis();
     fetchCategories();
@@ -60,8 +58,8 @@ export function ThesisPage({
 
   const fetchCategories = async () => {
     try {
-      const categories = await getCategories();
-      setCategories(categories);
+      const data = await getCategories();
+      setCategories(data);
     } catch (error) {
       console.error("Failed to fetch categories:", error);
     }
@@ -80,7 +78,7 @@ export function ThesisPage({
       list = list.filter(
         (t) =>
           t.title.toLowerCase().includes(n) ||
-          t.studentNames.some((s) => s.toLowerCase().includes(n))
+          t.studentNames.some((s) => s.toLowerCase().includes(n)),
       );
     }
 
@@ -94,34 +92,57 @@ export function ThesisPage({
       sortable: true,
       className: "w-28",
     },
+
     {
       key: "title",
       header: "Title",
       sortable: true,
+      className: "min-w-[220px]",
       render: (t) => (
         <div className="min-w-0">
-          <p className="truncate font-medium">{t.title}</p>
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="font-medium truncate">{t.title}</p>
+          <p className="text-xs text-muted-foreground truncate">
             {t.studentNames.join(", ")}
           </p>
         </div>
       ),
     },
+
     {
       key: "department",
       header: "Department",
       sortable: true,
+
+      // Fixed width so the department column behaves
+      // consistently on every pagination page.
+      className: "w-[180px] min-w-[180px] max-w-[180px] whitespace-normal break-words",
+
+      render: (t) => (
+        <div className="w-[180px] whitespace-normal break-words leading-5">
+          {t.department}
+        </div>
+      ),
     },
+
     {
       key: "supervisor",
       header: "Supervisor",
+      className: "min-w-[150px]",
+      render: (t) => (
+        <div className="whitespace-normal break-words">
+          {t.supervisor}
+        </div>
+      ),
     },
+
     {
       key: "submissionYear",
       header: "Year",
       sortable: true,
+      className: "w-20",
       render: (t) => t.submissionYear,
     },
+
     {
       key: "actions",
       header: "",
@@ -130,12 +151,19 @@ export function ThesisPage({
         canManage ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="icon" variant="ghost">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              onClick={(e) => e.stopPropagation()}
+            >
               <DropdownMenuItem
                 onClick={() => {
                   setEditing(t);
@@ -158,7 +186,7 @@ export function ThesisPage({
   ];
 
   return (
-    <div>
+    <>
       <PageHeader
         title="Thesis"
         description={
@@ -174,7 +202,6 @@ export function ThesisPage({
                 setOpenForm(true);
               }}
             >
-              <Plus className="mr-2 h-4 w-4" />
               Add Thesis
             </Button>
           )
@@ -224,10 +251,11 @@ export function ThesisPage({
         uploadedBy={canManage ? "Incharge" : "Admin"}
         onSubmit={async () => {
           await fetchThesis();
+
           toast.success(
             editing
               ? "Thesis updated successfully"
-              : "Thesis created successfully"
+              : "Thesis created successfully",
           );
         }}
       />
@@ -237,10 +265,12 @@ export function ThesisPage({
         onOpenChange={(v) => !v && setDelId(null)}
         onConfirm={() => {
           setItems((prev) => prev.filter((x) => x.id !== delId));
+
           toast.success("Thesis deleted");
+
           setDelId(null);
         }}
       />
-    </div>
+    </>
   );
 }
