@@ -11,6 +11,7 @@ from helper.cloudinary_helper import (
     upload_image,
     upload_pdf,
     delete_asset,
+    delete_pdf,
 )
 from helper.activity_helper import log_activity
 
@@ -275,7 +276,7 @@ async def update_thesis(
     if pdf:
         # Delete old PDF from Cloudinary
         if pdf_public_id:
-            delete_asset(pdf_public_id)
+            delete_pdf(pdf_public_id)
 
         pdf_url, pdf_public_id = upload_pdf(pdf)
 
@@ -372,7 +373,7 @@ async def delete_thesis(thesis_id: str):
 
     # Delete PDF from Cloudinary
     if thesis.get("pdfPublicId"):
-        delete_asset(thesis["pdfPublicId"])
+        delete_pdf(thesis["pdfPublicId"])
 
     thesis_collection.delete_one({"id": thesis_id})
 
