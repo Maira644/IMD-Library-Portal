@@ -20,7 +20,7 @@ import { AdminThesisPage } from "./pages/AdminThesisPage";
 import { AdminThesisDetailPage } from "./pages/AdminThesisDetailPage";
 import { AdminCategoriesPage } from "@/pages/AdminCategoriesPage";
 import { AdminCategoryDetailsPage } from "@/pages/AdminCategoryDetailsPage";
-import { AnalyticsPage } from "@/pages/AnalyticsPage";
+// import { AnalyticsPage } from "@/pages/AnalyticsPage";
 import { AdminAnnouncementPage } from "@/pages/AdminAnnouncementPage";
 import { InchargesPage } from "@/pages/InchargesCreationPage";
 import { AdminProfilePage } from "@/pages/AdminProfilePage";
@@ -142,14 +142,14 @@ export function AppRouter() {
               </RoleRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/admin/analytics"
             element={
               <RoleRoute role="admin">
                 <AnalyticsPage />
               </RoleRoute>
             }
-          />
+          /> */}
           <Route
             path="/admin/incharges"
             element={
