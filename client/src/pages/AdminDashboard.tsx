@@ -9,20 +9,35 @@ import {
 } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatCard } from "@/components/shared/StatCard";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { useEffect, useState } from "react";
 
 import type { Book, Thesis, Announcement } from "@/types";
 
 import { getAllBooks } from "@/api/book";
-import { getAllThesis, getMostViewedThesis } from "@/api/thesis";
+import {
+  getAllThesis,
+  getMostViewedThesis,
+  getFydpCountByYear,
+} from "@/api/thesis";
 import { getAnnouncements } from "@/api/announcement";
 import { getAllIncharges } from "@/api/incharge";
 import {
@@ -30,16 +45,37 @@ import {
   getRecentActivity,
 } from "@/api/analytics";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 const chartConfig = {
-  books: { label: "Books", color: "var(--chart-1)" },
-  thesis: { label: "Thesis", color: "var(--chart-2)" },
-  count: { label: "Count", color: "var(--chart-1)" },
-  value: { label: "Value", color: "var(--chart-1)" },
+  books: {
+    label: "Books",
+    color: "var(--chart-1)",
+  },
+  thesis: {
+    label: "Thesis",
+    color: "var(--chart-2)",
+  },
+  count: {
+    label: "Count",
+    color: "var(--chart-1)",
+  },
+  value: {
+    label: "Value",
+    color: "var(--chart-1)",
+  },
 };
 
 export function AdminDashboard() {
   const [topBooks, setTopBooks] = useState<Book[]>([]);
   const [topThesis, setTopThesis] = useState<Thesis[]>([]);
+
   const [topKeywords, setTopKeywords] = useState<
     {
       keyword: string;
@@ -63,9 +99,38 @@ export function AdminDashboard() {
   const [thesisCount, setThesisCount] = useState(0);
   const [announcementCount, setAnnouncementCount] = useState(0);
   const [pinnedAnnouncements, setPinnedAnnouncements] = useState(0);
-  const [thesisAddedThisMonth, setThesisAddedThisMonth] = useState(0);
+  const [thesisAddedThisMonth, setThesisAddedThisMonth] =
+    useState(0);
+
   const [inchargeCount, setInchargeCount] = useState(0);
   const [activeIncharges, setActiveIncharges] = useState(0);
+
+  // ================= FYDP BY YEAR =================
+
+  const [selectedFydpYear, setSelectedFydpYear] =
+    useState("");
+
+  const [allFydpByYear, setAllFydpByYear] =
+    useState<
+      {
+        year: number;
+        count: number;
+      }[]
+    >([]);
+
+  const fydpByYear = [...allFydpByYear]
+    .sort((a, b) => b.year - a.year)
+    .slice(0, 12);
+
+  const selectedYearData = allFydpByYear.find(
+    (item) =>
+      item.year.toString() === selectedFydpYear
+  );
+
+  const selectedYearCount =
+    selectedYearData?.count ?? 0;
+
+  // ================= LOAD DASHBOARD DATA =================
 
   useEffect(() => {
     fetchDashboardData();
@@ -74,6 +139,7 @@ export function AdminDashboard() {
   async function fetchDashboardData() {
     try {
       // ================= BOOKS =================
+
       const booksResponse = await getAllBooks();
       const books: Book[] = booksResponse.books;
 
@@ -89,11 +155,22 @@ export function AdminDashboard() {
         books.filter((b) => b.digitalCopy).length
       );
 
-      // ================= THESIS =================
+      // ================= THESIS / FYDP =================
+
       const thesisResponse = await getAllThesis();
       const thesis: Thesis[] = thesisResponse.thesis;
 
       setThesisCount(thesis.length);
+
+      // Get real FYDP count by year
+      const fydpData = await getFydpCountByYear();
+      setAllFydpByYear(fydpData);
+
+      if (fydpData.length > 0) {
+        setSelectedFydpYear(
+          fydpData[fydpData.length - 1].year.toString()
+        );
+      }
 
       const now = new Date();
 
@@ -108,37 +185,60 @@ export function AdminDashboard() {
         }).length
       );
 
-      const mostViewedThesis = await getMostViewedThesis();
+      const mostViewedThesis =
+        await getMostViewedThesis();
+
       setTopThesis(mostViewedThesis);
 
       // ================= ANNOUNCEMENTS =================
-      const announcements: Announcement[] = await getAnnouncements();
 
-      setAnnouncementCount(announcements.length);
+      const announcements: Announcement[] =
+        await getAnnouncements();
+
+      setAnnouncementCount(
+        announcements.length
+      );
 
       setPinnedAnnouncements(
-        announcements.filter((a) => a.pinned).length
+        announcements.filter(
+          (a) => a.pinned
+        ).length
       );
 
       // ================= INCHARGES =================
-      const incharges = await getAllIncharges();
 
-      setInchargeCount(incharges.length);
+      const incharges =
+        await getAllIncharges();
+
+      setInchargeCount(
+        incharges.length
+      );
 
       setActiveIncharges(
-        incharges.filter((i: any) => i.active).length
+        incharges.filter(
+          (i: any) => i.active
+        ).length
       );
 
       // ================= TOP SEARCHED KEYWORDS =================
-      const keywords = await getTopKeywords();
+
+      const keywords =
+        await getTopKeywords();
+
       setTopKeywords(keywords);
 
       // ================= RECENT ACTIVITY =================
-      const activity = await getRecentActivity();
+
+      const activity =
+        await getRecentActivity();
+
       setRecentActivity(activity);
 
     } catch (error) {
-      console.error("Failed to load dashboard data:", error);
+      console.error(
+        "Failed to load dashboard data:",
+        error
+      );
     }
   }
 
@@ -148,6 +248,8 @@ export function AdminDashboard() {
         title="Admin dashboard"
         description="Overview of your library system."
       />
+
+      {/* ================= STAT CARDS ================= */}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -179,7 +281,134 @@ export function AdminDashboard() {
         />
       </div>
 
+      {/* ================= FYDP BY YEAR ================= */}
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GraduationCap className="h-4 w-4" />
+            FYDP by year
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          {/* ================= BAR CHART ================= */}
+
+          <ChartContainer
+            config={chartConfig}
+            className="h-56 w-full"
+          >
+            <BarChart
+              data={fydpByYear}
+              margin={{
+                top: 5,
+                right: 15,
+                left: 0,
+                bottom: 2,
+              }}
+              barCategoryGap="5%"
+            >
+              {/* Darker horizontal grid lines */}
+
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#94a3b8"
+              />
+
+              <XAxis
+                dataKey="year"
+                tickFormatter={(value) => value.toString()}
+                tick={{
+                  fontSize: 11,
+                }}
+                axisLine={false}
+                tickLine={false}
+              />
+
+              <YAxis
+                allowDecimals={false}
+                tick={{
+                  fontSize: 11,
+                }}
+                axisLine={false}
+                tickLine={false}
+                width={35}
+              />
+
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent />
+                }
+              />
+
+              {/* Thicker bars */}
+
+              <Bar
+                dataKey="count"
+                name="FYDP"
+                fill="var(--chart-1)"
+                radius={[5, 5, 0, 0]}
+              />
+            </BarChart>
+          </ChartContainer>
+
+          {/* ================= SELECT YEAR + RESULT ================= */}
+
+          <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium">
+                Select a year
+              </span>
+
+              <Select
+                value={selectedFydpYear}
+                onValueChange={
+                  setSelectedFydpYear
+                }
+              >
+                <SelectTrigger className="w-28">
+                  <SelectValue />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {allFydpByYear
+                    .slice()
+                    .sort((a, b) => b.year - a.year)
+                    .map((item) => (
+                      <SelectItem
+                        key={item.year}
+                        value={item.year.toString()}
+                      >
+                        {item.year}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <p className="text-2xl font-bold">
+                  {selectedYearCount}
+                </p>
+
+                <p className="text-xs text-muted-foreground">
+                  FYDP submitted in{" "}
+                  {selectedFydpYear}
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ================= DASHBOARD CARDS ================= */}
+
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
+
+        {/* ================= MOST VIEWED BOOKS ================= */}
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
@@ -205,6 +434,7 @@ export function AdminDashboard() {
                   <p className="truncate text-sm font-medium">
                     {b.title}
                   </p>
+
                   <p className="truncate text-xs text-muted-foreground">
                     {b.author}
                   </p>
@@ -217,6 +447,8 @@ export function AdminDashboard() {
             ))}
           </CardContent>
         </Card>
+
+        {/* ================= MOST VIEWED FYDP ================= */}
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
@@ -237,17 +469,24 @@ export function AdminDashboard() {
             {topThesis.map((t) => (
               <div
                 key={t.id}
-                className="flex items-center justify-between p-4 hover:bg-muted/50"
+                className="flex items-center justify-between p-4"
               >
                 <div className="min-w-0">
+
+                  {/* FYDP Title */}
+
                   <p className="truncate text-sm font-medium">
                     {t.title}
                   </p>
 
+                  {/* Supervisor */}
+
                   <p className="truncate text-xs text-muted-foreground">
-                    {t.studentNames.join(", ")}
+                    {t.supervisor}
                   </p>
                 </div>
+
+                {/* Views */}
 
                 <Badge variant="secondary">
                   {t.views}
@@ -256,6 +495,8 @@ export function AdminDashboard() {
             ))}
           </CardContent>
         </Card>
+
+        {/* ================= TOP SEARCHED KEYWORDS ================= */}
 
         <Card>
           <CardHeader>
@@ -286,7 +527,10 @@ export function AdminDashboard() {
                   opacity={0.25}
                 />
 
-                <XAxis type="number" hide />
+                <XAxis
+                  type="number"
+                  hide
+                />
 
                 <YAxis
                   type="category"
@@ -303,7 +547,9 @@ export function AdminDashboard() {
                 />
 
                 <ChartTooltip
-                  content={<ChartTooltipContent />}
+                  content={
+                    <ChartTooltipContent />
+                  }
                 />
 
                 <Bar
@@ -318,9 +564,13 @@ export function AdminDashboard() {
         </Card>
       </div>
 
+      {/* ================= RECENT ACTIVITY ================= */}
+
       <Card className="mt-6">
         <CardHeader>
-          <CardTitle>Recent activity</CardTitle>
+          <CardTitle>
+            Recent activity
+          </CardTitle>
         </CardHeader>
 
         <CardContent className="divide-y p-0">
@@ -330,19 +580,25 @@ export function AdminDashboard() {
               className="flex items-center justify-between gap-4 p-4"
             >
               {/* Left side */}
-              <div className="flex items-center gap-3 min-w-0 flex-1">
+
+              <div className="flex min-w-0 flex-1 items-center gap-3">
                 <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-medium text-primary">
                   {r.initials}
                 </div>
 
                 <p className="truncate text-sm">
-                  <span className="font-medium">{r.actor}</span>{" "}
+                  <span className="font-medium">
+                    {r.actor}
+                  </span>{" "}
                   {r.action}{" "}
-                  <span className="font-medium">{r.target}</span>
+                  <span className="font-medium">
+                    {r.target}
+                  </span>
                 </p>
               </div>
 
               {/* Right side */}
+
               <span className="shrink-0 text-xs text-muted-foreground">
                 {r.time}
               </span>

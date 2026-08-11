@@ -7,13 +7,16 @@ from fastapi import (
 )
 
 from config.db import thesis_collection, category_collection
+
 from helper.cloudinary_helper import (
     upload_image,
     upload_pdf,
     delete_asset,
     delete_pdf,
 )
+
 from helper.activity_helper import log_activity
+
 
 router = APIRouter(
     prefix="/thesis",
@@ -21,9 +24,10 @@ router = APIRouter(
 )
 
 
-# ==========================
+# ============================================================
 # CREATE THESIS
-# ==========================
+# ============================================================
+
 @router.post("/")
 async def create_thesis(
     id: str = Form(...),
@@ -40,25 +44,36 @@ async def create_thesis(
     uploadedBy: str = Form(...),
     uploadDate: str = Form(...),
 
-    # Cover is now OPTIONAL
+    # Cover is optional
     cover: UploadFile | None = File(None),
 
-    # PDF remains OPTIONAL
+    # PDF is optional
     pdf: UploadFile | None = File(None),
 ):
+
+    # --------------------------------------------------------
     # Check duplicate Thesis ID
+    # --------------------------------------------------------
+
     if thesis_collection.find_one({"id": id}):
         raise HTTPException(
             status_code=400,
             detail="Thesis ID already exists."
         )
 
-    # Convert comma-separated strings into lists
+    # --------------------------------------------------------
+    # Convert student names into list
+    # --------------------------------------------------------
+
     student_names = [
         name.strip()
         for name in studentNames.split(",")
         if name.strip()
     ]
+
+    # --------------------------------------------------------
+    # Convert keywords into list
+    # --------------------------------------------------------
 
     keyword_list = [
         keyword.strip()
@@ -66,17 +81,33 @@ async def create_thesis(
         if keyword.strip()
     ]
 
+    # --------------------------------------------------------
     # Upload cover only if selected
+    # --------------------------------------------------------
+
     cover_url = None
     cover_public_id = None
-    if cover:
-        cover_url, cover_public_id = upload_image(cover.file)
 
+    if cover:
+        cover_url, cover_public_id = upload_image(
+            cover.file
+        )
+
+    # --------------------------------------------------------
     # Upload PDF only if selected
+    # --------------------------------------------------------
+
     pdf_url = None
     pdf_public_id = None
+
     if pdf:
-        pdf_url, pdf_public_id = upload_pdf(pdf)
+        pdf_url, pdf_public_id = upload_pdf(
+            pdf
+        )
+
+    # --------------------------------------------------------
+    # Create thesis document
+    # --------------------------------------------------------
 
     thesis = {
         "id": id,
@@ -99,7 +130,17 @@ async def create_thesis(
         "views": 0,
     }
 
-    result = thesis_collection.insert_one(thesis)
+    # --------------------------------------------------------
+    # Insert thesis
+    # --------------------------------------------------------
+
+    result = thesis_collection.insert_one(
+        thesis
+    )
+
+    # --------------------------------------------------------
+    # Log activity
+    # --------------------------------------------------------
 
     log_activity(
         actor=uploadedBy,
@@ -107,7 +148,10 @@ async def create_thesis(
         target=title
     )
 
+    # --------------------------------------------------------
     # Increase category count
+    # --------------------------------------------------------
+
     category_collection.update_one(
         {"name": category},
         {
@@ -118,7 +162,9 @@ async def create_thesis(
         }
     )
 
-    thesis["_id"] = str(result.inserted_id)
+    thesis["_id"] = str(
+        result.inserted_id
+    )
 
     return {
         "message": "Thesis created successfully.",
@@ -126,15 +172,21 @@ async def create_thesis(
     }
 
 
-# ==========================
+# ============================================================
 # GET ALL THESIS
-# ==========================
+# ============================================================
+
 @router.get("/")
 async def get_all_thesis():
-    theses = list(thesis_collection.find())
+
+    theses = list(
+        thesis_collection.find()
+    )
 
     for thesis in theses:
-        thesis["_id"] = str(thesis["_id"])
+        thesis["_id"] = str(
+            thesis["_id"]
+        )
 
     return {
         "message": "Thesis fetched successfully.",
@@ -142,18 +194,65 @@ async def get_all_thesis():
     }
 
 
-# ==========================
+# ============================================================
+# GET FYDP COUNT BY YEAR
+# ============================================================
+
+@router.get("/statistics/by-year")
+async def get_fydp_by_year():
+
+    yearly_data = list(
+        thesis_collection.aggregate(
+            [
+                {
+                    "$group": {
+                        "_id": "$submissionYear",
+                        "count": {
+                            "$sum": 1
+                        }
+                    }
+                },
+                {
+                    "$sort": {
+                        "_id": -1
+                    }
+                }
+            ]
+        )
+    )
+
+    result = [
+        {
+            "year": item["_id"],
+            "count": item["count"]
+        }
+        for item in yearly_data
+    ]
+
+    return {
+        "message": "FYDP count by year fetched successfully.",
+        "data": result
+    }
+
+
+# ============================================================
 # GET MOST VIEWED THESIS
-# ==========================
+# ============================================================
+
 @router.get("/most-viewed")
 async def get_most_viewed_thesis():
 
     thesis = list(
-        thesis_collection.find().sort("views", -1).limit(5)
+        thesis_collection
+        .find()
+        .sort("views", -1)
+        .limit(5)
     )
 
     for item in thesis:
-        item["_id"] = str(item["_id"])
+        item["_id"] = str(
+            item["_id"]
+        )
 
     return {
         "message": "Most viewed thesis fetched successfully.",
@@ -161,12 +260,20 @@ async def get_most_viewed_thesis():
     }
 
 
-# ==========================
+# ============================================================
 # GET SINGLE THESIS
-# ==========================
+# ============================================================
+
 @router.get("/{thesis_id}")
-async def get_thesis_by_id(thesis_id: str):
-    thesis = thesis_collection.find_one({"id": thesis_id})
+async def get_thesis_by_id(
+    thesis_id: str
+):
+
+    thesis = thesis_collection.find_one(
+        {
+            "id": thesis_id
+        }
+    )
 
     if not thesis:
         raise HTTPException(
@@ -174,7 +281,9 @@ async def get_thesis_by_id(thesis_id: str):
             detail="Thesis not found."
         )
 
-    thesis["_id"] = str(thesis["_id"])
+    thesis["_id"] = str(
+        thesis["_id"]
+    )
 
     return {
         "message": "Thesis fetched successfully.",
@@ -182,13 +291,20 @@ async def get_thesis_by_id(thesis_id: str):
     }
 
 
-# ==========================
+# ============================================================
 # INCREMENT THESIS VIEW
-# ==========================
-@router.patch("/{thesis_id}/view")
-async def increment_thesis_view(thesis_id: str):
+# ============================================================
 
-    thesis = thesis_collection.find_one({"id": thesis_id})
+@router.patch("/{thesis_id}/view")
+async def increment_thesis_view(
+    thesis_id: str
+):
+
+    thesis = thesis_collection.find_one(
+        {
+            "id": thesis_id
+        }
+    )
 
     if not thesis:
         raise HTTPException(
@@ -197,7 +313,9 @@ async def increment_thesis_view(thesis_id: str):
         )
 
     thesis_collection.update_one(
-        {"id": thesis_id},
+        {
+            "id": thesis_id
+        },
         {
             "$inc": {
                 "views": 1
@@ -210,9 +328,10 @@ async def increment_thesis_view(thesis_id: str):
     }
 
 
-# ==========================
+# ============================================================
 # UPDATE THESIS
-# ==========================
+# ============================================================
+
 @router.put("/{thesis_id}")
 async def update_thesis(
     thesis_id: str,
@@ -234,7 +353,15 @@ async def update_thesis(
     pdf: UploadFile | None = File(None),
 ):
 
-    existing = thesis_collection.find_one({"id": thesis_id})
+    # --------------------------------------------------------
+    # Find existing thesis
+    # --------------------------------------------------------
+
+    existing = thesis_collection.find_one(
+        {
+            "id": thesis_id
+        }
+    )
 
     if not existing:
         raise HTTPException(
@@ -242,15 +369,25 @@ async def update_thesis(
             detail="Thesis not found."
         )
 
+    # --------------------------------------------------------
     # Store old category
+    # --------------------------------------------------------
+
     old_category = existing["category"]
 
-    # Convert strings into lists
+    # --------------------------------------------------------
+    # Convert student names into list
+    # --------------------------------------------------------
+
     student_names = [
         name.strip()
         for name in studentNames.split(",")
         if name.strip()
     ]
+
+    # --------------------------------------------------------
+    # Convert keywords into list
+    # --------------------------------------------------------
 
     keyword_list = [
         keyword.strip()
@@ -258,27 +395,55 @@ async def update_thesis(
         if keyword.strip()
     ]
 
+    # --------------------------------------------------------
     # Keep old cover if not changed
-    cover_url = existing.get("coverUrl")
-    cover_public_id = existing.get("coverPublicId")
+    # --------------------------------------------------------
+
+    cover_url = existing.get(
+        "coverUrl"
+    )
+
+    cover_public_id = existing.get(
+        "coverPublicId"
+    )
 
     if cover:
-        # Delete old cover from Cloudinary
+
         if cover_public_id:
-            delete_asset(cover_public_id)
+            delete_asset(
+                cover_public_id
+            )
 
-        cover_url, cover_public_id = upload_image(cover.file)
+        cover_url, cover_public_id = upload_image(
+            cover.file
+        )
 
+    # --------------------------------------------------------
     # Keep old PDF if not changed
-    pdf_url = existing.get("pdfUrl")
-    pdf_public_id = existing.get("pdfPublicId")
+    # --------------------------------------------------------
+
+    pdf_url = existing.get(
+        "pdfUrl"
+    )
+
+    pdf_public_id = existing.get(
+        "pdfPublicId"
+    )
 
     if pdf:
-        # Delete old PDF from Cloudinary
-        if pdf_public_id:
-            delete_pdf(pdf_public_id)
 
-        pdf_url, pdf_public_id = upload_pdf(pdf)
+        if pdf_public_id:
+            delete_pdf(
+                pdf_public_id
+            )
+
+        pdf_url, pdf_public_id = upload_pdf(
+            pdf
+        )
+
+    # --------------------------------------------------------
+    # Updated thesis data
+    # --------------------------------------------------------
 
     updated_data = {
         "title": title,
@@ -299,16 +464,29 @@ async def update_thesis(
         "uploadDate": uploadDate,
     }
 
+    # --------------------------------------------------------
+    # Update thesis
+    # --------------------------------------------------------
+
     thesis_collection.update_one(
-        {"id": thesis_id},
-        {"$set": updated_data}
+        {
+            "id": thesis_id
+        },
+        {
+            "$set": updated_data
+        }
     )
 
-    # Update category counts only if category changed
+    # --------------------------------------------------------
+    # Update category counts if category changed
+    # --------------------------------------------------------
+
     if old_category != category:
 
         category_collection.update_one(
-            {"name": old_category},
+            {
+                "name": old_category
+            },
             {
                 "$inc": {
                     "count": -1,
@@ -318,7 +496,9 @@ async def update_thesis(
         )
 
         category_collection.update_one(
-            {"name": category},
+            {
+                "name": category
+            },
             {
                 "$inc": {
                     "count": 1,
@@ -327,8 +507,23 @@ async def update_thesis(
             }
         )
 
-    updated = thesis_collection.find_one({"id": thesis_id})
-    updated["_id"] = str(updated["_id"])
+    # --------------------------------------------------------
+    # Get updated thesis
+    # --------------------------------------------------------
+
+    updated = thesis_collection.find_one(
+        {
+            "id": thesis_id
+        }
+    )
+
+    updated["_id"] = str(
+        updated["_id"]
+    )
+
+    # --------------------------------------------------------
+    # Log activity
+    # --------------------------------------------------------
 
     log_activity(
         actor=uploadedBy,
@@ -342,13 +537,24 @@ async def update_thesis(
     }
 
 
-# ==========================
+# ============================================================
 # DELETE THESIS
-# ==========================
-@router.delete("/{thesis_id}")
-async def delete_thesis(thesis_id: str):
+# ============================================================
 
-    thesis = thesis_collection.find_one({"id": thesis_id})
+@router.delete("/{thesis_id}")
+async def delete_thesis(
+    thesis_id: str
+):
+
+    # --------------------------------------------------------
+    # Find thesis
+    # --------------------------------------------------------
+
+    thesis = thesis_collection.find_one(
+        {
+            "id": thesis_id
+        }
+    )
 
     if not thesis:
         raise HTTPException(
@@ -356,9 +562,14 @@ async def delete_thesis(thesis_id: str):
             detail="Thesis not found."
         )
 
+    # --------------------------------------------------------
     # Decrease category count
+    # --------------------------------------------------------
+
     category_collection.update_one(
-        {"name": thesis["category"]},
+        {
+            "name": thesis["category"]
+        },
         {
             "$inc": {
                 "count": -1,
@@ -367,15 +578,37 @@ async def delete_thesis(thesis_id: str):
         }
     )
 
+    # --------------------------------------------------------
     # Delete cover from Cloudinary
+    # --------------------------------------------------------
+
     if thesis.get("coverPublicId"):
-        delete_asset(thesis["coverPublicId"])
+        delete_asset(
+            thesis["coverPublicId"]
+        )
 
+    # --------------------------------------------------------
     # Delete PDF from Cloudinary
-    if thesis.get("pdfPublicId"):
-        delete_pdf(thesis["pdfPublicId"])
+    # --------------------------------------------------------
 
-    thesis_collection.delete_one({"id": thesis_id})
+    if thesis.get("pdfPublicId"):
+        delete_pdf(
+            thesis["pdfPublicId"]
+        )
+
+    # --------------------------------------------------------
+    # Delete thesis
+    # --------------------------------------------------------
+
+    thesis_collection.delete_one(
+        {
+            "id": thesis_id
+        }
+    )
+
+    # --------------------------------------------------------
+    # Log activity
+    # --------------------------------------------------------
 
     log_activity(
         actor=thesis["uploadedBy"],

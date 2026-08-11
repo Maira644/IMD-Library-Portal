@@ -85,7 +85,7 @@ export function ResourceDetail({ cover, title, subtitle, meta, description, keyw
             </CardContent>
           </Card>
           <div className="mt-6">
-            <h2 className="text-lg font-semibold">Description</h2>
+            <h2 className="text-lg font-semibold">Abstraction</h2>
             <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
               {description}
             </p>

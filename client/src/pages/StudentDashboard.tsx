@@ -130,7 +130,7 @@ export function StudentDashboard() {
       render: (t) => (
         <Link to={`/student/thesis/${t.id}`} className="block min-w-0 hover:underline">
           <p className="truncate font-medium">{t.title}</p>
-          <p className="truncate text-xs text-muted-foreground">{t.studentNames.join(", ")}</p>
+          <p className="truncate text-xs text-muted-foreground">Supervised by {t.supervisor}</p>
         </Link>
       ),
     },

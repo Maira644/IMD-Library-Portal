@@ -7,6 +7,7 @@ const API = axios.create({
 // ==========================
 // GET ALL THESIS
 // ==========================
+
 export async function getAllThesis() {
   const response = await API.get("/thesis/");
   return response.data;
@@ -15,6 +16,7 @@ export async function getAllThesis() {
 // ==========================
 // CREATE THESIS
 // ==========================
+
 export async function createThesis(formData: FormData) {
   const response = await API.post(
     "/thesis/",
@@ -32,6 +34,7 @@ export async function createThesis(formData: FormData) {
 // ==========================
 // UPDATE THESIS
 // ==========================
+
 export async function updateThesis(
   thesisId: string,
   formData: FormData
@@ -52,7 +55,10 @@ export async function updateThesis(
 // ==========================
 // DELETE THESIS
 // ==========================
-export async function deleteThesis(thesisId: string) {
+
+export async function deleteThesis(
+  thesisId: string
+) {
   const response = await API.delete(
     `/thesis/${thesisId}`
   );
@@ -63,23 +69,51 @@ export async function deleteThesis(thesisId: string) {
 // ==========================
 // GET SINGLE THESIS
 // ==========================
-export async function getThesisById(thesisId: string) {
-  const response = await API.get(`/thesis/${thesisId}`);
+
+export async function getThesisById(
+  thesisId: string
+) {
+  const response = await API.get(
+    `/thesis/${thesisId}`
+  );
+
   return response.data.thesis;
 }
 
 // ==========================
 // GET MOST VIEWED THESIS
 // ==========================
+
 export async function getMostViewedThesis() {
-  const response = await API.get("/thesis/most-viewed");
+  const response = await API.get(
+    "/thesis/most-viewed"
+  );
+
   return response.data.thesis;
 }
 
 // ==========================
 // INCREMENT THESIS VIEW
 // ==========================
-export async function incrementThesisView(thesisId: string) {
-  const response = await API.patch(`/thesis/${thesisId}/view`);
+
+export async function incrementThesisView(
+  thesisId: string
+) {
+  const response = await API.patch(
+    `/thesis/${thesisId}/view`
+  );
+
   return response.data;
+}
+
+// ==========================
+// GET FYDP COUNT BY YEAR
+// ==========================
+
+export async function getFydpCountByYear() {
+  const response = await API.get(
+    "/thesis/statistics/by-year"
+  );
+
+  return response.data.data;
 }

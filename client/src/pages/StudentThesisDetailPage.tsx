@@ -85,7 +85,7 @@ export function StudentThesisDetailPage() {
     <ResourceDetail
       cover={displayCover}
       title={t.title}
-      subtitle={`by ${t.studentNames.join(", ")} · Supervised by ${t.supervisor}`}
+      subtitle={`${t.studentNames.join(", ")} · Supervised by ${t.supervisor}`}
       meta={[
         { label: "FYDP ID", value: t.id },
         { label: "Department", value: t.department },
