@@ -81,7 +81,10 @@ export function AdminThesisPage() {
       sortable: true,
       render: (t) => (
         <div className="min-w-0">
-          <p className="truncate font-medium">{t.title}</p>
+          <p className="font-medium whitespace-normal break-words">
+            {t.title}
+          </p>
+
           <p className="truncate text-xs text-muted-foreground">
             {t.studentNames.join(", ")}
           </p>
