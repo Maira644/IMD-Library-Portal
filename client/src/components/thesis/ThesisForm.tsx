@@ -9,6 +9,7 @@ import { getCategories } from "@/api/category";
 import type { Category } from "@/types";
 import type { Thesis } from "@/types";
 import { createThesis, updateThesis } from "@/api/thesis";
+import { toast } from "sonner";
 
 export function ThesisForm({
   open,
@@ -27,7 +28,7 @@ export function ThesisForm({
     initial ?? {
       id: "",
       title: "",
-      studentNames: [""],
+      studentRollNos: [""],
       supervisor: "",
       department: "Industrial And Manufacturing",
       industry: "",
@@ -51,8 +52,13 @@ export function ThesisForm({
 
   useEffect(() => {
     if (initial) {
-      setForm(initial);
-      setKeywordsText(initial.keywords.join(", "));
+      setForm({
+        ...initial,
+        studentRollNos: initial.studentRollNos ?? [""],
+        keywords: initial.keywords ?? [],
+      });
+
+      setKeywordsText((initial.keywords ?? []).join(", "));
     }
   }, [initial]);
 
@@ -107,8 +113,8 @@ export function ThesisForm({
               formData.append("id", form.id);
               formData.append("title", form.title);
               formData.append(
-                "studentNames",
-                form.studentNames
+                "studentRollNos",
+                form.studentRollNos
                   .filter((s) => s.trim())
                   .join(",")
               );
@@ -148,7 +154,7 @@ export function ThesisForm({
               setForm({
                 id: "",
                 title: "",
-                studentNames: [""],
+                studentRollNos: [""],
                 supervisor: "",
                 department: "Industrial And Manufacturing",
                 industry: "",
@@ -173,13 +179,12 @@ export function ThesisForm({
 
               onOpenChange(false);
             } catch (err: any) {
-              console.error(err);
+              console.error("Failed to save FYDP:", err);
 
-              if (err.response) {
-                console.log("Backend Error:", err.response.data);
-                alert(JSON.stringify(err.response.data));
+              if (err.response?.data?.detail) {
+                toast.error(err.response.data.detail);
               } else {
-                alert(err.message);
+                toast.error("Failed to save FYDP. Please try again.");
               }
             }
           }}
@@ -200,40 +205,54 @@ export function ThesisForm({
             <Input value={form.title} onChange={(e) => set("title", e.target.value)} required />
           </div>
           <div className="sm:col-span-2">
-            <Label>Student names (up to 4) </Label>
+            <Label>Student roll no (up to 4)</Label>
+
             <div className="grid gap-2">
-              {form.studentNames.map((name, i) => (
+              {form.studentRollNos.map((rollNo, i) => (
                 <div key={i} className="flex gap-2">
                   <Input
-                    value={name}
-                    placeholder={`Student ${i + 1}`}
-                    // required={i === 0}
+                    value={rollNo}
+                    placeholder={`Roll No. ${i + 1}`}
                     onChange={(e) => {
-                      const next = [...form.studentNames];
+                      const next = [...form.studentRollNos];
                       next[i] = e.target.value;
-                      set("studentNames", next);
+                      set("studentRollNos", next);
                     }}
                   />
-                  {form.studentNames.length > 1 && (
+
+                  {form.studentRollNos.length > 1 && (
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
-                      onClick={() => set("studentNames", form.studentNames.filter((_, idx) => idx !== i))}
+                      onClick={() =>
+                        set(
+                          "studentRollNos",
+                          form.studentRollNos.filter(
+                            (_, idx) => idx !== i
+                          )
+                        )
+                      }
                     >
                       ×
                     </Button>
                   )}
                 </div>
               ))}
-              {form.studentNames.length < 4 && (
+
+              {form.studentRollNos.length < 4 && (
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => set("studentNames", [...form.studentNames, ""])}
+                  onClick={() =>
+                    set("studentRollNos", [
+                      ...form.studentRollNos,
+                      "",
+                    ])
+                  }
                 >
-                  + Add student
+                  + Add roll no
                 </Button>
               )}
             </div>
@@ -290,7 +309,6 @@ export function ThesisForm({
               value={form.cabinetNo}
               onChange={(e) => set("cabinetNo", e.target.value)}
               placeholder="e.g. Cabinet 1"
-
             />
           </div>
 
@@ -300,7 +318,6 @@ export function ThesisForm({
               value={form.shelfNo}
               onChange={(e) => set("shelfNo", e.target.value)}
               placeholder="e.g. Shelf A"
-
             />
           </div>
 

@@ -10,7 +10,7 @@ import { EmptyState } from "@/components/shared/EmptyState";
 interface DetailProps {
   cover?: string;
   title: string;
-  subtitle: string;
+  subtitle: React.ReactNode;
   meta: { label: string; value: string | number }[];
   description: string;
   keywords: string[];

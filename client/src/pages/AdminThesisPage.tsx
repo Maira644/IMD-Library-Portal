@@ -61,7 +61,8 @@ export function AdminThesisPage() {
       list = list.filter(
         (t) =>
           t.title.toLowerCase().includes(n) ||
-          t.studentNames.some((s) => s.toLowerCase().includes(n))
+          Array.isArray(t.studentRollNos) &&
+          t.studentRollNos.some((r) => r.toLowerCase().includes(n))
       );
     }
 
@@ -83,10 +84,6 @@ export function AdminThesisPage() {
         <div className="min-w-0">
           <p className="font-medium whitespace-normal break-words">
             {t.title}
-          </p>
-
-          <p className="truncate text-xs text-muted-foreground">
-            {t.studentNames.join(", ")}
           </p>
         </div>
       ),

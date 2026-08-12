@@ -32,7 +32,7 @@ router = APIRouter(
 async def create_thesis(
     id: str = Form(...),
     title: str = Form(...),
-    studentNames: str = Form(""),
+    studentRollNos: str = Form(""),
     supervisor: str = Form(...),
     department: str = Form(...),
     submissionYear: int = Form(...),
@@ -62,13 +62,13 @@ async def create_thesis(
         )
 
     # --------------------------------------------------------
-    # Convert student names into list
+    # Convert student roll numbers into list
     # --------------------------------------------------------
 
-    student_names = [
-        name.strip()
-        for name in studentNames.split(",")
-        if name.strip()
+    student_roll_nos = [
+        roll_no.strip()
+        for roll_no in studentRollNos.split(",")
+        if roll_no.strip()
     ]
 
     # --------------------------------------------------------
@@ -112,7 +112,7 @@ async def create_thesis(
     thesis = {
         "id": id,
         "title": title,
-        "studentNames": student_names,
+        "studentRollNos": student_roll_nos,
         "supervisor": supervisor,
         "department": department,
         "submissionYear": submissionYear,
@@ -337,7 +337,7 @@ async def update_thesis(
     thesis_id: str,
 
     title: str = Form(...),
-    studentNames: str = Form(""),
+    studentRollNos: str = Form(""),
     supervisor: str = Form(...),
     department: str = Form(...),
     submissionYear: int = Form(...),
@@ -376,13 +376,13 @@ async def update_thesis(
     old_category = existing["category"]
 
     # --------------------------------------------------------
-    # Convert student names into list
+    # Convert student roll numbers into list
     # --------------------------------------------------------
 
-    student_names = [
-        name.strip()
-        for name in studentNames.split(",")
-        if name.strip()
+    student_roll_nos = [
+        roll_no.strip()
+        for roll_no in studentRollNos.split(",")
+        if roll_no.strip()
     ]
 
     # --------------------------------------------------------
@@ -447,7 +447,7 @@ async def update_thesis(
 
     updated_data = {
         "title": title,
-        "studentNames": student_names,
+        "studentRollNos": student_roll_nos,
         "supervisor": supervisor,
         "department": department,
         "submissionYear": submissionYear,

@@ -35,7 +35,7 @@ export interface Book {
 export interface Thesis {
   id: string;
   title: string;
-  studentNames: string[];
+  studentRollNos: string[];
   supervisor: string;
   department: string;
   industry: string;

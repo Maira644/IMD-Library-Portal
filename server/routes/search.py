@@ -42,6 +42,7 @@ async def search_library(q: str = Query(..., min_length=1)):
                 "$or": [
                     {"title": regex},
                     {"studentNames": regex},
+                    {"studentRollNos": regex},
                     {"keywords": regex},
                 ]
             }
