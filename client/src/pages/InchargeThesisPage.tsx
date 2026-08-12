@@ -61,7 +61,7 @@ export function InchargeThesisPage() {
       list = list.filter(
         (t) =>
           t.title.toLowerCase().includes(n) ||
-          t.studentNames.some((s) => s.toLowerCase().includes(n))
+          t.studentRollNos?.some((r) => r.toLowerCase().includes(n))
       );
     }
 
@@ -84,10 +84,6 @@ export function InchargeThesisPage() {
         <div className="min-w-0">
           <p className="font-medium break-words line-clamp-2 leading-6">
             {t.title}
-          </p>
-
-          <p className="text-xs text-muted-foreground truncate">
-            {t.studentNames.join(", ")}
           </p>
         </div>
       ),
