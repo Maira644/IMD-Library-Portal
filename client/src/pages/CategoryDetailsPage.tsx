@@ -83,9 +83,9 @@ export function CategoryDetailsPage() {
     const thesisColumns: DataTableColumn<any>[] = [
         { key: "title", header: "Title", sortable: true },
         {
-            key: "studentNames",
+            key: "studentRollNos",
             header: "Students",
-            render: (thesis) => thesis.studentNames.join(", "),
+            render: (thesis) => thesis.studentRollNos?.join(", ") || "",
         },
         { key: "supervisor", header: "Supervisor" },
         { key: "submissionYear", header: "Year", sortable: true },
