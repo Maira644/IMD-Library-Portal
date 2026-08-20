@@ -64,8 +64,10 @@ async def create_book(
     ]
 
     cover_url = None
+    cover_public_id = None
+
     if cover:
-        cover_url = upload_image(cover.file)
+        cover_url, cover_public_id = upload_image(cover.file)
 
     pdf_url = None
     if pdf:
@@ -87,6 +89,7 @@ async def create_book(
         "keywords": keyword_list,
 
         "coverUrl": cover_url,
+        "coverPublicId": cover_public_id,
         "pdfUrl": pdf_url,
 
         "physicalCopy": physicalCopy,
@@ -250,9 +253,11 @@ async def update_book(
         if keyword.strip()
     ]
 
-    cover_url = existing["coverUrl"]
+    cover_url = existing.get("coverUrl")
+    cover_public_id = existing.get("coverPublicId")
+
     if cover:
-        cover_url = upload_image(cover.file)
+        cover_url, cover_public_id = upload_image(cover.file)
 
     pdf_url = existing["pdfUrl"]
     if pdf:
@@ -292,6 +297,7 @@ async def update_book(
         "shelfNo": shelfNo,
         "keywords": keyword_list,
         "coverUrl": cover_url,
+        "coverPublicId": cover_public_id,
         "pdfUrl": pdf_url,
         "physicalCopy": physicalCopy,
         "digitalCopy": digitalCopy,

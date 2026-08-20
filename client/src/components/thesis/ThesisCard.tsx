@@ -29,7 +29,7 @@ export function ThesisCard({ thesis, hrefBase }: { thesis: Thesis; hrefBase: str
           </div>
           <CardContent className="p-3">
             <p className="line-clamp-2 text-sm font-semibold">{thesis.title}</p>
-            <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">by {thesis.studentNames.join(", ")}</p>
+            <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">by {thesis.studentRollNos.join(", ")}</p>
             <p className="mt-1 text-xs text-muted-foreground">{thesis.submissionYear} · {thesis.views} views</p>
           </CardContent>
         </Card>

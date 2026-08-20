@@ -66,7 +66,7 @@ export function ResourceDetail({ cover, title, subtitle, meta, description, keyw
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-          <p className="mt-1 text-muted-foreground">{subtitle}</p>
+          <div className="mt-1 text-muted-foreground">{subtitle}</div>
           <div className="mt-4 flex flex-wrap gap-2">
             {keywords.map((k) => (
               <Badge key={k} variant="secondary">
