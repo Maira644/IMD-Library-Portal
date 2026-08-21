@@ -10,6 +10,7 @@ import type { Category } from "@/types";
 import type { Thesis } from "@/types";
 import { createThesis, updateThesis } from "@/api/thesis";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function ThesisForm({
   open,
@@ -24,6 +25,7 @@ export function ThesisForm({
   onSubmit: () => Promise<void>;
   uploadedBy: "Admin" | "Incharge";
 }) {
+  const { user } = useAuth();
   const [form, setForm] = useState<Thesis>(
     initial ?? {
       id: "",
@@ -49,6 +51,7 @@ export function ThesisForm({
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [keywordsText, setKeywordsText] = useState(form.keywords.join(", "));
   const [categories, setCategories] = useState<Category[]>([]);
+  
 
   useEffect(() => {
     if (initial) {
@@ -133,7 +136,7 @@ export function ThesisForm({
                 "keywords",
                 kws.join(",")
               );
-              formData.append("uploadedBy", form.uploadedBy);
+              formData.append("uploadedBy", user?.username || "");
               formData.append("uploadDate", form.uploadDate);
 
               if (coverFile) {
