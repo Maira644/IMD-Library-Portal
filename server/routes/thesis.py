@@ -464,7 +464,7 @@ async def update_thesis(
         "coverPublicId": cover_public_id,
         "pdfUrl": pdf_url,
         "pdfPublicId": pdf_public_id,
-        "uploadedBy": uploadedBy,
+        
         "uploadDate": uploadDate,
     }
 
