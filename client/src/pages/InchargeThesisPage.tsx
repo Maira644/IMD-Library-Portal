@@ -51,9 +51,7 @@ export function InchargeThesisPage() {
   }, []);
 
   const filtered = useMemo(() => {
-    let list = items;
-
-
+    let list = [...items];
 
     if (q.trim()) {
       const n = q.toLowerCase();
@@ -64,6 +62,14 @@ export function InchargeThesisPage() {
           t.studentRollNos?.some((r) => r.toLowerCase().includes(n))
       );
     }
+
+    // Sort by FY ID
+    list.sort((a, b) => {
+      const idA = Number(a.id.replace("FY-", ""));
+      const idB = Number(b.id.replace("FY-", ""));
+
+      return idA - idB;
+    });
 
     return list;
   }, [items, q]);
@@ -93,7 +99,7 @@ export function InchargeThesisPage() {
       header: "Department",
       sortable: true,
     },
-    
+
     {
       key: "supervisor",
       header: "Supervisor",

@@ -214,7 +214,7 @@ export function LandingPage() {
               </h1>
 
               <p className="mt-6 max-w-lg text-lg text-muted-foreground">
-                Every book, thesis, and academic resource — cataloged, cross-referenced, and one search away.
+                Every book, FYDP, and academic resource — cataloged, cross-referenced, and one search away.
               </p>
 
               <form className="mt-9 max-w-md" onSubmit={handleSearchSubmit}>
@@ -249,7 +249,7 @@ export function LandingPage() {
               </p>
               <div className="mt-4 space-y-3 font-mono text-sm">
                 <CatalogRow label="Books" value={booksLoading ? "…" : `${booksTotal - 1}+`} />
-                <CatalogRow label="Thesis" value={thesisLoading ? "…" : `${thesisTotal - 1}+`} />
+                <CatalogRow label="FYDP" value={thesisLoading ? "…" : `${thesisTotal - 1}+`} />
                 <CatalogRow label="Categories" value={categoriesLoading ? "…" : `${categoriesTotal}`} />
                 <CatalogRow label="Department" value="IMD" />
               </div>
@@ -269,7 +269,7 @@ export function LandingPage() {
         <p className="mt-2 text-muted-foreground">Built for students, curated by librarians, governed by admins.</p>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {[
-            { tag: "A", icon: BookOpen, title: "Rich catalog", desc: "Books & thesis with metadata, previews, and PDFs." },
+            { tag: "A", icon: BookOpen, title: "Rich catalog", desc: "Books & FYDP with metadata, previews, and PDFs." },
             { tag: "B", icon: Search, title: "Instant search", desc: "Autocomplete, keyword matching, filters and sorting." },
             { tag: "C", icon: ShieldCheck, title: "Role-based access", desc: "Admin, Incharge, Student — each with tailored tools." },
           ].map((f, i) => (
@@ -338,7 +338,7 @@ export function LandingPage() {
             <div className="absolute left-0 right-0 top-6 hidden h-px bg-border md:block" />
             {[
               { num: "01", icon: UserPlus, title: "Sign in to your account", desc: "Use your university-provisioned account — no self-registration needed." },
-              { num: "02", icon: Search, title: "Find what you need", desc: "Search the full catalog of books and thesis with instant filters." },
+              { num: "02", icon: Search, title: "Find what you need", desc: "Search the full catalog of books and FYDP with instant filters." },
               { num: "03", icon: ClipboardCheck, title: "Borrow & track", desc: "Request items and keep an eye on due dates from your dashboard." },
             ].map((step, i) => (
               <motion.div
@@ -376,7 +376,7 @@ export function LandingPage() {
               onItemClick={handleBookClick}
             />
             <PreviewList
-              title="Latest thesis"
+              title="Latest FYDP"
               icon={GraduationCap}
               items={thesis}
               loading={thesisLoading}

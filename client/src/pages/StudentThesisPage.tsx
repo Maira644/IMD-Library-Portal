@@ -41,7 +41,7 @@ export function StudentThesisPage() {
       list = list.filter(
         (t) =>
           t.title.toLowerCase().includes(n) ||
-          t.studentNames.some((s) => s.toLowerCase().includes(n))
+          t.studentRollNos.some((s) => s.toLowerCase().includes(n))
       );
     }
 
@@ -63,7 +63,7 @@ export function StudentThesisPage() {
         <div className="min-w-0">
           <p className="truncate font-medium">{t.title}</p>
           <p className="truncate text-xs text-muted-foreground">
-            {t.studentNames.join(", ")}
+            {t.studentRollNos?.join(", ") || "No students"}
           </p>
         </div>
       ),

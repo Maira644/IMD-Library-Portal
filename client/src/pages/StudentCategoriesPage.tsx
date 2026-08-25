@@ -71,7 +71,7 @@ export function StudentCategoriesPage() {
     },
     {
       key: "thesisCount",
-      header: "Thesis",
+      header: "FYDP",
       sortable: true,
       render: (c) => <Badge variant="secondary">{c.thesisCount}</Badge>,
     },
@@ -81,7 +81,7 @@ export function StudentCategoriesPage() {
     <div>
       <PageHeader
         title="Categories"
-        description="Browse books and thesis by topic."
+        description="Browse books and FYDP by topic."
       />
 
       <div className="mb-4">

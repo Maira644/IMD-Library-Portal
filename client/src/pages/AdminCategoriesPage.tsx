@@ -163,7 +163,7 @@ export function AdminCategoriesPage() {
     <div>
       <PageHeader
         title="Categories"
-        description="Organize books and thesis by topic."
+        description="Organize books and FYDP by topic."
         actions={
           <Button
             onClick={() => {
