@@ -114,7 +114,7 @@ export function CategoriesPage() {
     },
     {
       key: "thesisCount",
-      header: "Thesis",
+      header: "FYDP",
       sortable: true,
       render: (c) => (
         <Badge variant="secondary">
@@ -163,7 +163,7 @@ export function CategoriesPage() {
           <div>
             <PageHeader
               title="Categories"
-              description="Organize books and thesis by topic."
+              description="Organize books and FYDP by topic."
               actions={
                 <Button
                   onClick={() => {

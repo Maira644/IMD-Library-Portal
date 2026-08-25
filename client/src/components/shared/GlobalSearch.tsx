@@ -110,7 +110,7 @@ export function GlobalSearch() {
 
       <Input
         type="search"
-        placeholder="Search books, thesis..."
+        placeholder="Search books, FYDPs..."
         className="pl-9"
         value={query}
         onChange={(e) => setQuery(e.target.value)}

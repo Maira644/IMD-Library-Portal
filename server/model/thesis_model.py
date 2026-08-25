@@ -5,7 +5,7 @@ from typing import List, Optional
 class ThesisCreate(BaseModel):
     id: str
     title: str
-    studentNames: List[str]
+    studentRollNos: List[str]
     supervisor: str
     department: str
     submissionYear: int
