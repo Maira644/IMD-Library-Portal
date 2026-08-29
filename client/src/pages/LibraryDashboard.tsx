@@ -37,6 +37,46 @@ function isToday(dateStr: string) {
   return dateStr.slice(0, 10) === today;
 }
 
+// Shimmer style shared by the stat cards and recent-uploads skeletons
+function LibraryDashboardShimmerStyle() {
+  return (
+    <style>{`
+      @keyframes lib-dash-shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+      .lib-dash-shimmer {
+        background: linear-gradient(
+          90deg,
+          hsl(var(--muted)) 25%,
+          hsl(var(--muted-foreground) / 0.25) 50%,
+          hsl(var(--muted)) 75%
+        );
+        background-size: 200% 100%;
+        animation: lib-dash-shimmer 1.4s ease-in-out infinite;
+      }
+    `}</style>
+  );
+}
+
+function RecentUploadsSkeleton() {
+  return (
+    <div className="divide-y">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3 p-4">
+          <div className="h-12 w-9 shrink-0 rounded lib-dash-shimmer" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="h-4 w-2/3 rounded lib-dash-shimmer" />
+            <div className="h-3 w-1/3 rounded lib-dash-shimmer" />
+          </div>
+          <div className="h-5 w-14 shrink-0 rounded-full lib-dash-shimmer" />
+          <div className="h-3 w-16 shrink-0 rounded lib-dash-shimmer" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function LibraryDashboard() {
   const [books, setBooks] = useState<DashboardBook[]>([]);
   const [thesisList, setThesisList] = useState<DashboardThesis[]>([]);
@@ -98,12 +138,29 @@ export function LibraryDashboard() {
 
   return (
     <div>
+      <LibraryDashboardShimmerStyle />
       <PageHeader title="Library dashboard" description="Manage the catalog and stay on top of your uploads." />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Books" value={loading ? "..." : books.length} icon={BookOpen} />
-        <StatCard label="FYDP" value={loading ? "..." : thesisList.length} icon={GraduationCap} />
-        <StatCard label="Categories" value={loading ? "..." : categoryCount} icon={Tags} />
-        <StatCard label="Today's uploads" value={loading ? "..." : todayUploads} icon={Upload} />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="space-y-3 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="h-4 w-20 rounded lib-dash-shimmer" />
+                  <div className="h-4 w-4 rounded lib-dash-shimmer" />
+                </div>
+                <div className="h-7 w-12 rounded lib-dash-shimmer" />
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <>
+            <StatCard label="Books" value={books.length} icon={BookOpen} />
+            <StatCard label="FYDP" value={thesisList.length} icon={GraduationCap} />
+            <StatCard label="Categories" value={categoryCount} icon={Tags} />
+            <StatCard label="Today's uploads" value={todayUploads} icon={Upload} />
+          </>
+        )}
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
@@ -120,7 +177,7 @@ export function LibraryDashboard() {
           <CardHeader><CardTitle>Recent uploads</CardTitle></CardHeader>
           <CardContent className="divide-y p-0">
             {loading ? (
-              <p className="p-4 text-sm text-muted-foreground">Loading...</p>
+              <RecentUploadsSkeleton />
             ) : recentUploads.length === 0 ? (
               <p className="p-4 text-sm text-muted-foreground">No uploads yet.</p>
             ) : (
