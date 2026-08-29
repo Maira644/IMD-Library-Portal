@@ -35,8 +35,53 @@ import {
   deleteCategory,
 } from "@/api/category";
 
+// Skeleton loader shown while categories are being fetched
+function CategoriesSkeleton() {
+  return (
+    <div className="rounded-md border overflow-hidden">
+      <style>{`
+        @keyframes cat-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        .cat-shimmer {
+          background: linear-gradient(
+            90deg,
+            hsl(var(--muted)) 25%,
+            hsl(var(--muted-foreground) / 0.25) 50%,
+            hsl(var(--muted)) 75%
+          );
+          background-size: 200% 100%;
+          animation: cat-shimmer 1.4s ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="flex items-center justify-center gap-2 py-6 border-b bg-muted/30">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="text-sm font-medium text-muted-foreground">
+          Loading categories...
+        </span>
+      </div>
+
+      <div className="divide-y">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-4 py-4">
+            <div className="h-5 w-5 shrink-0 rounded cat-shimmer" />
+            <div className="h-4 w-32 shrink-0 rounded cat-shimmer" />
+            <div className="h-4 flex-1 rounded cat-shimmer" />
+            <div className="h-6 w-12 shrink-0 rounded-full cat-shimmer" />
+            <div className="h-6 w-12 shrink-0 rounded-full cat-shimmer" />
+            <div className="h-8 w-8 shrink-0 rounded cat-shimmer" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function CategoriesPage() {
   const [items, setItems] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Category | undefined>();
@@ -61,11 +106,14 @@ export function CategoriesPage() {
 
   const fetchCategories = async () => {
     try {
+      setLoading(true);
       const categories = await getCategories();
       setItems(categories);
     } catch (error) {
       console.error(error);
       toast.error("Failed to load categories.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -184,13 +232,17 @@ export function CategoriesPage() {
                 onChange={(e) => setQ(e.target.value)}
               />
             </div>
-            <DataTable
-              data={filtered}
-              columns={cols}
-              onRowClick={(category) =>
-                navigate(`/library/categories/${category.id}`)
-              }
-            />
+            {loading ? (
+              <CategoriesSkeleton />
+            ) : (
+              <DataTable
+                data={filtered}
+                columns={cols}
+                onRowClick={(category) =>
+                  navigate(`/library/categories/${category.id}`)
+                }
+              />
+            )}
 
             <Dialog
               open={open}
