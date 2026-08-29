@@ -104,13 +104,13 @@ export function GlobalSearch() {
   return (
     <div
       ref={containerRef}
-      className="relative hidden max-w-sm flex-1 sm:block"
+      className="relative hidden max-w-lg flex-1 sm:block"
     >
       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
       <Input
         type="search"
-        placeholder="Search books, FYDPs..."
+        placeholder="Search books, FYDPs, or roll no. (e.g. IM-22XXX)"
         className="pl-9"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
