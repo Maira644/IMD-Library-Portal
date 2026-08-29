@@ -17,6 +17,47 @@ import type { Announcement } from "@/types";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
+// Skeleton loader shown while announcements are being fetched
+function AnnouncementsSkeleton() {
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <style>{`
+        @keyframes ann-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        .ann-shimmer {
+          background: linear-gradient(
+            90deg,
+            hsl(var(--muted)) 25%,
+            hsl(var(--muted-foreground) / 0.25) 50%,
+            hsl(var(--muted)) 75%
+          );
+          background-size: 200% 100%;
+          animation: ann-shimmer 1.4s ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="col-span-full flex items-center justify-center gap-2 rounded-md border bg-muted/30 py-6">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="text-sm font-medium text-muted-foreground">
+          Loading announcements...
+        </span>
+      </div>
+
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="space-y-3 rounded-lg border p-4">
+          <div className="h-40 w-full rounded-md ann-shimmer" />
+          <div className="h-5 w-2/3 rounded ann-shimmer" />
+          <div className="h-4 w-full rounded ann-shimmer" />
+          <div className="h-4 w-5/6 rounded ann-shimmer" />
+          <div className="h-3 w-1/4 rounded ann-shimmer" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function AdminAnnouncementPage() {
   const { user } = useAuth();
   const [items, setItems] = useState<Announcement[]>([]);
@@ -103,7 +144,7 @@ export function AdminAnnouncementPage() {
         }
       />
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading announcements...</p>
+        <AnnouncementsSkeleton />
       ) : sorted.length === 0 ? (
         <p className="text-sm text-muted-foreground">No announcements yet.</p>
       ) : (

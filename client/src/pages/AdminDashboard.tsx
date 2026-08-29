@@ -73,24 +73,23 @@ const chartConfig = {
 };
 
 export function AdminDashboard() {
+  const [loading, setLoading] = useState(true);
+
   const [topBooks, setTopBooks] = useState<Book[]>([]);
   const [topThesis, setTopThesis] = useState<Thesis[]>([]);
 
   const [topKeywords, setTopKeywords] = useState<
-    {
-      keyword: string;
-      count: number;
-    }[]
+    Array<{ keyword: string; count: number }>
   >([]);
 
   const [recentActivity, setRecentActivity] = useState<
-    {
+    Array<{
       actor: string;
       initials: string;
       action: string;
       target: string;
       time: string;
-    }[]
+    }>
   >([]);
 
   const [bookCount, setBookCount] = useState(0);
@@ -138,6 +137,8 @@ export function AdminDashboard() {
 
   async function fetchDashboardData() {
     try {
+      setLoading(true);
+
       // ================= BOOKS =================
 
       const booksResponse = await getAllBooks();
@@ -239,7 +240,90 @@ export function AdminDashboard() {
         "Failed to load dashboard data:",
         error
       );
+    } finally {
+      setLoading(false);
     }
+  }
+
+  if (loading) {
+    return (
+      <div>
+        <style>{`
+          @keyframes dash-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+          .dash-shimmer {
+            background: linear-gradient(
+              90deg,
+              hsl(var(--muted)) 25%,
+              hsl(var(--muted-foreground) / 0.25) 50%,
+              hsl(var(--muted)) 75%
+            );
+            background-size: 200% 100%;
+            animation: dash-shimmer 1.4s ease-in-out infinite;
+          }
+        `}</style>
+
+        <PageHeader
+          title="Admin dashboard"
+          description="Overview of your library system."
+        />
+
+        <div className="flex items-center justify-center gap-2 rounded-md border bg-muted/30 py-6">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <span className="text-sm font-medium text-muted-foreground">
+            Loading dashboard...
+          </span>
+        </div>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="space-y-3 p-4">
+                <div className="h-4 w-24 rounded dash-shimmer" />
+                <div className="h-7 w-16 rounded dash-shimmer" />
+                <div className="h-3 w-20 rounded dash-shimmer" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <Card className="mt-6">
+          <CardContent className="space-y-4 p-4">
+            <div className="flex h-56 w-full items-end gap-3">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="dash-shimmer flex-1 rounded-t"
+                  style={{ height: `${30 + ((i * 13) % 60)}%` }}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="space-y-3 p-4">
+                {Array.from({ length: 4 }).map((_, j) => (
+                  <div key={j} className="h-4 w-full rounded dash-shimmer" />
+                ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <Card className="mt-6">
+          <CardContent className="space-y-3 p-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-4 w-full rounded dash-shimmer" />
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
