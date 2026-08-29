@@ -24,6 +24,51 @@ import {
 
 import { useNavigate } from "react-router-dom"; // ADD
 
+// Skeleton loader shown while thesis records are being fetched
+function ThesisSkeleton() {
+  return (
+    <div className="rounded-md border overflow-hidden">
+      <style>{`
+        @keyframes thesis-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        .thesis-shimmer {
+          background: linear-gradient(
+            90deg,
+            hsl(var(--muted)) 25%,
+            hsl(var(--muted-foreground) / 0.25) 50%,
+            hsl(var(--muted)) 75%
+          );
+          background-size: 200% 100%;
+          animation: thesis-shimmer 1.4s ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="flex items-center justify-center gap-2 py-6 border-b bg-muted/30">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="text-sm font-medium text-muted-foreground">
+          Loading FYDP records...
+        </span>
+      </div>
+
+      <div className="divide-y">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-4 py-4">
+            <div className="h-4 w-14 shrink-0 rounded thesis-shimmer" />
+            <div className="h-4 flex-1 rounded thesis-shimmer" />
+            <div className="h-4 w-28 shrink-0 rounded thesis-shimmer" />
+            <div className="h-4 w-28 shrink-0 rounded thesis-shimmer" />
+            <div className="h-4 w-12 shrink-0 rounded thesis-shimmer" />
+            <div className="h-4 w-10 shrink-0 rounded thesis-shimmer" />
+            <div className="h-8 w-8 shrink-0 rounded thesis-shimmer" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function AdminThesisPage() {
   const navigate = useNavigate(); // ADD
   const [items, setItems] = useState<Thesis[]>([]);
@@ -33,16 +78,21 @@ export function AdminThesisPage() {
   const [openForm, setOpenForm] = useState(false);
   const [editing, setEditing] = useState<Thesis | undefined>();
   const [delId, setDelId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const { track } = useSearchTracker();
 
   // Load thesis from backend
   const fetchThesis = async () => {
     try {
+      setLoading(true);
       const response = await getAllThesis();
       setItems(response.thesis);
     } catch (error) {
       console.error("Failed to fetch FYDP:", error);
+      toast.error("Failed to load FYDP records.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -178,12 +228,16 @@ export function AdminThesisPage() {
         />
       </div>
 
-      <DataTable
-        data={filtered}
-        columns={columns}
-        // searchKeys={["title", "department"]}
-        onRowClick={(t) => navigate(`/admin/thesis/${t.id}`)}
-      />
+      {loading ? (
+        <ThesisSkeleton />
+      ) : (
+        <DataTable
+          data={filtered}
+          columns={columns}
+          // searchKeys={["title", "department"]}
+          onRowClick={(t) => navigate(`/admin/thesis/${t.id}`)}
+        />
+      )}
 
       <ThesisForm
         open={openForm}

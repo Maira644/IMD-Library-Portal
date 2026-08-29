@@ -21,9 +21,57 @@ import {
   deleteIncharge,
 } from "@/api/incharge";
 
+// Skeleton loader shown while incharges are being fetched
+function InchargesSkeleton() {
+  return (
+    <div className="rounded-md border overflow-hidden">
+      <style>{`
+        @keyframes incharge-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        .incharge-shimmer {
+          background: linear-gradient(
+            90deg,
+            hsl(var(--muted)) 25%,
+            hsl(var(--muted-foreground) / 0.25) 50%,
+            hsl(var(--muted)) 75%
+          );
+          background-size: 200% 100%;
+          animation: incharge-shimmer 1.4s ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="flex items-center justify-center gap-2 py-6 border-b bg-muted/30">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="text-sm font-medium text-muted-foreground">
+          Loading incharges...
+        </span>
+      </div>
+
+      <div className="divide-y">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-4 py-4">
+            <div className="h-8 w-8 shrink-0 rounded-full incharge-shimmer" />
+            <div className="space-y-2">
+              <div className="h-4 w-28 rounded incharge-shimmer" />
+              <div className="h-3 w-16 rounded incharge-shimmer" />
+            </div>
+            <div className="h-4 flex-1 rounded incharge-shimmer" />
+            <div className="h-4 w-24 shrink-0 rounded incharge-shimmer" />
+            <div className="h-5 w-16 shrink-0 rounded-full incharge-shimmer" />
+            <div className="h-4 w-20 shrink-0 rounded incharge-shimmer" />
+            <div className="h-8 w-8 shrink-0 rounded incharge-shimmer" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function InchargesPage() {
   const [items, setItems] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<User | undefined>();
   const [delId, setDelId] = useState<string | null>(null);
@@ -35,6 +83,8 @@ export function InchargesPage() {
   async function loadIncharges() {
 
     try {
+
+      setLoading(true);
 
       const data = await getAllIncharges();
 
@@ -54,6 +104,10 @@ export function InchargesPage() {
     } catch (error) {
 
       toast.error("Failed to load incharges.");
+
+    } finally {
+
+      setLoading(false);
 
     }
   }
@@ -117,7 +171,11 @@ export function InchargesPage() {
           </Button>
         }
       />
-      <DataTable data={items} columns={cols} searchKeys={["name", "email", "department", "username"]} />
+      {loading ? (
+        <InchargesSkeleton />
+      ) : (
+        <DataTable data={items} columns={cols} searchKeys={["name", "email", "department", "username"]} />
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
