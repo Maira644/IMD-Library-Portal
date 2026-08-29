@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { StatCard } from "@/components/shared/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { getAllBooks } from "@/api/book";
 import { getAllThesis } from "@/api/thesis";
 import { getCategories } from "@/api/category";
@@ -19,8 +20,16 @@ interface DashboardBook {
 }
 
 interface DashboardThesis {
+  id: string;
+  title: string;
+  studentNames: string[];
+  coverUrl?: string;
   uploadDate: string;
 }
+
+type RecentUpload =
+  | { type: "book"; id: string; title: string; subtitle: string; coverUrl?: string; uploadDate: string }
+  | { type: "thesis"; id: string; title: string; subtitle: string; coverUrl?: string; uploadDate: string };
 
 function isToday(dateStr: string) {
   if (!dateStr) return false;
@@ -30,7 +39,7 @@ function isToday(dateStr: string) {
 
 export function LibraryDashboard() {
   const [books, setBooks] = useState<DashboardBook[]>([]);
-  const [thesisCount, setThesisCount] = useState(0);
+  const [thesisList, setThesisList] = useState<DashboardThesis[]>([]);
   const [categoryCount, setCategoryCount] = useState(0);
   const [todayUploads, setTodayUploads] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -50,7 +59,7 @@ export function LibraryDashboard() {
         const allThesis: DashboardThesis[] = thesisRes.thesis ?? [];
 
         setBooks(allBooks);
-        setThesisCount(allThesis.length);
+        setThesisList(allThesis);
         setCategoryCount(categories.length);
 
         const todaysBooks = allBooks.filter((b) => isToday(b.uploadDate)).length;
@@ -66,7 +75,24 @@ export function LibraryDashboard() {
     load();
   }, []);
 
-  const recent = [...books]
+  const recentUploads: RecentUpload[] = [
+    ...books.map((b): RecentUpload => ({
+      type: "book",
+      id: b.id,
+      title: b.title,
+      subtitle: b.author,
+      coverUrl: b.coverUrl,
+      uploadDate: b.uploadDate,
+    })),
+    ...thesisList.map((t): RecentUpload => ({
+      type: "thesis",
+      id: t.id,
+      title: t.title,
+      subtitle: t.studentNames?.join(", ") ?? "",
+      coverUrl: t.coverUrl,
+      uploadDate: t.uploadDate,
+    })),
+  ]
     .sort((a, b) => +new Date(b.uploadDate) - +new Date(a.uploadDate))
     .slice(0, 5);
 
@@ -75,7 +101,7 @@ export function LibraryDashboard() {
       <PageHeader title="Library dashboard" description="Manage the catalog and stay on top of your uploads." />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Books" value={loading ? "..." : books.length} icon={BookOpen} />
-        <StatCard label="FYDP" value={loading ? "..." : thesisCount} icon={GraduationCap} />
+        <StatCard label="FYDP" value={loading ? "..." : thesisList.length} icon={GraduationCap} />
         <StatCard label="Categories" value={loading ? "..." : categoryCount} icon={Tags} />
         <StatCard label="Today's uploads" value={loading ? "..." : todayUploads} icon={Upload} />
       </div>
@@ -95,21 +121,33 @@ export function LibraryDashboard() {
           <CardContent className="divide-y p-0">
             {loading ? (
               <p className="p-4 text-sm text-muted-foreground">Loading...</p>
-            ) : recent.length === 0 ? (
-              <p className="p-4 text-sm text-muted-foreground">No books uploaded yet.</p>
+            ) : recentUploads.length === 0 ? (
+              <p className="p-4 text-sm text-muted-foreground">No uploads yet.</p>
             ) : (
-              recent.map((b) => (
-                <Link key={b.id} to={`/library/books/${b.id}`} className="flex items-center gap-3 p-4 hover:bg-muted/50">
-                  {b.coverUrl ? (
-                    <img src={b.coverUrl} alt="" className="h-12 w-9 rounded object-cover" />
+              recentUploads.map((item) => (
+                <Link
+                  key={`${item.type}-${item.id}`}
+                  to={item.type === "book" ? `/library/books/${item.id}` : `/library/thesis/${item.id}`}
+                  className="flex items-center gap-3 p-4 hover:bg-muted/50"
+                >
+                  {item.coverUrl ? (
+                    <img src={item.coverUrl} alt="" className="h-12 w-9 rounded object-cover" />
                   ) : (
                     <div className="h-12 w-9 rounded bg-muted" />
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{b.title}</p>
-                    <p className="truncate text-xs text-muted-foreground">{b.author}</p>
+                    <p className="truncate text-sm font-medium">{item.title}</p>
+                    <p className="truncate text-xs text-muted-foreground">{item.subtitle}</p>
                   </div>
-                  <span className="text-xs text-muted-foreground">{new Date(b.uploadDate).toLocaleDateString()}</span>
+                  <Badge variant="secondary" className="shrink-0">
+                    {item.type === "book" ? (
+                      <BookOpen className="mr-1 h-3 w-3" />
+                    ) : (
+                      <GraduationCap className="mr-1 h-3 w-3" />
+                    )}
+                    {item.type === "book" ? "Book" : "FYDP"}
+                  </Badge>
+                  <span className="shrink-0 text-xs text-muted-foreground">{new Date(item.uploadDate).toLocaleDateString()}</span>
                 </Link>
               ))
             )}
