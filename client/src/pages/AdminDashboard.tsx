@@ -119,7 +119,7 @@ export function AdminDashboard() {
 
   const fydpByYear = [...allFydpByYear]
     .sort((a, b) => b.year - a.year)
-    .slice(0, 12);
+    .slice(0, 10);
 
   const selectedYearData = allFydpByYear.find(
     (item) =>
