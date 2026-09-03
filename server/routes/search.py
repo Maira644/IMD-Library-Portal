@@ -7,7 +7,6 @@ from config.db import (
     search_keyword_collection,
 )
 
-
 router = APIRouter(
     prefix="/search",
     tags=["Search"]
@@ -22,7 +21,6 @@ router = APIRouter(
 async def search_library(
     q: str = Query(..., min_length=1)
 ):
-
     q = q.strip()
 
     regex = {
@@ -36,7 +34,7 @@ async def search_library(
     # ROLL NUMBER SEARCH
     #
     # If query starts with IM-, search ONLY FYDPs.
-    # Subtitle will show student roll numbers.
+    # No limit so ALL matching FYDPs are returned.
     # ========================================================
 
     if q.upper().startswith("IM-"):
@@ -46,7 +44,7 @@ async def search_library(
                 {
                     "studentRollNos": regex
                 }
-            ).limit(6)
+            )
         )
 
         for item in thesis:
@@ -85,10 +83,21 @@ async def search_library(
     # Searches both books and FYDPs.
     #
     # Books:
-    # subtitle = author
+    #   title
+    #   author
+    #   keywords
     #
     # FYDPs:
-    # subtitle = supervisor
+    #   title
+    #   student names
+    #   student roll numbers
+    #   keywords
+    # ========================================================
+
+    # ========================================================
+    # BOOK RESULTS
+    #
+    # Keep books limited to 6.
     # ========================================================
 
     books = list(
@@ -104,6 +113,16 @@ async def search_library(
     )
 
 
+    # ========================================================
+    # FYDP RESULTS
+    #
+    # IMPORTANT:
+    # No .limit(6) here.
+    #
+    # This means ALL FYDPs matching the search query
+    # will be returned.
+    # ========================================================
+
     thesis = list(
         thesis_collection.find(
             {
@@ -114,7 +133,7 @@ async def search_library(
                     {"keywords": regex},
                 ]
             }
-        ).limit(6)
+        )
     )
 
 
@@ -210,7 +229,6 @@ async def record_search(
     keyword = data.keyword.strip().lower()
 
     if not keyword:
-
         return {
             "message": "No keyword to record."
         }
