@@ -73,22 +73,22 @@ export function StudentDashboard() {
 
   const matchedBooks = isSearching
     ? books.filter(
-        (b) =>
-          matchesQuery(b.title, lowerQuery) ||
-          matchesQuery(b.author, lowerQuery) ||
-          matchesQuery(b.category, lowerQuery) ||
-          b.keywords?.some((k) => matchesQuery(k, lowerQuery))
-      )
+      (b) =>
+        matchesQuery(b.title, lowerQuery) ||
+        matchesQuery(b.author, lowerQuery) ||
+        matchesQuery(b.category, lowerQuery) ||
+        b.keywords?.some((k) => matchesQuery(k, lowerQuery))
+    )
     : [];
 
   const matchedThesis = isSearching
     ? thesis.filter(
-        (t) =>
-          matchesQuery(t.title, lowerQuery) ||
-          matchesQuery(t.department, lowerQuery) ||
-          t.studentNames?.some((n) => matchesQuery(n, lowerQuery)) ||
-          t.keywords?.some((k) => matchesQuery(k, lowerQuery))
-      )
+      (t) =>
+        matchesQuery(t.title, lowerQuery) ||
+        matchesQuery(t.department, lowerQuery) ||
+        t.studentNames?.some((n) => matchesQuery(n, lowerQuery)) ||
+        t.keywords?.some((k) => matchesQuery(k, lowerQuery))
+    )
     : [];
 
   const latestBooks = [...books]
@@ -160,17 +160,17 @@ export function StudentDashboard() {
           </form>
           <div className="mt-4 flex flex-wrap gap-2">
             {categories.slice(0, 6).map((c) => (
-              <Badge
+              <Link
                 key={c.id}
-                variant="secondary"
-                onClick={() => {
-                  setQ(c.name);
-                  track(c.name);
-                }}
-                className="cursor-pointer bg-white/15 text-primary-foreground hover:bg-white/25"
+                to={`/student/categories/${c.id}`}
               >
-                {c.name}
-              </Badge>
+                <Badge
+                  variant="secondary"
+                  className="cursor-pointer bg-white/15 text-primary-foreground hover:bg-white/25"
+                >
+                  {c.name}
+                </Badge>
+              </Link>
             ))}
           </div>
         </CardContent>
@@ -269,10 +269,19 @@ export function StudentDashboard() {
                   <p className="text-sm text-muted-foreground">No categories yet.</p>
                 ) : (
                   categories.map((c) => (
-                    <div key={c.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2">
-                      <span className="text-sm font-medium">{c.name}</span>
-                      <Badge variant="outline">{c.count}</Badge>
-                    </div>
+                    <Link
+                      key={c.id}
+                      to={`/student/categories/${c.id}`}
+                      className="flex items-center justify-between rounded-lg border border-border px-3 py-2 transition-colors hover:bg-muted/50 hover:border-primary/40 cursor-pointer"
+                    >
+                      <span className="text-sm font-medium">
+                        {c.name}
+                      </span>
+
+                      <Badge variant="outline">
+                        {c.count}
+                      </Badge>
+                    </Link>
                   ))
                 )}
               </CardContent>

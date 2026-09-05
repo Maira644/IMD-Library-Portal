@@ -371,7 +371,7 @@ export function AdminDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <GraduationCap className="h-4 w-4" />
-            FYDP by year
+            FYDP by Submission Year
           </CardTitle>
         </CardHeader>
 
@@ -442,7 +442,7 @@ export function AdminDashboard() {
           <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium">
-                Select a year
+                Select a submission year
               </span>
 
               <Select

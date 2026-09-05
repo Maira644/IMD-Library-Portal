@@ -33,21 +33,39 @@ export function StudentThesisPage() {
   }, []);
 
   const filtered = useMemo(() => {
-    let list = items;
+  let list = [...items];
 
-    if (q.trim()) {
-      const n = q.toLowerCase();
+  if (q.trim()) {
+    const n = q.toLowerCase();
 
-      list = list.filter(
-        (t) =>
-          t.title.toLowerCase().includes(n) ||
-          t.studentRollNos.some((s) => s.toLowerCase().includes(n))
-      );
+    list = list.filter(
+      (t) =>
+        t.title.toLowerCase().includes(n) ||
+        (Array.isArray(t.studentRollNos) &&
+          t.studentRollNos.some((r) =>
+            r.toLowerCase().includes(n)
+          ))
+    );
+  }
+
+  return list.sort((a, b) => {
+    // First: earliest year → latest year
+    const yearA = Number(a.submissionYear);
+    const yearB = Number(b.submissionYear);
+
+    if (yearA !== yearB) {
+      return yearB - yearA;
     }
 
-    return list;
-  }, [items, q]);
+    // Second: FY ID in numerical ascending order
+    const getIdNumber = (id: string) => {
+      const match = id.match(/\d+/);
+      return match ? Number(match[0]) : 0;
+    };
 
+    return getIdNumber(a.id) - getIdNumber(b.id);
+  });
+}, [items, q]);
   const columns: DataTableColumn<Thesis>[] = [
     {
       key: "id",
@@ -56,18 +74,22 @@ export function StudentThesisPage() {
       className: "w-28",
     },
     {
-      key: "title",
-      header: "Title",
-      sortable: true,
-      render: (t) => (
-        <div className="min-w-0">
-          <p className="truncate font-medium">{t.title}</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {t.studentRollNos?.join(", ") || "No students"}
-          </p>
-        </div>
-      ),
-    },
+    key: "title",
+    header: "Title",
+    sortable: true,
+    className: "w-[45%]",
+    render: (t) => (
+      <div className="min-w-0">
+        <p className="font-medium break-words whitespace-normal">
+          {t.title}
+        </p>
+
+        <p className="text-xs text-muted-foreground break-words whitespace-normal">
+          {t.studentRollNos?.join(", ") || "No students"}
+        </p>
+      </div>
+    ),
+  },
     {
       key: "department",
       header: "Department",
