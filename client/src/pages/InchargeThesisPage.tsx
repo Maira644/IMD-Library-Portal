@@ -100,26 +100,37 @@ export function InchargeThesisPage() {
 
   const filtered = useMemo(() => {
     let list = [...items];
-
+  
     if (q.trim()) {
       const n = q.toLowerCase();
-
+  
       list = list.filter(
         (t) =>
           t.title.toLowerCase().includes(n) ||
-          t.studentRollNos?.some((r) => r.toLowerCase().includes(n))
+          (Array.isArray(t.studentRollNos) &&
+            t.studentRollNos.some((r) =>
+              r.toLowerCase().includes(n)
+            ))
       );
     }
-
-    // Sort by FY ID
-    list.sort((a, b) => {
-      const idA = Number(a.id.replace("FY-", ""));
-      const idB = Number(b.id.replace("FY-", ""));
-
-      return idA - idB;
+  
+    return list.sort((a, b) => {
+      // First: earliest year → latest year
+      const yearA = Number(a.submissionYear);
+      const yearB = Number(b.submissionYear);
+  
+      if (yearA !== yearB) {
+        return yearB - yearA;
+      }
+  
+      // Second: FY ID in numerical ascending order
+      const getIdNumber = (id: string) => {
+        const match = id.match(/\d+/);
+        return match ? Number(match[0]) : 0;
+      };
+  
+      return getIdNumber(a.id) - getIdNumber(b.id);
     });
-
-    return list;
   }, [items, q]);
 
   const columns: DataTableColumn<Thesis>[] = [

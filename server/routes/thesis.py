@@ -59,7 +59,7 @@ async def create_thesis(
     if thesis_collection.find_one({"id": id}):
         raise HTTPException(
             status_code=400,
-            detail="Thesis ID already exists."
+            detail="FYDP ID already exists."
         )
 
     # --------------------------------------------------------
@@ -146,7 +146,7 @@ async def create_thesis(
 
     log_activity(
         actor=uploadedBy,
-        action="uploaded thesis",
+        action="uploaded FYDP",
         target=title
     )
 
@@ -169,7 +169,7 @@ async def create_thesis(
     )
 
     return {
-        "message": "Thesis created successfully.",
+        "message": "FYDP created successfully.",
         "thesis": thesis
     }
 
@@ -191,7 +191,7 @@ async def get_all_thesis():
         )
 
     return {
-        "message": "Thesis fetched successfully.",
+        "message": "FYDP fetched successfully.",
         "thesis": theses
     }
 
@@ -257,7 +257,7 @@ async def get_most_viewed_thesis():
         )
 
     return {
-        "message": "Most viewed thesis fetched successfully.",
+        "message": "Most viewed FYDP fetched successfully.",
         "thesis": thesis
     }
 
@@ -280,7 +280,7 @@ async def get_thesis_by_id(
     if not thesis:
         raise HTTPException(
             status_code=404,
-            detail="Thesis not found."
+            detail="FYDP not found."
         )
 
     thesis["_id"] = str(
@@ -288,7 +288,7 @@ async def get_thesis_by_id(
     )
 
     return {
-        "message": "Thesis fetched successfully.",
+        "message": "FYDP fetched successfully.",
         "thesis": thesis
     }
 
@@ -311,7 +311,7 @@ async def increment_thesis_view(
     if not thesis:
         raise HTTPException(
             status_code=404,
-            detail="Thesis not found."
+            detail="FYDP not found."
         )
 
     thesis_collection.update_one(
@@ -326,7 +326,7 @@ async def increment_thesis_view(
     )
 
     return {
-        "message": "Thesis view updated successfully."
+        "message": "FYDP view updated successfully."
     }
 
 
@@ -369,7 +369,7 @@ async def update_thesis(
     if not existing:
         raise HTTPException(
             status_code=404,
-            detail="Thesis not found."
+            detail="FYDP not found."
         )
 
     # --------------------------------------------------------
@@ -531,12 +531,12 @@ async def update_thesis(
 
     log_activity(
         actor=uploadedBy,
-        action="updated thesis",
+        action="updated FYDP",
         target=title
     )
 
     return {
-        "message": "Thesis updated successfully.",
+        "message": "FYDP updated successfully.",
         "thesis": updated
     }
 
@@ -563,7 +563,7 @@ async def delete_thesis(
     if not thesis:
         raise HTTPException(
             status_code=404,
-            detail="Thesis not found."
+            detail="FYDP not found."
         )
 
     # --------------------------------------------------------
@@ -616,10 +616,10 @@ async def delete_thesis(
 
     log_activity(
         actor=thesis["uploadedBy"],
-        action="deleted thesis",
+        action="deleted FYDP",
         target=thesis["title"]
     )
 
     return {
-        "message": "Thesis deleted successfully."
+        "message": "FYDP deleted successfully."
     }
