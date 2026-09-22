@@ -13,8 +13,52 @@ import { Badge } from "@/components/ui/badge";
 
 import { getCategories } from "@/api/category";
 
+// Skeleton loader shown while categories are being fetched
+function StudentCategoriesSkeleton() {
+  return (
+    <div className="rounded-md border overflow-hidden">
+      <style>{`
+        @keyframes student-cat-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        .student-cat-shimmer {
+          background: linear-gradient(
+            90deg,
+            hsl(var(--muted)) 25%,
+            hsl(var(--muted-foreground) / 0.25) 50%,
+            hsl(var(--muted)) 75%
+          );
+          background-size: 200% 100%;
+          animation: student-cat-shimmer 1.4s ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="flex items-center justify-center gap-2 py-6 border-b bg-muted/30">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="text-sm font-medium text-muted-foreground">
+          Loading categories...
+        </span>
+      </div>
+
+      <div className="divide-y">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-4 py-4">
+            <div className="h-5 w-5 shrink-0 rounded student-cat-shimmer" />
+            <div className="h-4 w-32 shrink-0 rounded student-cat-shimmer" />
+            <div className="h-4 flex-1 rounded student-cat-shimmer" />
+            <div className="h-6 w-12 shrink-0 rounded-full student-cat-shimmer" />
+            <div className="h-6 w-12 shrink-0 rounded-full student-cat-shimmer" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function StudentCategoriesPage() {
   const [items, setItems] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
 
@@ -24,11 +68,14 @@ export function StudentCategoriesPage() {
 
   const fetchCategories = async () => {
     try {
+      setLoading(true);
       const categories = await getCategories();
       setItems(categories);
     } catch (error) {
       console.error(error);
       toast.error("Failed to load categories.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -92,13 +139,17 @@ export function StudentCategoriesPage() {
         />
       </div>
 
-      <DataTable
-        data={filtered}
-        columns={cols}
-        onRowClick={(category) =>
-          navigate(`/student/categories/${category.id}`)
-        }
-      />
+      {loading ? (
+        <StudentCategoriesSkeleton />
+      ) : (
+        <DataTable
+          data={filtered}
+          columns={cols}
+          onRowClick={(category) =>
+            navigate(`/student/categories/${category.id}`)
+          }
+        />
+      )}
     </div>
   );
 }

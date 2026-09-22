@@ -86,7 +86,7 @@ export function StudentDashboard() {
       (t) =>
         matchesQuery(t.title, lowerQuery) ||
         matchesQuery(t.department, lowerQuery) ||
-        t.studentNames?.some((n) => matchesQuery(n, lowerQuery)) ||
+        t.studentRollNos?.some((n) => matchesQuery(n, lowerQuery)) ||
         t.keywords?.some((k) => matchesQuery(k, lowerQuery))
     )
     : [];
