@@ -27,9 +27,57 @@ import type { Book, Category } from "@/types";
 
 const HREF_BASE = "/student/books";
 
+// Skeleton loader shown while books are being fetched
+function StudentBooksSkeleton() {
+  return (
+    <div className="rounded-md border overflow-hidden">
+      <style>{`
+        @keyframes student-books-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        .student-books-shimmer {
+          background: linear-gradient(
+            90deg,
+            hsl(var(--muted)) 25%,
+            hsl(var(--muted-foreground) / 0.25) 50%,
+            hsl(var(--muted)) 75%
+          );
+          background-size: 200% 100%;
+          animation: student-books-shimmer 1.4s ease-in-out infinite;
+        }
+      `}</style>
+
+      <div className="flex items-center justify-center gap-2 py-6 border-b bg-muted/30">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="text-sm font-medium text-muted-foreground">
+          Loading books...
+        </span>
+      </div>
+
+      <div className="divide-y">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-4 py-4">
+            <div className="h-4 w-14 shrink-0 rounded student-books-shimmer" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-1/2 rounded student-books-shimmer" />
+              <div className="h-3 w-1/3 rounded student-books-shimmer" />
+            </div>
+            <div className="h-5 w-20 shrink-0 rounded-full student-books-shimmer" />
+            <div className="h-4 w-10 shrink-0 rounded student-books-shimmer" />
+            <div className="h-4 w-24 shrink-0 rounded student-books-shimmer" />
+            <div className="h-5 w-12 shrink-0 rounded-full student-books-shimmer" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function StudentBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("all");
@@ -45,10 +93,13 @@ export function StudentBooksPage() {
 
   async function fetchBooks() {
     try {
+      setLoading(true);
       const response = await getAllBooks();
       setBooks(response.books);
     } catch (error) {
       console.error("Failed to fetch books:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -198,12 +249,16 @@ export function StudentBooksPage() {
         <div className="flex rounded-md border border-border" />
       </div>
 
-      <DataTable
-        data={filtered}
-        columns={columns}
-        searchKeys={["title", "author", "category"]}
-        onRowClick={(book) => navigate(`${HREF_BASE}/${book.id}`)}
-      />
+      {loading ? (
+        <StudentBooksSkeleton />
+      ) : (
+        <DataTable
+          data={filtered}
+          columns={columns}
+          searchKeys={["title", "author", "category"]}
+          onRowClick={(book) => navigate(`${HREF_BASE}/${book.id}`)}
+        />
+      )}
     </div>
   );
 }
